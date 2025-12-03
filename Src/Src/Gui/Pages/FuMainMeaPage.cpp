@@ -42,14 +42,19 @@ void TF::FuMainMeaPage::initForm() {
 
     //设置解码结构体参数(具体含义参见结构体定义)
     VideoPara videoPara = mUi->mVideoWid->getVideoPara();
-    videoPara.videoCore = VideoHelper::getVideoCore();
+    videoPara.videoCore =
+        VideoHelper::getVideoCore();
     videoPara.decodeType = DecodeType_Fast;
     videoPara.hardware = "none";
     videoPara.transport = "tcp";
     videoPara.playRepeat = false;
     videoPara.readTimeout = 0;
-    videoPara.connectTimeout = 1000;
+    videoPara.connectTimeout = 2000;
+    videoPara.decodeAudio = false;
+    videoPara.playAudio = false;
     mUi->mVideoWid->setVideoPara(videoPara);
+
+    mUi->mVideoWid->hideButtonAll();
 
     mVideoWid = mUi->mVideoWid;
 }

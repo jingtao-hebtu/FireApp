@@ -2,16 +2,23 @@
 # *
 # *
 
-set(Qt6_Version "6.9.1")
+if(UNIX)
+    set(Qt6_Version "6.7.3")
+    set(Qt6_Base_DIR "/data/Qt/${Qt6_Version}/gcc_arm64")
+    set(Qt6_DIR "/data/Qt/${Qt6_Version}/gcc_arm64")
+elseif(WIN32)
+    set(Qt6_Version "6.9.1")
+    set(Qt6_Base_DIR "D:/Software/Qt/${Qt6_Version}/msvc2022_64")
+    set(Qt6_DIR "D:/Software/Qt/${Qt6_Version}/msvc2022_64")
+endif()
 
-set(Qt6_Base_DIR "D:/Software/Qt/${Qt6_Version}/msvc2022_64")
-set(Qt6_DIR "D:/Software/Qt/${Qt6_Version}/msvc2022_64")
 set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${Qt6_DIR};")
 set(ENV{PATH} "${Qt6_DIR}/bin;$ENV{PATH}")
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
+
 
 find_package(Qt6 COMPONENTS
         Core

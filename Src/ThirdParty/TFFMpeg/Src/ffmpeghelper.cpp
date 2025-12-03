@@ -87,7 +87,7 @@ void FFmpegHelper::initOption(AVDictionary **options, int caching, const QString
     av_dict_set(options, "max_delay", "1000000", 0);
     //自动开启线程数
     //av_dict_set(options, "threads", "auto", 0);
-    av_dict_set(options, "threads", "8", 0);
+    av_dict_set(options, "threads", "12", 0);
 
     //通信协议采用tcp还是udp(udp优点是无连接/在网线拔掉以后十几秒钟重新插上还能继续接收/缺点是网络不好的情况下会丢包花屏)
     if (transport != "auto") {

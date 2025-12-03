@@ -39,7 +39,6 @@ target_link_libraries(${PROJECT_NAME}
         ${QT_LIBS}
         ${T_FFMPEG_LIBS}
         ${T_UTIL_LIB}
-        ws2_32
 )
 
 

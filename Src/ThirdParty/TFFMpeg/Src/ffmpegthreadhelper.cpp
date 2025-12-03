@@ -74,6 +74,8 @@ void FFmpegThreadHelper::checkUseSync(FFmpegThread *thread, int videoIndex, int 
         useSync = true;
     }
 
+    useSync = false;
+
     thread->debug(0, "同步策略", QString("同步: %1 类型: %2").arg(useSync ? "启用" : "禁用").arg(mediaType));
 }
 

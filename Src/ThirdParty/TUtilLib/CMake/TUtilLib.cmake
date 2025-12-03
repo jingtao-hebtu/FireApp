@@ -1,5 +1,4 @@
 
-
 include_directories(${TUTIL_THIRD_LIB_PATH}/Inc)
 
 if (UNIX)

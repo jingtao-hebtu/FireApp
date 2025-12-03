@@ -5,6 +5,9 @@
 #include <QAbstractButton>
 
 
+class QToolButton;
+
+
 class CommonNav
 {
 public:

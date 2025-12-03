@@ -1,5 +1,7 @@
 ﻿#include "deviceinfohelper.h"
 #include "qapplication.h"
+#include <QProcess>
+
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 
