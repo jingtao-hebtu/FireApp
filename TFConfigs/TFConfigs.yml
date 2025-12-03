@@ -1,0 +1,3 @@
+#VideoURL: "E:\\Project\\Fire\\FireDet\\Data\\Video\\C0201-1.mp4"
+VideoURL: "rtsp://127.0.0.1:8554/mystream"
+LowLatencyMode: false

@@ -1,0 +1,66 @@
+TechButtonBase, TF--TechButtonBase {
+    color: #f4f8ff;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0d182a, stop:1 #0a1220);
+    border: 2px solid #1f2f4a;
+    border-radius: 14px;
+    padding: 18px 24px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    qproperty-iconSize: 22px 22px;
+}
+
+TechButtonBase:hover, TF--TechButtonBase:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #12233a, stop:1 #0d1830);
+    border-color: #5db8ff;
+    color: #ffffff;
+}
+
+TechButtonBase:pressed, TF--TechButtonBase:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #091222, stop:1 #070d18);
+    border-color: #1e2b42;
+    padding-top: 20px;
+    padding-bottom: 16px;
+}
+
+TechToggleButton, TF--TechToggleButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0f2036, stop:1 #0b1a2d);
+    border: 1px solid #2c3f5e;
+    outline: none;
+}
+
+TechToggleButton:hover, TF--TechToggleButton:hover {
+    border-color: #6be4ff;
+    outline: none;
+}
+
+TechToggleButton:checked, TF--TechToggleButton:checked {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0e3c5c, stop:1 #0a2745);
+    border: 1px solid #3ad1f8;
+    color: #d8fff6;
+    outline-color: none;
+}
+
+TechToggleButton:checked:hover, TF--TechToggleButton:checked:hover {
+    border-color: #86ffef;
+    color: #b4fff4;
+    outline: none;
+}
+
+TechActionButton, TF--TechActionButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1a2d4a, stop:1 #13233b);
+    border: 1px solid #2f4466;
+    outline: none;
+}
+
+TechActionButton:hover, TF--TechActionButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #203553, stop:1 #162a44);
+    border-color: #7ac6ff;
+    outline: none;
+}
+
+TechActionButton:pressed, TF--TechActionButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #111c2d, stop:1 #0b1321);
+    border-color: #23344f;
+    outline: none;
+}
