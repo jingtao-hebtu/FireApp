@@ -30,6 +30,8 @@ add_executable(${PROJECT_NAME} #WIN32
         ${EP_MAIN_SRC_FILES}
 )
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
+
 
 set(APP_ICON_RESOURCE "${EP_MAIN_SRC_DIR}/Res/app_icon.rc")
 target_sources(${PROJECT_NAME} PRIVATE ${APP_ICON_RESOURCE})
@@ -39,6 +41,10 @@ target_link_libraries(${PROJECT_NAME}
         ${QT_LIBS}
         ${T_FFMPEG_LIBS}
         ${T_UTIL_LIB}
+        ${OpenCV_LIBRARIES}
+        ${ONNX_RUNTIME_LIBS}
+        CUDA::cudart
+        CUDA::cublas
 )
 
 
