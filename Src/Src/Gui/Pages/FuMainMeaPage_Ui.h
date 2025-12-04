@@ -33,6 +33,12 @@ namespace TF {
 
         QVBoxLayout *mMainVLayout{};
         VideoWidget *mVideoWid{};
+        QWidget *mVideoArea{};
+        QHBoxLayout *mVideoHLayout{};
+        QWidget *mVideoSideWid{};
+        QVBoxLayout *mVideoSideVLayout{};
+        QWidget *mInfraredVideoWid{};
+        QWidget *mStatisticsWid{};
 
         QWidget *mCtrlWid{};
         QHBoxLayout *mCtrlHLayout{};
