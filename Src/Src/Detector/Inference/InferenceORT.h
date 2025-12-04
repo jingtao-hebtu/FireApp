@@ -45,7 +45,8 @@ namespace TF {
 
     typedef struct _DL_INIT_PARAM {
         std::string modelPath;
-        MODEL_TYPE modelType = YOLO_DETECT;
+        //MODEL_TYPE modelType = YOLO_DETECT;
+        MODEL_TYPE modelType = YOLO_SEG;
         std::vector<int> imgSize = {TF_DETECT_IMG_SIZE, TF_DETECT_IMG_SIZE};
         float rectConfidenceThreshold = 0.6f;
         float iouThreshold = 0.5f;
@@ -101,6 +102,7 @@ namespace TF {
         cv::Mat sigmoid(const cv::Mat& src);
 
     public:
+        /*
         std::vector<std::string> classes{
                 "introduction_device",
                 "introduction_device_not_sealed",
@@ -111,6 +113,9 @@ namespace TF {
                 "ground_wire_label",
                 "ground_wire",
                 "tar_box"
+        };*/
+        std::vector<std::string> classes{
+            "fire"
         };
 
     private:
@@ -128,8 +133,14 @@ namespace TF {
         float mResizeScales {1080.0f / 800.0f};
         cv::Size mOriginalImgSize{};
 
+        float mResizeScaleX {1.0f};
+        float mResizeScaleY {1.0f};
+
         float modelScoreThreshold{0.45f};
         float modelNMSThreshold{0.50f};
+
+        int nc_ = 0;
+        int nm_ = 0;
     };
 
 };

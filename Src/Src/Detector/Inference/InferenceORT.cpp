@@ -45,7 +45,8 @@ TF::InferenceORT::InferenceORT(const std::string &model_path) {
     params.cudaEnable = true;
 
     // GPU FP32 inference
-    params.modelType = YOLO_DETECT;
+    //params.modelType = YOLO_DETECT;
+    params.modelType = YOLO_SEG;
     // GPU FP16 inference
     //Note: change fp16 onnx model
     //params.modelType = YOLO_DETECT_HALF;
@@ -148,6 +149,8 @@ void PrepareInputTensor(cv::Mat& matImg, Ort::Value& inputTensor, int width, int
 
 void TF::InferenceORT::PreProcess(cv::Mat &iImg, std::vector<int> iImgSize, cv::Mat &oImg) {
     mResizeScales = iImg.cols / (float) iImgSize.at(0);
+    mResizeScaleX = static_cast<float>(mOriginalImgSize.width)  / iImgSize.at(0); // W0 / 640
+    mResizeScaleY = static_cast<float>(mOriginalImgSize.height) / iImgSize.at(1); // H0 / 640
     cv::resize(iImg, oImg, cv::Size(iImgSize.at(0), iImgSize.at(1)));
 }
 
@@ -205,6 +208,32 @@ bool TF::InferenceORT::CreateSession(DL_INIT_PARAM &iParams) {
             outputNodeNames.push_back(temp_buf);
         }
         options = Ort::RunOptions{nullptr};
+
+        auto out0_info = mSession->GetOutputTypeInfo(0).GetTensorTypeAndShapeInfo();
+        auto out0_shape = out0_info.GetShape();  // [1, no, N]
+        int64_t no = out0_shape[1];
+
+        if (modelType == YOLO_SEG || modelType == YOLO_SEG_HALF) {
+            // 第 1 个输出是 proto: [1, nm, H, W]
+            auto out1_info = mSession->GetOutputTypeInfo(1).GetTensorTypeAndShapeInfo();
+            auto out1_shape = out1_info.GetShape();
+            nm_ = static_cast<int>(out1_shape[1]);              // nm
+            nc_ = static_cast<int>(no - 4 - nm_);               // 4 + nc + nm = no
+        } else {
+            nm_ = 0;
+            nc_ = static_cast<int>(no - 4);                     // 4 + nc = no
+        }
+
+        LOG_F(INFO, "Model head: no=%lld, nc=%d, nm=%d",
+              static_cast<long long>(no), nc_, nm_);
+
+        if (nc_ != static_cast<int>(classes.size())) {
+            LOG_F(WARNING,
+                  "classes.size() = %zu 与模型 nc = %d 不一致，"
+                  "推理时将按 nc 进行切片，classes 仅用于可视化名称。",
+                  classes.size(), nc_);
+        }
+
         WarmUpSession();
         return true;
     }
@@ -219,8 +248,10 @@ void TF::InferenceORT::RunSession(cv::Mat &iImg, std::vector<DL_RESULT> &oResult
     if (modelType == YOLO_DETECT || modelType == YOLO_POSE || modelType == YOLO_CLS || modelType == YOLO_SEG) {
 #ifdef USE_CUDA
         Ort::Value inputTensor {nullptr};
-        PrepareInputTensor(iImg, inputTensor, 800, 800);
+        PrepareInputTensor(iImg, inputTensor, TF_DETECT_IMG_SIZE, TF_DETECT_IMG_SIZE);
         mResizeScales = iImg.cols / (float) imgSize.at(0);
+        mResizeScaleX = static_cast<float>(mOriginalImgSize.width)  / imgSize.at(0);
+        mResizeScaleY = static_cast<float>(mOriginalImgSize.height) / imgSize.at(1);
         std::vector<int64_t> inputNodeDims = {1, 3, imgSize.at(0), imgSize.at(1)};
         TensorProcess(inputTensor, inputNodeDims, oResult);
 #else
@@ -271,7 +302,7 @@ bool TF::InferenceORT::TensorProcess(N &blob, std::vector<int64_t> &inputNodeDim
             std::vector<cv::Rect> boxes;
             std::vector<cv::Mat> masks;
             cv::Mat rawData;
-            if (modelType == YOLO_DETECT) {
+            if (modelType == YOLO_DETECT || modelType == YOLO_SEG) {
                 // FP32
                 rawData = cv::Mat(signalResultNum, strideNum, CV_32F, output);
             } else {
@@ -295,7 +326,8 @@ bool TF::InferenceORT::TensorProcess(N &blob, std::vector<int64_t> &inputNodeDim
 
             for (int i = 0; i < strideNum; ++i) {
                 float *classesScores = data + 4;
-                cv::Mat scores(1, this->classes.size(), CV_32FC1, classesScores);
+                //cv::Mat scores(1, this->classes.size(), CV_32FC1, classesScores);
+                cv::Mat scores(1, nc_, CV_32FC1, classesScores);
                 cv::Point class_id;
                 double maxClassScore;
                 cv::minMaxLoc(scores, 0, &maxClassScore, 0, &class_id);
@@ -307,16 +339,16 @@ bool TF::InferenceORT::TensorProcess(N &blob, std::vector<int64_t> &inputNodeDim
                     float w = data[2];
                     float h = data[3];
 
-                    int left = int((x - 0.5 * w) * mResizeScales);
-                    int top = int((y - 0.5 * h) * mResizeScales);
-
-                    int width = int(w * mResizeScales);
-                    int height = int(h * mResizeScales);
+                    int left   = static_cast<int>((x - 0.5f * w) * mResizeScaleX);
+                    int top    = static_cast<int>((y - 0.5f * h) * mResizeScaleY);
+                    int width  = static_cast<int>(w * mResizeScaleX);
+                    int height = static_cast<int>(h * mResizeScaleY);
 
                     boxes.push_back(cv::Rect(left, top, width, height));
 
                     if (!protoData.empty()) {
-                        int maskStart = 4 + static_cast<int>(this->classes.size());
+                        //int maskStart = 4 + static_cast<int>(this->classes.size());
+                        int maskStart = 4 + nc_;
                         int maskDim = signalResultNum - maskStart;
                         if (maskDim > 0) {
                             cv::Mat maskCoef(1, maskDim, CV_32F, data + maskStart);
@@ -387,7 +419,7 @@ void TF::InferenceORT::WarmUpSession() {
     cv::Mat iImg = cv::Mat(cv::Size(imgSize.at(0), imgSize.at(1)), CV_8UC3);
     cv::Mat processedImg;
     PreProcess(iImg, imgSize, processedImg);
-    if (modelType < 4) {
+    if (modelType < 5) {
         float *blob = new float[iImg.total() * 3];
         BlobFromImage(processedImg, blob);
         std::vector<int64_t> YOLO_input_node_dims = {1, 3, imgSize.at(0), imgSize.at(1)};
@@ -427,12 +459,12 @@ std::vector<TF::Detection> TF::InferenceORT::runInference(const cv::Mat &input) 
 
     analysisDetResults(0, det_rets, class_ids, confidences, boxes, masks);
 
-    std::vector<int> nms_result;
-    cv::dnn::NMSBoxes(boxes, confidences, modelScoreThreshold, modelNMSThreshold, nms_result);
+    //std::vector<int> nms_result;
+    //cv::dnn::NMSBoxes(boxes, confidences, modelScoreThreshold, modelNMSThreshold, nms_result);
 
     std::vector<Detection> detections{};
-    for (unsigned long i = 0; i < nms_result.size(); ++i) {
-        int idx = nms_result[i];
+    for (unsigned long i = 0; i < class_ids.size(); ++i) {
+        int idx = i;
 
         Detection result;
         result.class_id = class_ids[idx];
@@ -526,16 +558,16 @@ bool TF::InferenceORT::TensorProcess(Ort::Value &inputTensor, std::vector<int64_
             float w = data[2];
             float h = data[3];
 
-            int left = int((x - 0.5 * w) * mResizeScales);
-            int top = int((y - 0.5 * h) * mResizeScales);
-
-            int width = int(w * mResizeScales);
-            int height = int(h * mResizeScales);
+            int left   = static_cast<int>((x - 0.5f * w) * mResizeScaleX);
+            int top    = static_cast<int>((y - 0.5f * h) * mResizeScaleY);
+            int width  = static_cast<int>(w * mResizeScaleX);
+            int height = static_cast<int>(h * mResizeScaleY);
 
             boxes.push_back(cv::Rect(left, top, width, height));
 
             if (!protoData.empty()) {
-                int maskStart = 4 + static_cast<int>(this->classes.size());
+                //int maskStart = 4 + static_cast<int>(this->classes.size());
+                int maskStart = 4 + nc_;
                 int maskDim = signalResultNum - maskStart;
                 if (maskDim > 0) {
                     cv::Mat maskCoef(1, maskDim, CV_32F, data + maskStart);
