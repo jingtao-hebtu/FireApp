@@ -2,6 +2,11 @@
 #include "videowidgetx.h"
 #include "FuVideoButtons.h"
 
+#include <QHBoxLayout>
+#include <QSizePolicy>
+#include <QVBoxLayout>
+#include <QWidget>
+
 
 void TF::FuMainMeaPage_Ui::setupUi(QWidget* wid) {
     mWid = wid;
@@ -19,10 +24,37 @@ void TF::FuMainMeaPage_Ui::setupUi(QWidget* wid) {
 }
 
 void TF::FuMainMeaPage_Ui::initVideoArea() {
-    mVideoWid = new VideoWidget(mWid);
-    mVideoWid->setObjectName("VideoWid");
+    mVideoArea = new QWidget(mWid);
+    mVideoArea->setObjectName("VideoArea");
+    mVideoHLayout = new QHBoxLayout(mVideoArea);
+    mVideoHLayout->setSpacing(6);
+    mVideoHLayout->setContentsMargins(0, 0, 0, 0);
 
-    mMainVLayout->addWidget(mVideoWid);
+    mVideoWid = new VideoWidget(mVideoArea);
+    mVideoWid->setObjectName("VideoWid");
+    mVideoWid->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    mVideoSideWid = new QWidget(mVideoArea);
+    mVideoSideWid->setObjectName("VideoSideWid");
+    mVideoSideVLayout = new QVBoxLayout(mVideoSideWid);
+    mVideoSideVLayout->setSpacing(6);
+    mVideoSideVLayout->setContentsMargins(0, 0, 0, 0);
+
+    mInfraredVideoWid = new QWidget(mVideoSideWid);
+    mInfraredVideoWid->setObjectName("InfraredVideoWid");
+    mInfraredVideoWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
+    mStatisticsWid = new QWidget(mVideoSideWid);
+    mStatisticsWid->setObjectName("StatisticsWid");
+    mStatisticsWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
+    mVideoSideVLayout->addWidget(mInfraredVideoWid);
+    mVideoSideVLayout->addWidget(mStatisticsWid);
+
+    mVideoHLayout->addWidget(mVideoWid, 3);
+    mVideoHLayout->addWidget(mVideoSideWid, 2);
+
+    mMainVLayout->addWidget(mVideoArea);
 }
 
 void TF::FuMainMeaPage_Ui::initCtrlArea() {
