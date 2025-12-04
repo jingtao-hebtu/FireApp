@@ -215,7 +215,8 @@ bool TF::InferenceORT::CreateSession(DL_INIT_PARAM &iParams) {
 }
 
 void TF::InferenceORT::RunSession(cv::Mat &iImg, std::vector<DL_RESULT> &oResult) {
-    if (modelType < 4) {
+    mOriginalImgSize = iImg.size();
+    if (modelType == YOLO_DETECT || modelType == YOLO_POSE || modelType == YOLO_CLS || modelType == YOLO_SEG) {
 #ifdef USE_CUDA
         Ort::Value inputTensor {nullptr};
         PrepareInputTensor(iImg, inputTensor, 800, 800);
@@ -260,12 +261,15 @@ bool TF::InferenceORT::TensorProcess(N &blob, std::vector<int64_t> &inputNodeDim
     delete[] blob;
     switch (modelType) {
         case YOLO_DETECT:
-        case YOLO_DETECT_HALF: {
+        case YOLO_DETECT_HALF:
+        case YOLO_SEG:
+        case YOLO_SEG_HALF: {
             int signalResultNum = outputNodeDims[1];//84
             int strideNum = outputNodeDims[2];//8400
             std::vector<int> class_ids;
             std::vector<float> confidences;
             std::vector<cv::Rect> boxes;
+            std::vector<cv::Mat> masks;
             cv::Mat rawData;
             if (modelType == YOLO_DETECT) {
                 // FP32
@@ -277,6 +281,17 @@ bool TF::InferenceORT::TensorProcess(N &blob, std::vector<int64_t> &inputNodeDim
             }
             rawData = rawData.t();
             float *data = (float *) rawData.data;
+
+            cv::Mat protoData;
+            int protoHeight = 0;
+
+            if (outputTensor.size() > 1 && (modelType == YOLO_SEG || modelType == YOLO_SEG_HALF)) {
+                auto protoInfo = outputTensor[1].GetTensorTypeAndShapeInfo();
+                auto protoShape = protoInfo.GetShape();
+                protoHeight = static_cast<int>(protoShape[2]);
+                protoData = cv::Mat(static_cast<int>(protoShape[1]), protoHeight * static_cast<int>(protoShape[3]), CV_32F,
+                                    outputTensor[1].GetTensorMutableData<float>());
+            }
 
             for (int i = 0; i < strideNum; ++i) {
                 float *classesScores = data + 4;
@@ -299,6 +314,29 @@ bool TF::InferenceORT::TensorProcess(N &blob, std::vector<int64_t> &inputNodeDim
                     int height = int(h * mResizeScales);
 
                     boxes.push_back(cv::Rect(left, top, width, height));
+
+                    if (!protoData.empty()) {
+                        int maskStart = 4 + static_cast<int>(this->classes.size());
+                        int maskDim = signalResultNum - maskStart;
+                        if (maskDim > 0) {
+                            cv::Mat maskCoef(1, maskDim, CV_32F, data + maskStart);
+                            cv::Mat mask = maskCoef * protoData;
+                            mask = mask.reshape(1, protoHeight);
+                            mask = sigmoid(mask);
+
+                            cv::resize(mask, mask, cv::Size(imgSize.at(0), imgSize.at(1)));
+                            cv::resize(mask, mask, mOriginalImgSize);
+
+                            cv::Rect roi = boxes.back() & cv::Rect(0, 0, mask.cols, mask.rows);
+                            cv::Mat boxMask = cv::Mat::zeros(mOriginalImgSize, CV_8UC1);
+                            if (roi.width > 0 && roi.height > 0) {
+                                cv::Mat maskCrop = mask(roi) > 0.5;
+                                maskCrop.convertTo(maskCrop, CV_8UC1, 255.0);
+                                maskCrop.copyTo(boxMask(roi));
+                            }
+                            masks.push_back(boxMask);
+                        }
+                    }
                 }
                 data += signalResultNum;
             }
@@ -310,6 +348,9 @@ bool TF::InferenceORT::TensorProcess(N &blob, std::vector<int64_t> &inputNodeDim
                 result.classId = class_ids[idx];
                 result.confidence = confidences[idx];
                 result.box = boxes[idx];
+                if (!masks.empty() && idx < masks.size()) {
+                    result.mask = masks[idx];
+                }
                 oResult.push_back(result);
             }
             break;
@@ -378,12 +419,13 @@ std::vector<TF::Detection> TF::InferenceORT::runInference(const cv::Mat &input) 
     std::vector<int> class_ids;
     std::vector<float> confidences;
     std::vector<cv::Rect> boxes;
+    std::vector<cv::Mat> masks;
 
     // Detect sub images
     std::vector<DL_RESULT> det_rets;
     RunSession(frame, det_rets);
 
-    analysisDetResults(0, det_rets, class_ids, confidences, boxes);
+    analysisDetResults(0, det_rets, class_ids, confidences, boxes, masks);
 
     std::vector<int> nms_result;
     cv::dnn::NMSBoxes(boxes, confidences, modelScoreThreshold, modelNMSThreshold, nms_result);
@@ -399,6 +441,9 @@ std::vector<TF::Detection> TF::InferenceORT::runInference(const cv::Mat &input) 
 
         result.className = classes[result.class_id];
         result.box = boxes[idx];
+        if (!masks.empty() && idx < masks.size()) {
+            result.mask = masks[idx];
+        }
 
         detections.push_back(result);
     }
@@ -410,7 +455,8 @@ void TF::InferenceORT::analysisDetResults(int x_offset,
                                             const std::vector<DL_RESULT> &detect_rets,
                                             std::vector<int> &class_ids,
                                             std::vector<float> &confidences,
-                                            std::vector<cv::Rect> &boxes) {
+                                            std::vector<cv::Rect> &boxes,
+                                            std::vector<cv::Mat> &masks) {
     for (auto detect_ret: detect_rets) {
         class_ids.emplace_back(detect_ret.classId);
         confidences.emplace_back(detect_ret.confidence);
@@ -420,7 +466,15 @@ void TF::InferenceORT::analysisDetResults(int x_offset,
         auto w = detect_ret.box.width;
         auto h = detect_ret.box.height;
         boxes.emplace_back(x + x_offset, y, w, h);
+        masks.emplace_back(detect_ret.mask);
     }
+}
+
+cv::Mat TF::InferenceORT::sigmoid(const cv::Mat &src) {
+    cv::Mat dst;
+    cv::exp(-src, dst);
+    dst = 1.0 / (1.0 + dst);
+    return dst;
 }
 
 bool TF::InferenceORT::TensorProcess(Ort::Value &inputTensor, std::vector<int64_t> &inputNodeDims,
@@ -442,10 +496,21 @@ bool TF::InferenceORT::TensorProcess(Ort::Value &inputTensor, std::vector<int64_
     std::vector<int> class_ids;
     std::vector<float> confidences;
     std::vector<cv::Rect> boxes;
+    std::vector<cv::Mat> masks;
     cv::Mat rawData;
     rawData = cv::Mat(signalResultNum, strideNum, CV_32F, output);
     rawData = rawData.t();
     float *data = (float *) rawData.data;
+
+    cv::Mat protoData;
+    int protoHeight = 0;
+    if (outputTensor.size() > 1 && (modelType == YOLO_SEG || modelType == YOLO_SEG_HALF)) {
+        auto protoInfo = outputTensor[1].GetTensorTypeAndShapeInfo();
+        auto protoShape = protoInfo.GetShape();
+        protoHeight = static_cast<int>(protoShape[2]);
+        protoData = cv::Mat(static_cast<int>(protoShape[1]), protoHeight * static_cast<int>(protoShape[3]), CV_32F,
+                            outputTensor[1].GetTensorMutableData<float>());
+    }
 
     for (int i = 0; i < strideNum; ++i) {
         float *classesScores = data + 4;
@@ -468,6 +533,29 @@ bool TF::InferenceORT::TensorProcess(Ort::Value &inputTensor, std::vector<int64_
             int height = int(h * mResizeScales);
 
             boxes.push_back(cv::Rect(left, top, width, height));
+
+            if (!protoData.empty()) {
+                int maskStart = 4 + static_cast<int>(this->classes.size());
+                int maskDim = signalResultNum - maskStart;
+                if (maskDim > 0) {
+                    cv::Mat maskCoef(1, maskDim, CV_32F, data + maskStart);
+                    cv::Mat mask = maskCoef * protoData;
+                    mask = mask.reshape(1, protoHeight);
+                    mask = sigmoid(mask);
+
+                    cv::resize(mask, mask, cv::Size(imgSize.at(0), imgSize.at(1)));
+                    cv::resize(mask, mask, mOriginalImgSize);
+
+                    cv::Rect roi = boxes.back() & cv::Rect(0, 0, mask.cols, mask.rows);
+                    cv::Mat boxMask = cv::Mat::zeros(mOriginalImgSize, CV_8UC1);
+                    if (roi.width > 0 && roi.height > 0) {
+                        cv::Mat maskCrop = mask(roi) > 0.5;
+                        maskCrop.convertTo(maskCrop, CV_8UC1, 255.0);
+                        maskCrop.copyTo(boxMask(roi));
+                    }
+                    masks.push_back(boxMask);
+                }
+            }
         }
         data += signalResultNum;
     }
@@ -479,6 +567,9 @@ bool TF::InferenceORT::TensorProcess(Ort::Value &inputTensor, std::vector<int64_
         result.classId = class_ids[idx];
         result.confidence = confidences[idx];
         result.box = boxes[idx];
+        if (!masks.empty() && idx < masks.size()) {
+            result.mask = masks[idx];
+        }
         oResult.push_back(result);
     }
     return true;

@@ -34,11 +34,13 @@ namespace TF {
         YOLO_DETECT = 1,
         YOLO_POSE = 2,
         YOLO_CLS = 3,
+        YOLO_SEG = 4,
 
         //FLOAT16 MODEL
-        YOLO_DETECT_HALF = 4,
-        YOLO_POSE_HALF = 5,
-        YOLO_CLS_HALF = 6
+        YOLO_DETECT_HALF = 5,
+        YOLO_POSE_HALF = 6,
+        YOLO_CLS_HALF = 7,
+        YOLO_SEG_HALF = 8
     };
 
     typedef struct _DL_INIT_PARAM {
@@ -58,6 +60,7 @@ namespace TF {
         float confidence;
         cv::Rect box;
         std::vector<cv::Point2f> keyPoints;
+        cv::Mat mask;
     } DL_RESULT;
 
     class InferenceORT {
@@ -92,7 +95,10 @@ namespace TF {
                                 const std::vector<DL_RESULT> &detect_rets,
                                 std::vector<int>& class_ids,
                                 std::vector<float>& confidences,
-                                std::vector<cv::Rect>& boxes);
+                                std::vector<cv::Rect>& boxes,
+                                std::vector<cv::Mat>& masks);
+
+        cv::Mat sigmoid(const cv::Mat& src);
 
     public:
         std::vector<std::string> classes{
@@ -120,6 +126,7 @@ namespace TF {
         float rectConfidenceThreshold;
         float iouThreshold;
         float mResizeScales {1080.0f / 800.0f};
+        cv::Size mOriginalImgSize{};
 
         float modelScoreThreshold{0.45f};
         float modelNMSThreshold{0.50f};
