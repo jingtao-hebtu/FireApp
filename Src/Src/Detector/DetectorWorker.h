@@ -26,6 +26,8 @@ namespace TF {
     private:
         void processFrame(const DetectionTask &task);
 
+        void processDetect(const DetectionTask &task);
+
         std::atomic<bool> mRunning{false};
     };
 }

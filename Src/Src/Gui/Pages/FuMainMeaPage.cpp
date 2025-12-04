@@ -5,6 +5,7 @@
 #include "videowidgetx.h"
 #include "TConfig.h"
 #include "FuVideoButtons.h"
+#include "DetectManager.h"
 #include <QPushButton>
 
 
@@ -127,8 +128,10 @@ void TF::FuMainMeaPage::onAiBtnToggled(bool checked) {
     if (checked) {
         //mDetectorThread->setPause(false);
         mVideoWid->startDetect();
+        TFDetectManager::instance().startDetect();
     } else {
         //mDetectorThread->setPause(true);
+        TFDetectManager::instance().stopDetect();
         mVideoWid->stopDetect();
     }
 }

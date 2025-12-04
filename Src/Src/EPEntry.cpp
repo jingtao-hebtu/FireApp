@@ -17,6 +17,10 @@ int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
     TF::AppMonitor::initApp(argc, argv);
+
+    //extern void detectTest();
+    //detectTest();
+
     TF::FuMainWid win;
     win.show();
 

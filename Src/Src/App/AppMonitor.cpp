@@ -14,6 +14,7 @@ Copyright(C), tao.jing All rights reserved
 #include "TFException.h"
 #include "TFError.h"
 #include "AppLocalConfig.h"
+#include "DetectManager.h"
 #include "TLog.h"
 
 
@@ -31,6 +32,12 @@ int TF::AppMonitor::initApp(int argc, char* argv[]) {
         exitApp(ex);
     } catch (std::exception &ex) {
         LOG_F(ERROR, "Init app failed %s.", ex.what());
+    }
+
+    try {
+        TFDetectManager::instance().init();
+    } catch (std::exception &ex) {
+        LOG_F(ERROR, "Init TFDetectManager failed %s.", ex.what());
     }
     return 0;
 }

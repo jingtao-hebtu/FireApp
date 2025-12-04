@@ -1,3 +1,16 @@
 #VideoURL: "E:\\Project\\Fire\\FireDet\\Data\\Video\\C0201-1.mp4"
-VideoURL: "rtsp://127.0.0.1:8554/mystream"
-LowLatencyMode: false
+VideoURL: "E:\\Project\\CNOOC\\EP\\Data\\Video\\field7.mp4"
+#VideoURL: "rtsp://127.0.0.1:8554/mystream"
+
+RGBCam:
+  UserName: admin
+  Password: abc12345
+  NeedPrintDebugInfo: true
+  PreviewDetectedImg: true
+  NeedSaveOriImg: true
+
+VisionMea:
+  DetModelName: v11s_d13_e500_im800.onnx
+  DetBackend: ORT
+  RectConfidenceThreshold: 0.65
+  IouThreshold: 0.5

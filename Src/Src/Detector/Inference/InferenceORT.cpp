@@ -12,6 +12,7 @@
 #include "DetectDef.h"
 #include "TLog.h"
 #include "TConfig.h"
+#include "DetectManager.h"
 #include <onnxruntime_cxx_api.h>
 #include <regex>
 
@@ -371,20 +372,18 @@ void TF::InferenceORT::WarmUpSession() {
 }
 
 std::vector<TF::Detection> TF::InferenceORT::runInference(const cv::Mat &input) {
-    // Left sub image
-    cv::Rect left_rect(0, 0, 1080, 1080);
-    cv::Mat left_frame = input(left_rect);
+    // image
+    cv::Mat frame = input;
 
     std::vector<int> class_ids;
     std::vector<float> confidences;
     std::vector<cv::Rect> boxes;
 
     // Detect sub images
-    std::vector<DL_RESULT> left_rets;
-    RunSession(left_frame, left_rets);
+    std::vector<DL_RESULT> det_rets;
+    RunSession(frame, det_rets);
 
-    analysisDetResults(0, left_rets,
-                       class_ids, confidences, boxes);
+    analysisDetResults(0, det_rets, class_ids, confidences, boxes);
 
     std::vector<int> nms_result;
     cv::dnn::NMSBoxes(boxes, confidences, modelScoreThreshold, modelNMSThreshold, nms_result);
@@ -396,7 +395,7 @@ std::vector<TF::Detection> TF::InferenceORT::runInference(const cv::Mat &input) 
         Detection result;
         result.class_id = class_ids[idx];
         result.confidence = confidences[idx];
-        //result.color = TbDetectManager::instance().generateClassColor(result.class_id);
+        result.color = TFDetectManager::instance().generateClassColor(result.class_id);
 
         result.className = classes[result.class_id];
         result.box = boxes[idx];

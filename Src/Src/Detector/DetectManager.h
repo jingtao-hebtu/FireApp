@@ -32,10 +32,10 @@ namespace TF {
 
     class Detector;
 
-    class TbDetectManager : public TBase::TSingleton<TbDetectManager>
+    class TFDetectManager : public TBase::TSingleton<TFDetectManager>
     {
     public:
-        ~TbDetectManager();
+        ~TFDetectManager();
 
         bool init();
 

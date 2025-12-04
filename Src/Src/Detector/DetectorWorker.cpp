@@ -1,7 +1,9 @@
 #include "DetectorWorker.h"
-
-#include <QImage>
+#include "DetectManager.h"
+#include "TCvMatQImage.h"
+#include "TLog.h"
 #include <QtGlobal>
+
 
 namespace TF {
 
@@ -17,7 +19,8 @@ namespace TF {
             if (!DetectionQueueManager::instance().waitAndPop(task)) {
                 break;
             }
-            processFrame(task);
+            //processFrame(task);
+            processDetect(task);
         }
     }
 
@@ -50,6 +53,41 @@ namespace TF {
         const double mean = pixelCount > 0 ? static_cast<double>(graySum) / pixelCount : 0.0;
 
         emit frameProcessed(task.sourceFlag, task.image, mean, task.timeCost);
+    }
+
+    void DetectorWorker::processDetect(const DetectionTask& task) {
+        if (TFDetectManager::instance().isDetecting()) {
+
+            std::chrono::high_resolution_clock::time_point start;
+            if (TFDetectManager::instance().needPrintDebugInfo()) {
+                start = std::chrono::high_resolution_clock::now();
+            }
+
+            cv::Mat cv_im = QtOcv::image2Mat(task.image, CV_8UC3).clone();
+
+            size_t detect_num = 0;
+            std::vector<Detection> detections;
+            try {
+                TFDetectManager::instance().runDetectWithPreview(cv_im, detect_num, detections);
+            } catch (const cv::Exception &e) {
+                LOG_F(ERROR, "Object detect inference failed: %s.", e.what());
+            } catch (const std::exception &e) {
+                LOG_F(ERROR, "Object detect inference failed: %s.", e.what());
+            } catch (...) {
+                LOG_F(ERROR, "Object detect inference failed.");
+            }
+
+            if (TFDetectManager::instance().needPrintDebugInfo()) {
+                auto end = std::chrono::high_resolution_clock::now();
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+                std::cout << "Detect time " << duration << " ms, detect_num " << detect_num << std::endl;
+            }
+
+            QImage q_im = QtOcv::mat2Image(cv_im);
+
+            emit frameProcessed(task.sourceFlag, q_im, 0.0, task.timeCost);
+
+        }
     }
 }
 

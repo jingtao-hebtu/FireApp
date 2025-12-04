@@ -40,7 +40,7 @@ namespace TF {
         "防爆设备",
     };
 
-    static const int TF_DETECT_IMG_SIZE = 640;
+    static const int TF_DETECT_IMG_SIZE = 800;
 
     typedef struct _Detection {
         int class_id{0};
