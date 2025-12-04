@@ -48,6 +48,7 @@ namespace TF {
         float confidence{0.0};
         cv::Scalar color{};
         cv::Rect box{};
+        cv::Mat mask{};
     } Detection;
 
 };

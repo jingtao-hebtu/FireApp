@@ -68,6 +68,10 @@ namespace TF {
                 const auto &detection = detections[idx];
                 cv::Rect box = detection.box;
                 cv::Scalar color = detection.color;
+                if (!detection.mask.empty()) {
+                    cv::Mat maskColor(frame.size(), frame.type(), color);
+                    maskColor.copyTo(frame, detection.mask);
+                }
                 cv::rectangle(frame, box, color, 2);
 
                 std::string classString = detection.className + ' ' + std::to_string(detection.confidence).substr(0, 4);
@@ -119,6 +123,10 @@ namespace TF {
 
                 cv::Rect box = detection.box;
                 cv::Scalar color = detection.color;
+                if (!detection.mask.empty()) {
+                    cv::Mat maskColor(input_frame.size(), input_frame.type(), color);
+                    maskColor.copyTo(input_frame, detection.mask);
+                }
                 cv::rectangle(input_frame, box, color, 4);
                 /*
                 std::string classString = detection.className + ' ' + std::to_string(detection.confidence).substr(0, 4);
