@@ -131,6 +131,7 @@ namespace TF {
         return -1;
     }
 
+    /*
     cv::Scalar CLASS_COLORS[TF_CLASS_NUM] = {
         cv::Scalar(0, 255, 0), // TB_INTRODUCTION_DEVICE 0
         cv::Scalar(0, 0, 255), // TB_INTRODUCTION_DEVICE_NOT_SEALED 1
@@ -141,6 +142,10 @@ namespace TF {
         cv::Scalar(255, 0, 0), // TB_GROUND_WIRE_LABEL 6
         cv::Scalar(255, 255, 0), // TB_GROUND_WIRE 7
         cv::Scalar(255, 0, 255) // TB_TAR_BOX 8
+    };*/
+
+    cv::Scalar CLASS_COLORS[TF_CLASS_NUM] = {
+        cv::Scalar(0, 255, 0), // TF_FIRE 0
     };
 
     cv::Scalar TFDetectManager::generateClassColor(int class_id) {

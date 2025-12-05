@@ -11,10 +11,17 @@ class QCheckBox;
 class QPushButton;
 
 
+namespace T_QtBase {
+    class TSweepCurveViewer;
+};
+
+
 namespace TF {
 
     class TechToggleButton;
     class TechActionButton;
+    class ThermalCamera;
+    class ThermalWidget;
 
     class FuMainMeaPage_Ui
     {
@@ -23,9 +30,12 @@ namespace TF {
 
     public:
         void setupUi(QWidget *wid);
+        void setVideoAreaStretch(int mainVideoStretch, int sideColumnStretch = 2);
 
     private:
         void initVideoArea();
+        void initThermalCamera();
+        void initStatistics();
         void initCtrlArea();
 
     private:
@@ -37,8 +47,7 @@ namespace TF {
         QHBoxLayout *mVideoHLayout{};
         QWidget *mVideoSideWid{};
         QVBoxLayout *mVideoSideVLayout{};
-        QWidget *mInfraredVideoWid{};
-        QWidget *mStatisticsWid{};
+        QWidget *mThermalWid{};
 
         QWidget *mCtrlWid{};
         QHBoxLayout *mCtrlHLayout{};
@@ -47,6 +56,18 @@ namespace TF {
         TechToggleButton* mAiToggleBtn{nullptr};
         TechToggleButton* mSaveToggleBtn{nullptr};
         TechActionButton* mRefreshOnceBtn{nullptr};
+
+        int mMainVideoStretch {6};
+        int mSideColumnStretch {2};
+
+        // Thermal camera widget
+        ThermalCamera *mThermalCamera {nullptr};
+        ThermalWidget *mThermalWidget{nullptr};
+
+        // Curves
+        QWidget *mStatisticsWid {nullptr};
+        QVBoxLayout *mStatisticsVLayout {nullptr};
+        T_QtBase::TSweepCurveViewer *mCurveViewer {nullptr};
 
     };
 } // TF

@@ -83,9 +83,14 @@ namespace TF {
                 std::cout << "Detect time " << duration << " ms, detect_num " << detect_num << std::endl;
             }
 
-            QImage q_im = QtOcv::mat2Image(cv_im);
+            float max_height = 0.0f;
+            for (const auto& detection : detections) {
+                auto box_height = static_cast<float>(detection.box.height);
+                max_height = max_height > box_height ? max_height : box_height;
+            }
 
-            emit frameProcessed(task.sourceFlag, q_im, 0.0, task.timeCost);
+            QImage q_im = QtOcv::mat2Image(cv_im);
+            emit frameProcessed(task.sourceFlag, q_im, max_height, task.timeCost);
 
         }
     }

@@ -1,10 +1,13 @@
 #include "FuMainMeaPage_Ui.h"
 #include "videowidgetx.h"
 #include "FuVideoButtons.h"
-
+#include "ThermalCamera.h"
+#include "ThermalWidget.h"
+#include "TSweepCurveViewer.h"
+#include "TFMeaManager.h"
+#include "ThermalManager.h"
 #include <QHBoxLayout>
 #include <QSizePolicy>
-#include <QVBoxLayout>
 #include <QWidget>
 
 
@@ -13,7 +16,7 @@ void TF::FuMainMeaPage_Ui::setupUi(QWidget* wid) {
 
     if (mWid->objectName().isEmpty())
         mWid->setObjectName("mWid");
-    mWid->resize(800, 600);
+    mWid->resize(1080, 600);
     mMainVLayout = new QVBoxLayout(mWid);
     mMainVLayout->setSpacing(6);
     mMainVLayout->setObjectName("MainVLayout");
@@ -32,7 +35,10 @@ void TF::FuMainMeaPage_Ui::initVideoArea() {
 
     mVideoWid = new VideoWidget(mVideoArea);
     mVideoWid->setObjectName("VideoWid");
-    mVideoWid->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    mVideoWid->resize(780, 580);
+    QSizePolicy mainVideoPolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    mainVideoPolicy.setHorizontalStretch(mMainVideoStretch);
+    mVideoWid->setSizePolicy(mainVideoPolicy);
 
     mVideoSideWid = new QWidget(mVideoArea);
     mVideoSideWid->setObjectName("VideoSideWid");
@@ -40,21 +46,47 @@ void TF::FuMainMeaPage_Ui::initVideoArea() {
     mVideoSideVLayout->setSpacing(6);
     mVideoSideVLayout->setContentsMargins(0, 0, 0, 0);
 
-    mInfraredVideoWid = new QWidget(mVideoSideWid);
-    mInfraredVideoWid->setObjectName("InfraredVideoWid");
-    mInfraredVideoWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    initThermalCamera();
+    initStatistics();
 
-    mStatisticsWid = new QWidget(mVideoSideWid);
-    mStatisticsWid->setObjectName("StatisticsWid");
-    mStatisticsWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    mVideoSideVLayout->addWidget(mThermalWid, 1);
+    mVideoSideVLayout->addWidget(mStatisticsWid, 1);
 
-    mVideoSideVLayout->addWidget(mInfraredVideoWid);
-    mVideoSideVLayout->addWidget(mStatisticsWid);
-
-    mVideoHLayout->addWidget(mVideoWid, 3);
-    mVideoHLayout->addWidget(mVideoSideWid, 2);
+    mVideoHLayout->addWidget(mVideoWid);
+    mVideoHLayout->addWidget(mVideoSideWid);
+    setVideoAreaStretch(mMainVideoStretch, mSideColumnStretch);
 
     mMainVLayout->addWidget(mVideoArea);
+}
+
+void TF::FuMainMeaPage_Ui::initThermalCamera() {
+    mThermalWid = new QWidget(mVideoSideWid);
+    mThermalWid->setObjectName("InfraredVideoWid");
+    mThermalWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+
+    mThermalCamera = new ThermalCamera(mThermalWid);
+    mThermalWidget = new ThermalWidget(mThermalCamera, mThermalWid);
+    ThermalManager::instance().setThermalCamera(mThermalCamera);
+}
+
+void TF::FuMainMeaPage_Ui::initStatistics() {
+    mStatisticsWid = new QWidget(mVideoSideWid);
+    mStatisticsWid->setObjectName("StatisticsWid");
+    QSizePolicy statisticsPolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    statisticsPolicy.setHorizontalStretch(mSideColumnStretch);
+    mStatisticsWid->setSizePolicy(statisticsPolicy);
+
+    mStatisticsVLayout = new QVBoxLayout(mStatisticsWid);
+    mStatisticsVLayout->setSpacing(0);
+    mStatisticsVLayout->setContentsMargins(0, 0, 0, 0);
+
+    mCurveViewer = new T_QtBase::TSweepCurveViewer();
+    mCurveViewer->setObjectName("CurveViewer");
+    mCurveViewer->updateXAxisRange(0, 100);
+    mCurveViewer->updateYAxisRange(0, 1000);
+
+    TFMeaManager::instance().setCurveViewer(mCurveViewer);
+    mStatisticsVLayout->addWidget(mCurveViewer);
 }
 
 void TF::FuMainMeaPage_Ui::initCtrlArea() {
@@ -90,4 +122,31 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     mCtrlHLayout->addWidget(mRefreshOnceBtn);
     mCtrlHLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
+}
+
+void TF::FuMainMeaPage_Ui::setVideoAreaStretch(int mainVideoStretch, int sideColumnStretch) {
+    if (mainVideoStretch < 1)
+        mainVideoStretch = 1;
+    if (sideColumnStretch < 1)
+        sideColumnStretch = 1;
+
+    mMainVideoStretch = mainVideoStretch;
+    mSideColumnStretch = sideColumnStretch;
+
+    if (mVideoHLayout) {
+        mVideoHLayout->setStretch(0, mMainVideoStretch);
+        mVideoHLayout->setStretch(1, mSideColumnStretch);
+    }
+
+    if (mVideoWid) {
+        auto policy = mVideoWid->sizePolicy();
+        policy.setHorizontalStretch(mMainVideoStretch);
+        mVideoWid->setSizePolicy(policy);
+    }
+
+    if (mVideoSideWid) {
+        auto policy = mVideoSideWid->sizePolicy();
+        policy.setHorizontalStretch(mSideColumnStretch);
+        mVideoSideWid->setSizePolicy(policy);
+    }
 }

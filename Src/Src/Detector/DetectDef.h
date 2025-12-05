@@ -15,6 +15,7 @@
 
 namespace TF {
 
+    /*
     enum TF_DETECT_CLASS_ID {
         TF_INTRODUCTION_DEVICE = 0,
         TF_INTRODUCTION_DEVICE_NOT_SEALED,
@@ -38,6 +39,15 @@ namespace TF {
         "接地标识",
         "接地地线",
         "防爆设备",
+    };*/
+
+    enum TF_DETECT_CLASS_ID {
+        TF_FIRE = 0,
+        TF_CLASS_NUM
+    };
+
+    static const char* TF_DEFECT_CLASS_NAMES[TF_CLASS_NUM] = {
+        "火焰",
     };
 
     static const int TF_DETECT_IMG_SIZE = 640;

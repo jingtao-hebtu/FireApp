@@ -10,7 +10,7 @@ Copyright(C), tao.jing All rights reserved
 **************************************************************************/
 #include "FuMainWid.h"
 #include "FuMainWid_Ui.h"
-#include "FuSideTabBar.h"
+#include "Controls/FuSideTab/FuSideTabBar.h"
 #include <QFile>
 
 

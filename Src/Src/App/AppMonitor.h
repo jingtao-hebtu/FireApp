@@ -23,6 +23,8 @@ namespace TF {
     public:
         static int initApp(int argc, char *argv[]);
 
+        void initAfterWid();
+
     private:
         static void initAppLog(int argc, char *argv[]);
 

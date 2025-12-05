@@ -446,7 +446,8 @@ void TF::InferenceORT::WarmUpSession() {
 
 std::vector<TF::Detection> TF::InferenceORT::runInference(const cv::Mat &input) {
     // image
-    cv::Mat frame = input;
+    cv::Mat frame = input.clone();
+    cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
 
     std::vector<int> class_ids;
     std::vector<float> confidences;

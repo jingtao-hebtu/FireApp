@@ -6,6 +6,7 @@
 #include "urlhelper.h"
 #include "DetectionQueueManager.h"
 #include "DetectorWorkerManager.h"
+#include "TFMeaManager.h"
 
 
 VideoWidget::VideoWidget(QWidget *parent) : AbstractVideoWidget(parent) {
@@ -449,7 +450,7 @@ void VideoWidget::receiveDetectedImage(const QString& flag, const QImage& image,
         return;
     }
 
-    qDebug() << meanValue << " " << flag;
+    TF::TFMeaManager::instance().receiveNewValue(meanValue);
 
     Q_UNUSED(meanValue);
     AbstractVideoWidget::receiveImage(image, time);

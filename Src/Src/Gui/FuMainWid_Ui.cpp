@@ -10,7 +10,7 @@ Copyright(C), tao.jing All rights reserved
 **************************************************************************/
 #include "FuMainWid_Ui.h"
 #include "FuMainMeaPage.h"
-#include "FuSideTabBar.h"
+#include "Controls/FuSideTab/FuSideTabBar.h"
 
 #include <QLabel>
 #include <QObject>
@@ -20,7 +20,7 @@ Copyright(C), tao.jing All rights reserved
 void TF::FuMainWid_Ui::setupUi(QWidget *wid) {
     mWid = wid;
     mWid->setObjectName("FuMainWid");
-    mWid->resize(1200, 720);
+    mWid->resize(1440, 720);
 
     mLayout = new QHBoxLayout(mWid);
     mLayout->setContentsMargins(0, 0, 0, 0);

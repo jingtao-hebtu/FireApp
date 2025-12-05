@@ -24,6 +24,7 @@ void detectTest() {
     std::size_t detect_num;
     std::vector<TF::Detection> detections;
     cv::Mat frame = cv::imread(im_path);
+    //cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
     //cv::resize(frame, frame, cv::Size(800, 800));
 
     TF::TFDetectManager::instance().runDetectWithSlice(frame, detect_num, detections);

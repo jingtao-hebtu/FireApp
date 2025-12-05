@@ -4,7 +4,7 @@
 #include "videohelper.h"
 #include "videowidgetx.h"
 #include "TConfig.h"
-#include "FuVideoButtons.h"
+#include "../Controls/FuButton/FuVideoButtons.h"
 #include "DetectManager.h"
 #include <QPushButton>
 

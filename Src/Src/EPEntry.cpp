@@ -18,11 +18,13 @@ int main(int argc, char *argv[]) {
 
     TF::AppMonitor::initApp(argc, argv);
 
-    //extern void detectTest();
-    //detectTest();
+    extern void detectTest();
+    detectTest();
 
     TF::FuMainWid win;
     win.show();
+
+    TF::AppMonitor::instance().initAfterWid();
 
     return QApplication::exec();
 }
