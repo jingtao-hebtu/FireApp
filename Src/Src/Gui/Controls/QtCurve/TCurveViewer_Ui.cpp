@@ -16,6 +16,7 @@
 #include <QLineSeries>
 #include <QSplineSeries>
 #include <QGraphicsLayout>
+#include <QPen>
 
 
 
@@ -48,7 +49,12 @@ namespace T_QtBase {
         mChart->setMargins(QMargins(0, 0, 0, 0));
         mChart->layout()->setContentsMargins(0, 0, 0, 0);
         mChart->setBackgroundRoundness(0);
-        mChart->setBackgroundBrush(QBrush(QColor(0, 0, 0)));
+        const QColor panelBg(15, 26, 47);
+        const QColor panelBorder(27, 38, 59);
+        mChart->setBackgroundBrush(QBrush(panelBg));
+        mChart->setBackgroundPen(QPen(panelBorder));
+        mChart->setPlotAreaBackgroundVisible(true);
+        mChart->setPlotAreaBackgroundBrush(QBrush(panelBg.darker(105)));
 
         QPen pen(QColor(viewer->getCurveColor()));
         pen.setWidth(1);

@@ -90,6 +90,12 @@ QLabel[description="true"] {
     letter-spacing: 0.5px;
 }
 
+#InfraredVideoWid, #StatisticsWid {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #10182d, stop:1 #0b1222);
+    border: 1px solid #1b263b;
+    border-radius: 10px;
+}
+
 QToolTip {
     background-color: #0b1222;
     color: #d7e3ff;
