@@ -3,6 +3,7 @@
 
 #include <QPainter>
 #include <QPaintEvent>
+#include <QLinearGradient>
 
 
 namespace TF {
@@ -32,7 +33,10 @@ namespace TF {
         Q_UNUSED(event);
 
         QPainter p(this);
-        p.fillRect(rect(), Qt::black);
+        QLinearGradient gradient(0, 0, 0, height());
+        gradient.setColorAt(0, QColor(18, 27, 50));
+        gradient.setColorAt(1, QColor(10, 15, 28));
+        p.fillRect(rect(), gradient);
 
         if (!m_image.isNull()) {
             QImage scaled = m_image.scaled(size(), Qt::KeepAspectRatio,
@@ -40,9 +44,17 @@ namespace TF {
             const QPoint topLeft((width() - scaled.width()) / 2,
                                  (height() - scaled.height()) / 2);
             p.drawImage(topLeft, scaled);
+        } else {
+            p.setPen(QColor(143, 163, 194));
+            p.drawText(rect(), Qt::AlignCenter, tr("等待热成像数据"));
         }
 
-        p.setPen(Qt::green);
+        QPen borderPen(QColor(27, 38, 59));
+        borderPen.setWidth(1);
+        p.setPen(borderPen);
+        p.drawRoundedRect(rect().adjusted(1, 1, -2, -2), 8, 8);
+
+        p.setPen(QColor(95, 217, 126));
         const QString text = QStringLiteral("Min: %1 °C   Max: %2 °C   Center: %3 °C")
                              .arg(m_minTempC, 0, 'f', 1)
                              .arg(m_maxTempC, 0, 'f', 1)
