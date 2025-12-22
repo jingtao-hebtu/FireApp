@@ -15,7 +15,6 @@ Copyright(C), tao.jing All rights reserved
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QList>
-#include <QVector>
 
 namespace TF {
 

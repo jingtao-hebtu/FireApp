@@ -18,8 +18,9 @@ int main(int argc, char *argv[]) {
 
     TF::AppMonitor::initApp(argc, argv);
 
-    extern void detectTest();
-    detectTest();
+    // Image detection test
+    //extern void detectTest();
+    //detectTest();
 
     TF::FuMainWid win;
     win.show();

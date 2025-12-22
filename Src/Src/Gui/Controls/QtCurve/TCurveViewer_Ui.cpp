@@ -49,7 +49,7 @@ namespace T_QtBase {
         mChart->setMargins(QMargins(0, 0, 0, 0));
         mChart->layout()->setContentsMargins(0, 0, 0, 0);
         mChart->setBackgroundRoundness(0);
-        const QColor panelBg(15, 26, 47);
+        const QColor panelBg(0x0D1323);
         const QColor panelBorder(27, 38, 59);
         mChart->setBackgroundBrush(QBrush(panelBg));
         mChart->setBackgroundPen(QPen(panelBorder));

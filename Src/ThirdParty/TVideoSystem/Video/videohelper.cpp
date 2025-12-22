@@ -71,9 +71,11 @@ bool VideoHelper::checkUrl(VideoThread *videoThread, const MediaType &mediaType,
     if (mediaUrl.isEmpty()) {
         error = "地址为空";
     } else if (mediaType == MediaType_Rtsp) {
+        /*
         if (!UrlHelper::checkUrl(mediaUrl, timeout)) {
             error = "网络地址不可达";
         }
+        */
     } else if (mediaType == MediaType_FileLocal) {
         if (!QFile(mediaUrl).exists()) {
             error = "文件不存在";
@@ -528,8 +530,8 @@ void VideoHelper::initVideoPara(VideoThread *videoThread, const QString &mediaUr
         DecodeType decodeType = DecodeType_Fast;
         EncodeVideo encodeVideo = EncodeVideo_None;
         int encodeVideoFps = 0;
-        float encodeVideoRatio = 1;
-        VideoHelper::getNormalPara(url, transport, decodeType, encodeVideo, encodeVideoFps, encodeVideoRatio,
+        float encode_video_ratio = 1;
+        VideoHelper::getNormalPara(url, transport, decodeType, encodeVideo, encodeVideoFps, encode_video_ratio,
                                    encodeVideoScale);
 
         videoThread->setMediaUrl(url);
@@ -537,7 +539,7 @@ void VideoHelper::initVideoPara(VideoThread *videoThread, const QString &mediaUr
         videoThread->setDecodeType(decodeType);
         videoThread->setEncodeVideo(encodeVideo);
         videoThread->setEncodeVideoFps(encodeVideoFps);
-        videoThread->setEncodeVideoRatio(encodeVideoRatio);
+        videoThread->setEncodeVideoRatio(encode_video_ratio);
         videoThread->setEncodeVideoScale(encodeVideoScale);
     }
 }
