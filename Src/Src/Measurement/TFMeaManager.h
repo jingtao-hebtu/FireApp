@@ -15,12 +15,17 @@ namespace TF {
     public:
         void init();
 
-        void setCurveViewer(T_QtBase::TSweepCurveViewer *viewer) {mFireHeightCurveViewer = viewer;}
+        void setHeightCurveViewer(T_QtBase::TSweepCurveViewer *viewer) {mFireHeightCurveViewer = viewer;}
+        void setAreaCurveViewer(T_QtBase::TSweepCurveViewer *viewer) {mFireAreaCurveViewer = viewer;}
 
         void receiveNewValue(float value);
+        void receiveHeightValue(float value);
+        void receiveAreaValue(float value);
+        void receiveStatistics(float height, float area);
 
     private:
         T_QtBase::TSweepCurveViewer *mFireHeightCurveViewer {};
+        T_QtBase::TSweepCurveViewer *mFireAreaCurveViewer {};
 
     };
 };

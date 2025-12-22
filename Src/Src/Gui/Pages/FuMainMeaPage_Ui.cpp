@@ -10,6 +10,7 @@
 #include <QHBoxLayout>
 #include <QSizePolicy>
 #include <QWidget>
+#include <QString>
 
 
 void TF::FuMainMeaPage_Ui::setupUi(QWidget* wid) {
@@ -84,13 +85,25 @@ void TF::FuMainMeaPage_Ui::initStatistics() {
     mStatisticsVLayout->setSpacing(0);
     mStatisticsVLayout->setContentsMargins(0, 0, 0, 0);
 
-    mFireHeightCurveViewer = new T_QtBase::TSweepCurveViewer();
-    mFireHeightCurveViewer->setObjectName("CurveViewer");
-    mFireHeightCurveViewer->updateXAxisRange(0, 100);
-    mFireHeightCurveViewer->updateYAxisRange(0, 1000);
+    mFireHeightCurveViewer = createCurveViewer("火焰高度", 0, 100, 0, 1000);
+    mFireAreaCurveViewer = createCurveViewer("火焰面积", 0, 100, 0, 1000);
 
-    TFMeaManager::instance().setCurveViewer(mFireHeightCurveViewer);
     mStatisticsVLayout->addWidget(mFireHeightCurveViewer);
+    mStatisticsVLayout->addWidget(mFireAreaCurveViewer);
+    mStatisticsVLayout->setStretch(0, 1);
+    mStatisticsVLayout->setStretch(1, 1);
+
+    TFMeaManager::instance().setHeightCurveViewer(mFireHeightCurveViewer);
+    TFMeaManager::instance().setAreaCurveViewer(mFireAreaCurveViewer);
+}
+
+T_QtBase::TSweepCurveViewer* TF::FuMainMeaPage_Ui::createCurveViewer(const QString &name, int x_min, int x_max, int y_min, int y_max) {
+    auto *viewer = new T_QtBase::TSweepCurveViewer();
+    viewer->setObjectName(name + "CurveViewer");
+    viewer->updateXAxisRange(x_min, x_max);
+    viewer->updateYAxisRange(y_min, y_max);
+
+    return viewer;
 }
 
 void TF::FuMainMeaPage_Ui::initCtrlArea() {
