@@ -2,6 +2,7 @@
 #define FIREAPP_TFMEAMANAGER_H
 
 #include "TSingleton.h"
+#include "TFMeaDef.h"
 
 
 namespace T_QtBase {
@@ -22,6 +23,7 @@ namespace TF {
         void receiveHeightValue(float value);
         void receiveAreaValue(float value);
         void receiveStatistics(float height, float area);
+        void receiveStatistics(const TFMeaData &data);
 
     private:
         T_QtBase::TSweepCurveViewer *mFireHeightCurveViewer {};
