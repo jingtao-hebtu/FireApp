@@ -6,9 +6,9 @@ class QWidget;
 class QVBoxLayout;
 class QHBoxLayout;
 class VideoWidget;
-class QComboBox;
 class QCheckBox;
 class QPushButton;
+class QString;
 
 
 namespace T_QtBase {
@@ -37,6 +37,11 @@ namespace TF {
         void initThermalCamera();
         void initStatistics();
         void initCtrlArea();
+        T_QtBase::TSweepCurveViewer* createCurveViewer(const QString &name,
+                                                       int x_min,
+                                                       int x_max,
+                                                       int y_min,
+                                                       int y_max);
 
     private:
         QWidget *mWid{};
@@ -67,8 +72,8 @@ namespace TF {
         // Curves
         QWidget *mStatisticsWid {nullptr};
         QVBoxLayout *mStatisticsVLayout {nullptr};
-
         T_QtBase::TSweepCurveViewer *mFireHeightCurveViewer {nullptr};
+        T_QtBase::TSweepCurveViewer *mFireAreaCurveViewer {nullptr};
 
     };
 } // TF
