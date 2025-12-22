@@ -26,6 +26,9 @@ namespace TF {
         void init();
         void initAfterWid();
         void start();
+        void stop();
+
+        bool getThermalOnState() {return mStarted;}
 
         void setThermalCamera(ThermalCamera *camera) {mThermalCamera = camera;}
         ThermalCamera * getThermalCamera() {return mThermalCamera;}

@@ -6,6 +6,7 @@
 #include "TSweepCurveViewer.h"
 #include "TFMeaManager.h"
 #include "ThermalManager.h"
+#include "TConfig.h"
 #include <QHBoxLayout>
 #include <QSizePolicy>
 #include <QWidget>
@@ -16,7 +17,10 @@ void TF::FuMainMeaPage_Ui::setupUi(QWidget* wid) {
 
     if (mWid->objectName().isEmpty())
         mWid->setObjectName("mWid");
-    mWid->resize(1080, 600);
+
+    auto height = GET_INT_CONFIG("MainUi", "Height");
+    auto width = GET_INT_CONFIG("MainUi", "Width");
+    mWid->resize(height, width);
     mMainVLayout = new QVBoxLayout(mWid);
     mMainVLayout->setSpacing(6);
     mMainVLayout->setObjectName("MainVLayout");
@@ -35,7 +39,7 @@ void TF::FuMainMeaPage_Ui::initVideoArea() {
 
     mVideoWid = new VideoWidget(mVideoArea);
     mVideoWid->setObjectName("VideoWid");
-    mVideoWid->resize(780, 580);
+    mVideoWid->resize(780, 440);
     QSizePolicy mainVideoPolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     mainVideoPolicy.setHorizontalStretch(mMainVideoStretch);
     mVideoWid->setSizePolicy(mainVideoPolicy);
@@ -80,13 +84,13 @@ void TF::FuMainMeaPage_Ui::initStatistics() {
     mStatisticsVLayout->setSpacing(0);
     mStatisticsVLayout->setContentsMargins(0, 0, 0, 0);
 
-    mCurveViewer = new T_QtBase::TSweepCurveViewer();
-    mCurveViewer->setObjectName("CurveViewer");
-    mCurveViewer->updateXAxisRange(0, 100);
-    mCurveViewer->updateYAxisRange(0, 1000);
+    mFireHeightCurveViewer = new T_QtBase::TSweepCurveViewer();
+    mFireHeightCurveViewer->setObjectName("CurveViewer");
+    mFireHeightCurveViewer->updateXAxisRange(0, 100);
+    mFireHeightCurveViewer->updateYAxisRange(0, 1000);
 
-    TFMeaManager::instance().setCurveViewer(mCurveViewer);
-    mStatisticsVLayout->addWidget(mCurveViewer);
+    TFMeaManager::instance().setCurveViewer(mFireHeightCurveViewer);
+    mStatisticsVLayout->addWidget(mFireHeightCurveViewer);
 }
 
 void TF::FuMainMeaPage_Ui::initCtrlArea() {
@@ -107,19 +111,19 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     mMainCamToggleBtn = new TechToggleButton("主相机", mWid);
     mMainCamToggleBtn->setObjectName("StartStopStream");
 
+    mThermalCamToggleBtn = new TechToggleButton("红外模块", mWid);
+    mThermalCamToggleBtn->setObjectName("StartStopThermal");
+
     mAiToggleBtn = new TechToggleButton("AI检测", mWid);
     mAiToggleBtn->setObjectName("StartStopAi");
 
     mSaveToggleBtn = new TechToggleButton("保存视频", mWid);
     mSaveToggleBtn->setObjectName("StartStopSave");
 
-    mRefreshOnceBtn = new TechActionButton("刷新显示", mWid);
-    mRefreshOnceBtn->setObjectName("RefreshOnce");
-
     mCtrlHLayout->addWidget(mMainCamToggleBtn);
+    mCtrlHLayout->addWidget(mThermalCamToggleBtn);
     mCtrlHLayout->addWidget(mAiToggleBtn);
     mCtrlHLayout->addWidget(mSaveToggleBtn);
-    mCtrlHLayout->addWidget(mRefreshOnceBtn);
     mCtrlHLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
 }

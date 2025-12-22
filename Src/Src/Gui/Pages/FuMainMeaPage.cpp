@@ -4,9 +4,12 @@
 #include "videohelper.h"
 #include "videowidgetx.h"
 #include "TConfig.h"
-#include "../Controls/FuButton/FuVideoButtons.h"
+#include "FuVideoButtons.h"
 #include "DetectManager.h"
+#include "ThermalManager.h"
+#include "TFException.h"
 #include <QPushButton>
+#include <QVBoxLayout>
 
 
 TF::FuMainMeaPage::FuMainMeaPage(QWidget* parent) : QWidget(parent), mUi(new FuMainMeaPage_Ui) {
@@ -23,6 +26,9 @@ TF::FuMainMeaPage::~FuMainMeaPage() {
 void TF::FuMainMeaPage::initActions() {
     connect(mUi->mMainCamToggleBtn, &QPushButton::pressed,
     this, &FuMainMeaPage::onMainCamBtnPressed);
+
+    connect(mUi->mThermalCamToggleBtn, &QPushButton::pressed,
+    this, &FuMainMeaPage::onThermalCamBtnPressed);
 
     connect(mUi->mSaveToggleBtn, &QPushButton::toggled,
         this, &FuMainMeaPage::onSaveBtnToggled);
@@ -82,6 +88,29 @@ void TF::FuMainMeaPage::onMainCamBtnPressed() {
         if (mMainCamPlaying.load()) {
             mVideoWid->stop();
             mMainCamPlaying.store(false);
+        }
+    }
+}
+
+void TF::FuMainMeaPage::onThermalCamBtnPressed() {
+    // Start stream
+    if (!mUi->mThermalCamToggleBtn->isChecked()) {
+        if (!ThermalManager::instance().getThermalOnState()) {
+            try {
+                ThermalManager::instance().start();
+            } catch (TFPromptException &e) {
+                QMessageBox::critical(this, "错误", e.what());
+            }
+        }
+    }
+    // Stop stream
+    else if (mUi->mThermalCamToggleBtn->isChecked()) {
+        if (ThermalManager::instance().getThermalOnState()) {
+            try {
+                ThermalManager::instance().stop();
+            } catch (TFPromptException &e) {
+                QMessageBox::critical(this, "错误", e.what());
+            }
         }
     }
 }

@@ -53,9 +53,9 @@ namespace TF {
         QHBoxLayout *mCtrlHLayout{};
 
         TechToggleButton* mMainCamToggleBtn{nullptr};
+        TechToggleButton* mThermalCamToggleBtn{nullptr};
         TechToggleButton* mAiToggleBtn{nullptr};
         TechToggleButton* mSaveToggleBtn{nullptr};
-        TechActionButton* mRefreshOnceBtn{nullptr};
 
         int mMainVideoStretch {6};
         int mSideColumnStretch {2};
@@ -67,7 +67,8 @@ namespace TF {
         // Curves
         QWidget *mStatisticsWid {nullptr};
         QVBoxLayout *mStatisticsVLayout {nullptr};
-        T_QtBase::TSweepCurveViewer *mCurveViewer {nullptr};
+
+        T_QtBase::TSweepCurveViewer *mFireHeightCurveViewer {nullptr};
 
     };
 } // TF

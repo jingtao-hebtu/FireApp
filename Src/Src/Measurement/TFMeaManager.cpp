@@ -7,10 +7,10 @@ void TF::TFMeaManager::init() {
 }
 
 void TF::TFMeaManager::receiveNewValue(float value) {
-    if (!mCurveViewer) {
+    if (!mFireHeightCurveViewer) {
         return;
     }
 
-    emit mCurveViewer->receiveNextValue(value);
+    emit mFireHeightCurveViewer->receiveNextValue(value);
 }
 

@@ -10,6 +10,7 @@ Copyright(C), tao.jing All rights reserved
 **************************************************************************/
 #include "ThermalManager.h"
 #include "ThermalCamera.h"
+#include "TFException.h"
 #include "TConfig.h"
 #include "TLog.h"
 
@@ -23,23 +24,53 @@ void TF::ThermalManager::init() {
 
 void TF::ThermalManager::initAfterWid() {
     if (mOpenOnInit) {
-        start();
+        try {
+            start();
+        } catch (TFException& e) {
+            LOG_F(ERROR, "红外模组初始化失败, 请检查模块连接. %s", e.what());
+        }
     }
 }
 
 void TF::ThermalManager::start() {
     if (mStarted.load()) {
+        TF_LOG_THROW_PROMPT("红外模块已经启动.");
+    }
+
+    if (!mThermalCamera) {
+        TF_LOG_THROW_PROMPT("ThermalCamera未初始化.");
+    }
+
+    try {
+        bool ret = mThermalCamera->start(mWidth, mHeight, mFps);
+        if (!ret) {
+            TF_LOG_THROW_PROMPT("红外模组初始化失败, 请检查模块连接.");
+        }
+    } catch (std::exception &e) {
+        TF_LOG_THROW_PROMPT("红外模组初始化失败, 请检查模块连接. %s", e.what());
+    } catch (...) {
+        TF_LOG_THROW_PROMPT("红外模组初始化失败, 请检查模块连接. %s");
+    }
+    mStarted.store(true);
+}
+
+void TF::ThermalManager::stop() {
+    if (!mStarted.load()) {
+        TF_LOG_THROW_PROMPT("红外模块已经关闭.");
         return;
     }
 
     if (!mThermalCamera) {
+        TF_LOG_THROW_PROMPT("ThermalCamera未初始化.");
         return;
     }
 
-    bool ret = mThermalCamera->start(mWidth, mHeight, mFps);
-    if (!ret) {
-        LOG_F(ERROR, "Thermal camera failed to start");
+    try {
+        mThermalCamera->stop();
+    } catch (std::exception &e) {
+        TF_LOG_THROW_PROMPT("红外模组关闭失败, 请检查模块连接. %s", e.what());
+    } catch (...) {
+        TF_LOG_THROW_PROMPT("红外模组关闭失败, 请检查模块连接.");
     }
-
-    mStarted.store(true);
+    mStarted.store(false);
 }

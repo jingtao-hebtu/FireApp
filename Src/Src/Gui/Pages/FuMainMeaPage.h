@@ -26,6 +26,8 @@ namespace TF {
     private slots:
         void onMainCamBtnPressed();
 
+        void onThermalCamBtnPressed();
+
         void onSaveBtnToggled(bool checked);
 
         void onAiBtnToggled(bool checked);

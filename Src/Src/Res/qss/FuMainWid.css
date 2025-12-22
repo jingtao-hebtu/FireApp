@@ -43,6 +43,7 @@ QToolButton[sideTab="true"] {
     color: #9fb0c8;
     font-size: 11px;
     font-weight: 600;
+    font-family: "微软雅黑";
     letter-spacing: 0.3px;
 }
 
@@ -90,16 +91,32 @@ QLabel[description="true"] {
     letter-spacing: 0.5px;
 }
 
-#InfraredVideoWid, #StatisticsWid {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #10182d, stop:1 #0b1222);
-    border: 1px solid #1b263b;
-    border-radius: 10px;
-}
-
 QToolTip {
     background-color: #0b1222;
     color: #d7e3ff;
     border: 1px solid #1f2c46;
     border-radius: 6px;
     padding: 6px 8px;
+}
+
+#InfraredVideoWid {
+    border: 2px solid #2b364b;
+    border-radius: 6px;
+    background: qlineargradient(x1:0, y1:0, x2:0.2, y2:1, stop:0 #121b32, stop:1 #0a0f1c);
+}
+
+#StatisticsWid {
+    border: 2px solid #2b364b;
+    border-radius: 6px;
+    background: qlineargradient(x1:0, y1:0, x2:0.2, y2:1, stop:0 #121b32, stop:1 #0a0f1c);
+}
+
+QMessageBox {
+    background-color: #0F1628;
+}
+
+QMessageBox .QLabel {
+    color: #FFFFFF;
+    font-size: 16px;
+    font-family: "微软雅黑";
 }
