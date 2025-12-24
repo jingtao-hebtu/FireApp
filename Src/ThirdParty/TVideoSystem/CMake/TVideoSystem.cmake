@@ -11,6 +11,9 @@ ENDIF ()
 
 file(GLOB_RECURSE T_VIDEO_SYSTEM_SRC "${T_VIDEO_SYSTEM_DIR}/*.cpp")
 
+set(T_VIDEO_SYSTEM_SRC "${T_VIDEO_SYSTEM_SRC};${T_VIDEO_SYSTEM_DIR}/Onvif/onvif.qrc;")
+
+
 set(INCLUDE_DIRS "")
 foreach (FILE_PATH ${T_VIDEO_SYSTEM_SRC})
     get_filename_component(DIR_PATH ${FILE_PATH} PATH)

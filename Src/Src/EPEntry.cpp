@@ -11,6 +11,7 @@
 #include <QApplication>
 #include "AppMonitor.h"
 #include "FuMainWid.h"
+#include "frmconfigipcsearch.h"
 
 
 int main(int argc, char *argv[]) {
@@ -24,6 +25,9 @@ int main(int argc, char *argv[]) {
 
     TF::FuMainWid win;
     win.show();
+
+    //frmConfigIpcSearch win;
+    //win.show();
 
     TF::AppMonitor::instance().initAfterWid();
 

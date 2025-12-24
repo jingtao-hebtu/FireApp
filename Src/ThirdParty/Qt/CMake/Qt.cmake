@@ -34,6 +34,7 @@ find_package(Qt6 COMPONENTS
         Charts
         OpenGLWidgets
         PrintSupport
+        Xml
         Core5Compat
         REQUIRED)
 
@@ -56,6 +57,7 @@ set(QT_LIBS
         Qt::Core5Compat
         Qt::PrintSupport
         Qt::Sql
+        Qt::Xml
         Qt::Charts
         Qt::Svg
         Qt::SvgWidgets
