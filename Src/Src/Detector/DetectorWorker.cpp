@@ -4,6 +4,8 @@
 #include "TLog.h"
 #include <QtGlobal>
 
+#include "TFMeaManager.h"
+
 
 namespace TF {
 
@@ -84,14 +86,21 @@ namespace TF {
             }
 
             float max_height = 0.0f;
+            float max_area = 0.0f;
             for (const auto& detection : detections) {
                 auto box_height = static_cast<float>(detection.box.height);
                 max_height = max_height > box_height ? max_height : box_height;
+
+                auto area = static_cast<float>(detection.box.height * detection.box.width);
+                max_area = max_area > area ? max_area : area;
             }
+
+            TFMeaManager::instance().receiveStatistics({
+                max_height, max_area,
+            });
 
             QImage q_im = QtOcv::mat2Image(cv_im);
             emit frameProcessed(task.sourceFlag, q_im, max_height, task.timeCost);
-
         }
     }
 }

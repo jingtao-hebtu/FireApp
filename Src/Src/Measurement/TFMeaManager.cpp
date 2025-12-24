@@ -26,3 +26,8 @@ void TF::TFMeaManager::receiveStatistics(float height, float area) {
     receiveHeightValue(height);
     receiveAreaValue(area);
 }
+
+void TF::TFMeaManager::receiveStatistics(const TFMeaData& data) {
+    receiveHeightValue(data.mFireHeight);
+    receiveAreaValue(data.mFireArea);
+}
