@@ -14,8 +14,19 @@ if (WIN32)
 
     link_directories(${T_LIBUVC_LIB_PATH}/Lib/Win)
 
-    set(LIBUSB_LIBS libusb-1.0 uvcstatic pthread)
+    set(LIBUVC_LIBS libusb-1.0 uvcstatic pthread)
 elseif (UNIX)
+    # Linux only part
+    if(UNIX AND NOT APPLE)
+        find_package(Threads REQUIRED)
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(LIBUSB REQUIRED IMPORTED_TARGET libusb-1.0)
 
+        set(LIBUVC_LIB_PATH "/home/fire/project/library/libuvc/install/release")
+
+        include_directories(${LIBUVC_LIB_PATH}/include)
+        link_directories(${LIBUVC_LIB_PATH}/lib)
+        set(LIBUVC_LIBS uvcstatic PkgConfig::LIBUSB Threads::Threads)
+    endif()
 endif ()
 

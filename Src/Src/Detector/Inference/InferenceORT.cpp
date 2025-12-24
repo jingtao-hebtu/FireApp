@@ -36,6 +36,9 @@
 
 TF::InferenceORT::InferenceORT(const std::string &model_path) {
 
+    inputNodeNames.reserve(20);
+    outputNodeNames.reserve(20);
+
     DL_INIT_PARAM params;
     params.rectConfidenceThreshold = GET_FLOAT_CONFIG("VisionMea", "RectConfidenceThreshold");
     params.iouThreshold = GET_FLOAT_CONFIG("VisionMea", "IouThreshold");;
@@ -173,7 +176,17 @@ bool TF::InferenceORT::CreateSession(DL_INIT_PARAM &iParams) {
             cudaEnable = iParams.cudaEnable;
             OrtCUDAProviderOptions cudaOption;
             cudaOption.device_id = 0;
+
+            // TRT 优先
+            //Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Tensorrt(sessionOption, cudaOption.device_id));
+            // CUDA 兜底
+            //Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CUDA(sessionOption, cudaOption.device_id));
+
             sessionOption.AppendExecutionProvider_CUDA(cudaOption);
+
+            //OrtTensorRTProviderOptions tensorrtOption;
+            //tensorrtOption.device_id = 0;
+            //sessionOption.AppendExecutionProvider_TensorRT(tensorrtOption);
         }
         sessionOption.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
         sessionOption.SetIntraOpNumThreads(iParams.intraOpNumThreads);
@@ -197,16 +210,19 @@ bool TF::InferenceORT::CreateSession(DL_INIT_PARAM &iParams) {
         for (size_t i = 0; i < inputNodesNum; i++) {
             Ort::AllocatedStringPtr input_node_name = mSession->GetInputNameAllocated(i, allocator);
             char *temp_buf = new char[50];
+            memset(temp_buf, 0, 50);
             strcpy(temp_buf, input_node_name.get());
             inputNodeNames.push_back(temp_buf);
         }
         size_t OutputNodesNum = mSession->GetOutputCount();
         for (size_t i = 0; i < OutputNodesNum; i++) {
             Ort::AllocatedStringPtr output_node_name = mSession->GetOutputNameAllocated(i, allocator);
-            char *temp_buf = new char[10];
+            char *temp_buf = new char[50];
+            memset(temp_buf, 0, 50);
             strcpy(temp_buf, output_node_name.get());
             outputNodeNames.push_back(temp_buf);
         }
+
         options = Ort::RunOptions{nullptr};
 
         auto out0_info = mSession->GetOutputTypeInfo(0).GetTensorTypeAndShapeInfo();

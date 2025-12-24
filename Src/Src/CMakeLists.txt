@@ -43,7 +43,7 @@ target_link_libraries(${PROJECT_NAME}
         ${T_UTIL_LIB}
         ${OpenCV_LIBRARIES}
         ${ONNX_RUNTIME_LIBS}
-        ${LIBUSB_LIBS}
+        ${LIBUVC_LIBS}
         CUDA::cudart
         CUDA::cublas
 )

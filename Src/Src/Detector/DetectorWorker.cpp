@@ -80,7 +80,7 @@ namespace TF {
             if (TFDetectManager::instance().needPrintDebugInfo()) {
                 auto end = std::chrono::high_resolution_clock::now();
                 auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-                std::cout << "Detect time " << duration << " ms, detect_num " << detect_num << std::endl;
+                std::cout << "Detect time " << duration.count() << " ms, detect_num " << detect_num << std::endl;
             }
 
             float max_height = 0.0f;
