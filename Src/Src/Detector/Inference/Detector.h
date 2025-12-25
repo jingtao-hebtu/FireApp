@@ -20,6 +20,8 @@ namespace TF {
 
     class InferenceORT;
 
+    class InferenceTRT;
+
     class Detector {
 
     public:
@@ -41,8 +43,17 @@ namespace TF {
                        std::vector<Detection> &detections);
 
     private:
+        bool initORT();
+
+        bool initTRT();
+
+    private:
+        std::string mDetMode;
+
         bool mRunOnGPU{true};
+
         InferenceORT *mInfORT{nullptr};
+        InferenceTRT *mInfTRT{nullptr};
     };
 
 };

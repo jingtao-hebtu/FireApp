@@ -29,11 +29,10 @@ namespace TF {
         void init();
 
     public:
-        void runInference(const cv::Mat &input);
+        trtyolo::SegmentRes runInference(const cv::Mat &input);
 
     private:
         std::atomic<bool> mInitialized {false};
-
         std::string mEnginePath {};
 
         trtyolo::InferOption mOption;

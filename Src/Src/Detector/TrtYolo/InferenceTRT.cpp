@@ -10,9 +10,11 @@
 **************************************************************************/
 #include "InferenceTRT.h"
 #include "TConfig.h"
+#include "TLog.h"
 
 
 TF::InferenceTRT::InferenceTRT() {
+    init();
 }
 
 TF::InferenceTRT::~InferenceTRT() {
@@ -25,7 +27,11 @@ void TF::InferenceTRT::init() {
     mModel = std::make_unique<trtyolo::SegmentModel>(mEnginePath, mOption);
 }
 
-void TF::InferenceTRT::runInference(const cv::Mat& input) {
-    cv::resize(input, input, cv::Size(640, 640));
-    trtyolo::Image img(input.data, input.cols, input.rows);
+trtyolo::SegmentRes TF::InferenceTRT::runInference(const cv::Mat& input) {
+    auto frame = input.clone();
+    cv::resize(frame, frame, cv::Size(640, 640));
+    trtyolo::Image img(frame.data, frame.cols, frame.rows);
+
+    auto result = mModel->predict(img);
+    return result;
 }
