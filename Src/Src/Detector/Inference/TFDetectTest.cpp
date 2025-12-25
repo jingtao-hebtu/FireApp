@@ -52,7 +52,7 @@ void detectTest() {
     float scale = 0.6f;
     cv::resize(frame, frame,
                cv::Size(static_cast<int>(frame.cols*scale), static_cast<int>(frame.rows*scale)));
-    cv::imshow("Inference", frame);
+    //cv::imshow("Inference", frame);
 
-    cv::waitKey(-1);
+    //cv::waitKey(-1);
 }

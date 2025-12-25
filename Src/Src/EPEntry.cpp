@@ -11,7 +11,6 @@
 #include <QApplication>
 #include "AppMonitor.h"
 #include "FuMainWid.h"
-#include "frmconfigipcsearch.h"
 
 
 int main(int argc, char *argv[]) {

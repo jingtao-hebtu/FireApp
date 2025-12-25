@@ -25,6 +25,7 @@ find_package(Qt6 COMPONENTS
         Gui
         Widgets
         MultimediaWidgets
+        PrintSupport
         Concurrent
         Network
         OpenGL
@@ -33,7 +34,6 @@ find_package(Qt6 COMPONENTS
         SvgWidgets
         Charts
         OpenGLWidgets
-        PrintSupport
         Xml
         Core5Compat
         SerialPort

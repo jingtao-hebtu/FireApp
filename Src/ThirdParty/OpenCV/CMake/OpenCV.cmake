@@ -19,7 +19,7 @@ if (WIN32)
 
 else ()
 
-    find_package(OpenCV QUIET COMPONENTS core imgproc videoio dnn highgui)
+    find_package(OpenCV QUIET COMPONENTS core imgproc videoio dnn)
     if (NOT OpenCV_FOUND)
         if (UNIX)
             pkg_check_modules(OPENCV QUIET IMPORTED_TARGET opencv4)
