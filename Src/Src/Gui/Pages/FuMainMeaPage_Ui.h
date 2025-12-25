@@ -9,6 +9,8 @@ class VideoWidget;
 class QCheckBox;
 class QPushButton;
 class QString;
+class QLabel;
+class QLineEdit;
 
 
 namespace T_QtBase {
@@ -57,10 +59,16 @@ namespace TF {
         QWidget *mCtrlWid{};
         QHBoxLayout *mCtrlHLayout{};
 
+        // Control area
         TechToggleButton* mMainCamToggleBtn{nullptr};
         TechToggleButton* mThermalCamToggleBtn{nullptr};
         TechToggleButton* mAiToggleBtn{nullptr};
         TechToggleButton* mSaveToggleBtn{nullptr};
+
+        QLabel* mDistLabel {nullptr};
+        QLineEdit* mDistEdit {nullptr};
+        QLabel* mTiltAngleLabel {nullptr};
+        QLineEdit* mTiltAngleEdit {nullptr};
 
         int mMainVideoStretch {6};
         int mSideColumnStretch {2};

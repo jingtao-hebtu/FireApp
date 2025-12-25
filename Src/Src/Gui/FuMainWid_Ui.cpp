@@ -10,7 +10,8 @@ Copyright(C), tao.jing All rights reserved
 **************************************************************************/
 #include "FuMainWid_Ui.h"
 #include "FuMainMeaPage.h"
-#include "Controls/FuSideTab/FuSideTabBar.h"
+#include "FuSideTabBar.h"
+#include "TFMeaManager.h"
 
 #include <QLabel>
 #include <QObject>
@@ -37,6 +38,7 @@ void TF::FuMainWid_Ui::setupUi(QWidget *wid) {
 
     mMainMeaPage = new FuMainMeaPage(mContentWidget);
     mMainMeaPage->setObjectName("VideoPage");
+    TFMeaManager::instance().setMeaPage(mMainMeaPage);
 
     auto createPage = [](const QString &title, const QString &desc) {
         auto *page = new QWidget();

@@ -36,6 +36,7 @@ find_package(Qt6 COMPONENTS
         PrintSupport
         Xml
         Core5Compat
+        SerialPort
         REQUIRED)
 
 if (Qt6_FOUND)
@@ -61,4 +62,5 @@ set(QT_LIBS
         Qt::Charts
         Qt::Svg
         Qt::SvgWidgets
+        Qt::SerialPort
 )

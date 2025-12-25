@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
 
     TF::FuMainWid win;
     win.show();
+    TF::AppMonitor::instance().setMainWid(&win);
 
     //frmConfigIpcSearch win;
     //win.show();

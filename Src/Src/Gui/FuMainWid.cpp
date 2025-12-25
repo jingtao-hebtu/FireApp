@@ -10,13 +10,16 @@ Copyright(C), tao.jing All rights reserved
 **************************************************************************/
 #include "FuMainWid.h"
 #include "FuMainWid_Ui.h"
-#include "Controls/FuSideTab/FuSideTabBar.h"
+#include "FuSideTabBar.h"
+#include "FuMainMeaPage.h"
 #include <QFile>
+#include <QMessageBox>
 
 
 TF::FuMainWid::FuMainWid(QWidget* parent) : QWidget(parent) {
     setupUi();
     initStyle();
+    initActions();
 
     setupConnections();
 }
@@ -25,11 +28,14 @@ TF::FuMainWid::~FuMainWid() {
     delete mUi;
 }
 
+void TF::FuMainWid::initAfterDisplay() {
+    mUi->mMainMeaPage->initAfterDisplay();
+}
+
 void TF::FuMainWid::setupUi() {
     mUi = new FuMainWid_Ui();
     mUi->setupUi(this);
 }
-
 
 void TF::FuMainWid::initStyle() {
     QFile win_style_file(QString(":/qss/FuMainWid.css"));
@@ -38,6 +44,14 @@ void TF::FuMainWid::initStyle() {
         setStyleSheet(styleStr);
         win_style_file.close();
     }
+}
+
+void TF::FuMainWid::initActions() {
+    connect(this, &FuMainWid::promptError, this, &FuMainWid::promptError);
+}
+
+void TF::FuMainWid::onPromptError(const QString &msg) {
+    //QMessageBox::critical(this, "错误", msg);
 }
 
 void TF::FuMainWid::setupConnections() {

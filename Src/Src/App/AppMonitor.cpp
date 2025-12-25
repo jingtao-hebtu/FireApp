@@ -9,7 +9,7 @@ Copyright(C), tao.jing All rights reserved
    Brief  :
 **************************************************************************/
 #include "AppMonitor.h"
-#include <iostream>
+#include "FuMainWid.h"
 #include "TException.h"
 #include "TFException.h"
 #include "TFError.h"
@@ -17,6 +17,7 @@ Copyright(C), tao.jing All rights reserved
 #include "DetectManager.h"
 #include "ThermalManager.h"
 #include "TLog.h"
+#include <iostream>
 
 
 int TF::AppMonitor::initApp(int argc, char* argv[]) {
@@ -45,7 +46,13 @@ int TF::AppMonitor::initApp(int argc, char* argv[]) {
 }
 
 void TF::AppMonitor::initAfterWid() {
+    mMainWid->initAfterDisplay();
+
     ThermalManager::instance().initAfterWid();
+}
+
+void TF::AppMonitor::promptError(const char* msg) {
+    emit mMainWid->promptError(msg);
 }
 
 void TF::AppMonitor::initAppLog(int argc, char* argv[]) {

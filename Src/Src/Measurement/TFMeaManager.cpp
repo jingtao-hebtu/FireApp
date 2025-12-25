@@ -1,5 +1,6 @@
 #include "TFMeaManager.h"
 #include "TSweepCurveViewer.h"
+#include "FuMainMeaPage.h"
 
 
 void TF::TFMeaManager::init() {
@@ -30,4 +31,11 @@ void TF::TFMeaManager::receiveStatistics(float height, float area) {
 void TF::TFMeaManager::receiveStatistics(const TFMeaData& data) {
     receiveHeightValue(data.mFireHeight);
     receiveAreaValue(data.mFireArea);
+}
+
+void TF::TFMeaManager::updateCurDist(float dist) {
+    mCurDist = dist;
+    if (mMainMeaPage) {
+        emit mMainMeaPage->updateDist(dist);
+    }
 }

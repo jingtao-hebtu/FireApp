@@ -139,6 +139,30 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     mCtrlHLayout->addWidget(mSaveToggleBtn);
     mCtrlHLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
+    // Distance and Tilt Angle
+    auto dist_angle_glayout = new QGridLayout();
+    mCtrlHLayout->addLayout(dist_angle_glayout, 1);
+
+    mDistLabel = new QLabel(mWid);
+    mDistLabel->setObjectName("DistLabel");
+    mDistLabel->setText("距离: ");
+    mDistEdit = new QLineEdit(mWid);
+    mDistEdit->setObjectName("DistEdit");
+    mDistEdit->setText(" --- ");
+    dist_angle_glayout->addWidget(mDistLabel, 1, 1, 1, 1);
+    dist_angle_glayout->addWidget(mDistEdit, 1, 2, 1, 1);
+
+    mTiltAngleLabel = new QLabel(mWid);
+    mTiltAngleLabel->setObjectName("TiltAngleLabel");
+    mTiltAngleLabel->setText("倾角: ");
+    mTiltAngleEdit = new QLineEdit(mWid);
+    mTiltAngleEdit->setObjectName("TiltAngleEdit");
+    mTiltAngleEdit->setText(" --- ");
+    dist_angle_glayout->addWidget(mTiltAngleLabel, 2, 1, 1, 1);
+    dist_angle_glayout->addWidget(mTiltAngleEdit, 2, 2, 1, 1);
+
+    auto hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    mCtrlHLayout->addItem(hspacer);
 }
 
 void TF::FuMainMeaPage_Ui::setVideoAreaStretch(int mainVideoStretch, int sideColumnStretch) {

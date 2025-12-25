@@ -18,6 +18,8 @@ namespace TF {
 
     class FuMainWid_Ui;
 
+    class TFDistClient;
+
     class FuMainWid : public QWidget {
 
         Q_OBJECT
@@ -27,11 +29,21 @@ namespace TF {
 
         ~FuMainWid() final;
 
+        void initAfterDisplay();
+
     private:
         void setupUi();
         void setupConnections();
 
         void initStyle();
+
+        void initActions();
+
+    signals:
+        void promptError(const QString &msg);
+
+    private slots:
+        void onPromptError(const QString &msg);
 
     private:
         FuMainWid_Ui *mUi;

@@ -1,5 +1,6 @@
 #include "FuMainMeaPage.h"
 #include "FuMainMeaPage_Ui.h"
+#include "AppMonitor.h"
 #include "qthelper.h"
 #include "videohelper.h"
 #include "videowidgetx.h"
@@ -7,6 +8,7 @@
 #include "FuVideoButtons.h"
 #include "DetectManager.h"
 #include "ThermalManager.h"
+#include "TFDistClient.h"
 #include "TFException.h"
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -23,6 +25,10 @@ TF::FuMainMeaPage::~FuMainMeaPage() {
     delete mUi;
 }
 
+void TF::FuMainMeaPage::initAfterDisplay() {
+    initMea();
+}
+
 void TF::FuMainMeaPage::initActions() {
     connect(mUi->mMainCamToggleBtn, &QPushButton::pressed,
     this, &FuMainMeaPage::onMainCamBtnPressed);
@@ -35,6 +41,9 @@ void TF::FuMainMeaPage::initActions() {
 
     connect(mUi->mAiToggleBtn, &QPushButton::toggled,
         this, &FuMainMeaPage::onAiBtnToggled);
+
+    connect(this, &FuMainMeaPage::updateDist,
+        this, &FuMainMeaPage::onUpdateDist);
 }
 
 void TF::FuMainMeaPage::initForm() {
@@ -64,6 +73,22 @@ void TF::FuMainMeaPage::initForm() {
     mUi->mVideoWid->hideButtonAll();
 
     mVideoWid = mUi->mVideoWid;
+}
+
+void TF::FuMainMeaPage::initMea() {
+    // Measurement
+    mDistTimeoutTimer = new QTimer(this);
+    mDistTimeoutTimer->setInterval(3000);
+    mDistTimeoutTimer->setSingleShot(true);
+    connect(mDistTimeoutTimer, &QTimer::timeout, this, &FuMainMeaPage::onDistTimeout);
+
+    mDistClient = new TFDistClient(this);
+    try {
+        mDistClient->open();
+    } catch (TFPromptException &e) {
+        QMessageBox::critical(this, "错误", e.what());
+    }
+
 }
 
 void TF::FuMainMeaPage::onMainCamBtnPressed() {
@@ -163,4 +188,13 @@ void TF::FuMainMeaPage::onAiBtnToggled(bool checked) {
         TFDetectManager::instance().stopDetect();
         mVideoWid->stopDetect();
     }
+}
+
+void TF::FuMainMeaPage::onUpdateDist(float dist) {
+    mUi->mDistEdit->setText(QString::number(dist));
+    mDistTimeoutTimer->start();
+}
+
+void TF::FuMainMeaPage::onDistTimeout() {
+    mUi->mDistEdit->setText(" --- ");
 }

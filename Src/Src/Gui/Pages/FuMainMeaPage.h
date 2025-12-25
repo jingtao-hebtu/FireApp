@@ -5,10 +5,13 @@
 
 
 class VideoWidget;
+class QTimer;
 
 
 namespace TF {
     class FuMainMeaPage_Ui;
+
+    class TFDistClient;
 
     class FuMainMeaPage : public QWidget
     {
@@ -18,10 +21,17 @@ namespace TF {
         explicit FuMainMeaPage(QWidget* parent = 0);
         ~FuMainMeaPage() override;
 
+        void initAfterDisplay();
+
     private:
         void initActions();
 
         void initForm();
+
+        void initMea();
+
+    signals:
+        void updateDist(float dist);
 
     private slots:
         void onMainCamBtnPressed();
@@ -32,6 +42,10 @@ namespace TF {
 
         void onAiBtnToggled(bool checked);
 
+        // Measurements
+        void onUpdateDist(float dist);
+        void onDistTimeout();
+
     private:
         FuMainMeaPage_Ui* mUi;
         VideoWidget* mVideoWid{nullptr};
@@ -40,6 +54,10 @@ namespace TF {
         std::atomic<bool> mRecording{false};
 
         QString mCurrentUrl;
+
+        // Measurement
+        TFDistClient *mDistClient{nullptr};
+        QTimer *mDistTimeoutTimer{nullptr};
     };
 
 } // TF

@@ -11,11 +11,19 @@ namespace T_QtBase {
 
 
 namespace TF {
+
+    class FuMainMeaPage;
+
     class TFMeaManager : public TBase::TSingleton<TFMeaManager>
     {
     public:
         void init();
 
+    public:
+        // Widgets
+        void setMeaPage(FuMainMeaPage *page) {mMainMeaPage = page;}
+
+        // Statistic curves
         void setHeightCurveViewer(T_QtBase::TSweepCurveViewer *viewer) {mFireHeightCurveViewer = viewer;}
         void setAreaCurveViewer(T_QtBase::TSweepCurveViewer *viewer) {mFireAreaCurveViewer = viewer;}
 
@@ -25,9 +33,16 @@ namespace TF {
         void receiveStatistics(float height, float area);
         void receiveStatistics(const TFMeaData &data);
 
+        // Distance LDS50
+        void updateCurDist(float dist);
+
     private:
         T_QtBase::TSweepCurveViewer *mFireHeightCurveViewer {};
         T_QtBase::TSweepCurveViewer *mFireAreaCurveViewer {};
+
+        FuMainMeaPage *mMainMeaPage {};
+
+        float mCurDist {};
 
     };
 };
