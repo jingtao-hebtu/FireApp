@@ -2,6 +2,8 @@
 
 #include <QMutexLocker>
 
+#include "TCvMatQImage.h"
+
 namespace TF {
 
     namespace {
@@ -26,12 +28,24 @@ namespace TF {
             return;
         }
 
+        if (image.isNull() || image.width() <= 0 || image.height() <= 0) {
+            return;
+        }
+
+        cv::Mat safeMat = QtOcv::image2Mat(image, CV_8UC3).clone();
+        if (safeMat.empty()) {
+            return;
+        }
+
         QMutexLocker locker(&mMutex);
         if (mTasks.size() >= MaxQueueSize) {
             mTasks.dequeue();
         }
 
-        mTasks.enqueue({sourceFlag, image, timeCost});
+        // Store a copied cv::Mat to avoid referencing buffers that might be
+        // released once playback stops, while skipping a second deep copy
+        // when the worker converts the frame.
+        mTasks.enqueue({sourceFlag, std::move(safeMat), timeCost});
         mCond.wakeOne();
     }
 

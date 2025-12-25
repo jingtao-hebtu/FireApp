@@ -4,6 +4,8 @@
 #include "TLog.h"
 #include <QtGlobal>
 
+#include <opencv2/imgproc.hpp>
+
 #include "TFMeaManager.h"
 
 
@@ -32,40 +34,42 @@ namespace TF {
     }
 
     void DetectorWorker::processFrame(const DetectionTask &task) {
-        if (task.image.isNull()) {
+        if (task.image.empty()) {
             return;
         }
 
-        QImage converted = task.image.convertToFormat(QImage::Format_ARGB32);
-        const int width = converted.width();
-        const int height = converted.height();
+        const int width = task.image.cols;
+        const int height = task.image.rows;
         if (width <= 0 || height <= 0) {
             return;
         }
 
-        quint64 graySum = 0;
-        for (int y = 0; y < height; ++y) {
-            const QRgb *line = reinterpret_cast<const QRgb *>(converted.constScanLine(y));
-            for (int x = 0; x < width; ++x) {
-                graySum += qGray(line[x]);
-            }
-        }
+        cv::Scalar meanScalar = cv::mean(task.image);
+        const double mean = (meanScalar[0] + meanScalar[1] + meanScalar[2]) / 3.0;
 
-        const int pixelCount = width * height;
-        const double mean = pixelCount > 0 ? static_cast<double>(graySum) / pixelCount : 0.0;
-
-        emit frameProcessed(task.sourceFlag, task.image, mean, task.timeCost);
+        QImage preview = QtOcv::mat2Image(task.image);
+        emit frameProcessed(task.sourceFlag, preview, mean, task.timeCost);
     }
 
     void DetectorWorker::processDetect(const DetectionTask& task) {
         if (TFDetectManager::instance().isDetecting()) {
+
+            if (task.image.empty()) {
+                return;
+            }
+
+            const int width = task.image.cols;
+            const int height = task.image.rows;
+            if (width <= 0 || height <= 0) {
+                return;
+            }
 
             std::chrono::high_resolution_clock::time_point start;
             if (TFDetectManager::instance().needPrintDebugInfo()) {
                 start = std::chrono::high_resolution_clock::now();
             }
 
-            cv::Mat cv_im = QtOcv::image2Mat(task.image, CV_8UC3).clone();
+            cv::Mat cv_im = task.image;
 
             size_t detect_num = 0;
             std::vector<Detection> detections;
