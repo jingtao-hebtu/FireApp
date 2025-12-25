@@ -1,18 +1,21 @@
 #pragma once
 
 #include <QImage>
-#include <QString>
 #include <QMutex>
 #include <QQueue>
+#include <QString>
 #include <QWaitCondition>
 #include <atomic>
+
+#include <opencv2/core.hpp>
+
 #include "TSingleton.h"
 
 namespace TF {
 
     struct DetectionTask {
         QString sourceFlag;
-        QImage image;
+        cv::Mat image;
         int timeCost{0};
     };
 
