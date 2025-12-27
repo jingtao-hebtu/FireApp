@@ -288,16 +288,16 @@ void TF::FuMainMeaPage::onBmsConnectionStateChanged(bool connected) {
 
 
 void TF::FuMainMeaPage::onUpdateDist(float dist) {
-    mUi->mDistEdit->setText(QString::number(dist));
+    mUi->mDistValueLabel->setText(QString::number(dist, 'f', 1));
     mDistTimeoutTimer->start();
 }
 
 void TF::FuMainMeaPage::onDistTimeout() {
-    mUi->mDistEdit->setText(" --- ");
+    mUi->mDistValueLabel->setText("---");
 }
 
 void TF::FuMainMeaPage::onUpdateWitImuData(const WitImuData& data) {
     mImuData = data;
     auto tilt_angle = data.angle.x;
-    mUi->mTiltAngleEdit->setText(QString::number(tilt_angle));
+    mUi->mTiltAngleValueLabel->setText(QString::number(tilt_angle, 'f', 1));
 }

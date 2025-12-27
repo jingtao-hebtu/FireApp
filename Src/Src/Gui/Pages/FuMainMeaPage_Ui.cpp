@@ -15,10 +15,8 @@
 #include <QFrame>
 #include <QProgressBar>
 #include <QStyle>
-#include <QLabel>
-#include <QLineEdit>
-#include <QGridLayout>
 #include <QSpacerItem>
+#include <QLabel>
 
 
 void TF::FuMainMeaPage_Ui::setupUi(QWidget* wid) {
@@ -151,30 +149,49 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     mCtrlHLayout->addWidget(mCamConfigBtn);
     mCtrlHLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
-    // Distance and Tilt Angle
-    auto dist_angle_glayout = new QGridLayout();
-    mCtrlHLayout->addLayout(dist_angle_glayout, 1);
+    mMetricsPanel = new QFrame(mWid);
+    mMetricsPanel->setObjectName("MetricsPanel");
+    mMetricsPanel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    mMetricsPanel->setFixedHeight(66);
 
-    mDistLabel = new QLabel(mWid);
-    mDistLabel->setObjectName("DistLabel");
-    mDistLabel->setText("距离: ");
-    mDistEdit = new QLineEdit(mWid);
-    mDistEdit->setObjectName("DistEdit");
-    mDistEdit->setText(" --- ");
-    dist_angle_glayout->addWidget(mDistLabel, 1, 1, 1, 1);
-    dist_angle_glayout->addWidget(mDistEdit, 1, 2, 1, 1);
+    auto *metricsLayout = new QHBoxLayout(mMetricsPanel);
+    metricsLayout->setContentsMargins(12, 6, 12, 6);
+    metricsLayout->setSpacing(10);
 
-    mTiltAngleLabel = new QLabel(mWid);
-    mTiltAngleLabel->setObjectName("TiltAngleLabel");
-    mTiltAngleLabel->setText("倾角: ");
-    mTiltAngleEdit = new QLineEdit(mWid);
-    mTiltAngleEdit->setObjectName("TiltAngleEdit");
-    mTiltAngleEdit->setText(" --- ");
-    dist_angle_glayout->addWidget(mTiltAngleLabel, 2, 1, 1, 1);
-    dist_angle_glayout->addWidget(mTiltAngleEdit, 2, 2, 1, 1);
+    auto createMetricWidget = [&](const QString& title, QLabel** valueLabel) {
+        auto *item = new QWidget(mMetricsPanel);
+        item->setObjectName("MetricItem");
+        auto *itemLayout = new QVBoxLayout(item);
+        itemLayout->setContentsMargins(0, 0, 0, 0);
+        itemLayout->setSpacing(2);
 
-    auto hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Expanding);
-    mCtrlHLayout->addItem(hspacer);
+        auto *titleLabel = new QLabel(title, item);
+        titleLabel->setObjectName("MetricTitle");
+        titleLabel->setAlignment(Qt::AlignCenter);
+
+        auto *value = new QLabel(tr("---"), item);
+        value->setObjectName("MetricValue");
+        value->setAlignment(Qt::AlignCenter);
+
+        itemLayout->addWidget(titleLabel);
+        itemLayout->addWidget(value);
+
+        *valueLabel = value;
+        return item;
+    };
+
+    metricsLayout->addWidget(createMetricWidget(tr("距离 (m)"), &mDistValueLabel));
+
+    auto *metricDivider = new QFrame(mMetricsPanel);
+    metricDivider->setObjectName("MetricDivider");
+    metricDivider->setFrameShape(QFrame::VLine);
+    metricDivider->setFrameShadow(QFrame::Plain);
+    metricsLayout->addWidget(metricDivider);
+
+    metricsLayout->addWidget(createMetricWidget(tr("倾角 (°)"), &mTiltAngleValueLabel));
+
+    mCtrlHLayout->addWidget(mMetricsPanel);
+    mCtrlHLayout->setAlignment(mMetricsPanel, Qt::AlignVCenter);
 
     initBatteryInfoArea();
 }
@@ -182,12 +199,15 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
 void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     mBatteryPanel = new QFrame(mWid);
     mBatteryPanel->setObjectName("BatteryPanel");
-    mBatteryPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mBatteryPanel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    mBatteryPanel->setFixedHeight(66);
+    mBatteryPanel->setMinimumWidth(260);
+    mBatteryPanel->setMaximumWidth(320);
 
     auto *batteryLayout = new QHBoxLayout(mBatteryPanel);
     batteryLayout->setObjectName("BatteryLayout");
-    batteryLayout->setContentsMargins(12, 8, 12, 8);
-    batteryLayout->setSpacing(12);
+    batteryLayout->setContentsMargins(10, 6, 10, 6);
+    batteryLayout->setSpacing(10);
 
     auto *batteryColumn = new QVBoxLayout();
     batteryColumn->setContentsMargins(0, 0, 0, 0);
@@ -199,7 +219,7 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     mBatteryLevelBar->setFormat("%p%");
     mBatteryLevelBar->setAlignment(Qt::AlignCenter);
     mBatteryLevelBar->setTextVisible(true);
-    mBatteryLevelBar->setFixedSize(150, 26);
+    mBatteryLevelBar->setFixedSize(130, 22);
 
     mBatteryStatusLabel = new QLabel(tr("电量 --% · 未连接"), mBatteryPanel);
     mBatteryStatusLabel->setObjectName("BatteryStatusLabel");
@@ -236,6 +256,7 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     batteryLayout->setAlignment(mBatteryTempLabel, Qt::AlignVCenter);
 
     mCtrlHLayout->addWidget(mBatteryPanel);
+    mCtrlHLayout->setAlignment(mBatteryPanel, Qt::AlignVCenter);
 
     updateBatteryLevelVisuals(86);
 }
