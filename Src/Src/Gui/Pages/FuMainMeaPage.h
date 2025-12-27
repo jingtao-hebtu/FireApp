@@ -2,6 +2,7 @@
 #define FIREAPP_MAINMEAPAGE_H
 
 #include "WitImuData.h"
+#include "BmsData.h"
 #include <QWidget>
 
 #include "HKCamSearcher.h"
@@ -20,6 +21,10 @@ namespace TF {
     class WitImuSerial;
 
     class HKCamSearcher;
+
+    class CamConfigWid;
+
+    class BmsWorker;
 
     class FuMainMeaPage : public QWidget
     {
@@ -49,20 +54,28 @@ namespace TF {
         void requestWitImuClose();
         void updateWitImuData(const WitImuData& data);
 
+        // BMS
+        void initBms();
+        void startBms();
+        void stopBms();
+
     private slots:
         void onMainCamBtnPressed();
-
         void onThermalCamBtnPressed();
-
         void onSaveBtnToggled(bool checked);
-
         void onAiBtnToggled(bool checked);
 
         // Measurements
         void onUpdateDist(float dist);
         void onDistTimeout();
-
         void onUpdateWitImuData(const WitImuData& data);
+
+        // Cam
+        void onCamConfigBtnPressed();
+
+        // Bms
+        void onBmsStatusUpdated(const BmsStatus& status);
+        void onBmsConnectionStateChanged(bool connected);
 
     private:
         FuMainMeaPage_Ui* mUi;
@@ -83,6 +96,11 @@ namespace TF {
 
         // HK cam
         HKCamSearcher* mCamSearcher{nullptr};
+        CamConfigWid *mCamConfigWid{nullptr};
+
+        // BMS
+        QThread   *mBmsThread{nullptr};
+        BmsWorker *mBmsWorker{nullptr};
     };
 
 } // TF

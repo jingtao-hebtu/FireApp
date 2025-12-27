@@ -133,10 +133,14 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     mSaveToggleBtn = new TechToggleButton("保存视频", mWid);
     mSaveToggleBtn->setObjectName("StartStopSave");
 
+    mCamConfigBtn = new TechActionButton("相机配置", mWid);
+    mCamConfigBtn->setObjectName("CamConfig");
+
     mCtrlHLayout->addWidget(mMainCamToggleBtn);
     mCtrlHLayout->addWidget(mThermalCamToggleBtn);
     mCtrlHLayout->addWidget(mAiToggleBtn);
     mCtrlHLayout->addWidget(mSaveToggleBtn);
+    mCtrlHLayout->addWidget(mCamConfigBtn);
     mCtrlHLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
     // Distance and Tilt Angle

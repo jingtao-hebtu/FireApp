@@ -12,8 +12,12 @@
 #include "WitImuSerial.h"
 #include "HKCamSearcher.h"
 #include "TFException.h"
+#include "CamConfigWid.h"
+#include "BmsWorker.h"
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QPoint>
+#include <QRect>
 
 
 TF::FuMainMeaPage::FuMainMeaPage(QWidget* parent) : QWidget(parent), mUi(new FuMainMeaPage_Ui) {
@@ -51,6 +55,9 @@ void TF::FuMainMeaPage::initActions() {
 
     connect(this, &FuMainMeaPage::updateWitImuData,
             this, &FuMainMeaPage::onUpdateWitImuData);
+
+    connect(mUi->mCamConfigBtn, &QPushButton::pressed,
+        this, &FuMainMeaPage::onCamConfigBtnPressed);
 }
 
 void TF::FuMainMeaPage::initForm() {
@@ -83,8 +90,31 @@ void TF::FuMainMeaPage::initForm() {
 }
 
 void TF::FuMainMeaPage::initHardware() {
+    // HK Cam
     mCamSearcher = new HKCamSearcher(this);
     mCamSearcher->searchDevice();
+
+    // BMS
+    qRegisterMetaType<BmsStatus>("BmsStatus");
+    mBmsWorker = new BmsWorker();
+    mBmsThread = new QThread(this);
+    mBmsWorker->moveToThread(mBmsThread);
+
+    // 线程结束后安全销毁 worker（deleteLater 会在其线程上下文执行析构）
+    connect(mBmsThread, &QThread::finished, mBmsWorker, &QObject::deleteLater);
+
+    // UI -> worker（QueuedConnection，确保在 worker 线程执行）
+    connect(this, &FuMainMeaPage::initBms,  mBmsWorker, &BmsWorker::onInitialize, Qt::QueuedConnection);
+    connect(this, &FuMainMeaPage::startBms, mBmsWorker, &BmsWorker::onStart,      Qt::QueuedConnection);
+    connect(this, &FuMainMeaPage::stopBms,  mBmsWorker, &BmsWorker::onStop,       Qt::QueuedConnection);
+
+    // worker -> UI
+    connect(mBmsWorker, &BmsWorker::statusUpdated, this,
+        &FuMainMeaPage::onBmsStatusUpdated, Qt::QueuedConnection);
+    connect(mBmsWorker, &BmsWorker::connectionStateChanged, this,
+        &FuMainMeaPage::onBmsConnectionStateChanged, Qt::QueuedConnection);
+
+    mBmsThread->start();
 }
 
 void TF::FuMainMeaPage::initMea() {
@@ -233,6 +263,29 @@ void TF::FuMainMeaPage::onAiBtnToggled(bool checked) {
         mVideoWid->stopDetect();
     }
 }
+
+void TF::FuMainMeaPage::onCamConfigBtnPressed() {
+    if (!mUi || !mUi->mVideoSideWid) {
+        return;
+    }
+
+    if (!mCamConfigWid) {
+        mCamConfigWid = new CamConfigWid(this);
+    }
+
+    const QRect targetRect(mUi->mVideoSideWid->mapToGlobal(QPoint(0, 0)), mUi->mVideoSideWid->size());
+    mCamConfigWid->showAt(targetRect);
+}
+
+void TF::FuMainMeaPage::onBmsStatusUpdated(const BmsStatus& status) {
+    LOG_F(INFO, "BMS total voltage %f", status.mTotalVoltage_V);
+    LOG_F(INFO, "BMS remain capacity %f", status.mRemainCapacity_Ah);
+}
+
+void TF::FuMainMeaPage::onBmsConnectionStateChanged(bool connected) {
+    LOG_F(INFO, "BMS connection state %d", connected);
+}
+
 
 void TF::FuMainMeaPage::onUpdateDist(float dist) {
     mUi->mDistEdit->setText(QString::number(dist));

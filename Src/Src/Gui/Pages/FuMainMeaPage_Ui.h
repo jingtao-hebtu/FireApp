@@ -64,6 +64,7 @@ namespace TF {
         TechToggleButton* mThermalCamToggleBtn{nullptr};
         TechToggleButton* mAiToggleBtn{nullptr};
         TechToggleButton* mSaveToggleBtn{nullptr};
+        TechActionButton* mCamConfigBtn{nullptr};
 
         QLabel* mDistLabel {nullptr};
         QLineEdit* mDistEdit {nullptr};

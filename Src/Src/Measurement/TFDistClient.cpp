@@ -129,11 +129,13 @@ bool TF::TFDistClient::open() {
     mRunning.store(true);
     mParseThread = std::thread(&TFDistClient::parseLoop, this);
 
-    auto timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, [this] {
-        this->triggerOnceReadDistance();
-    });
-    timer->start(1000);
+    if (mMode == "Trigger") {
+        auto timer = new QTimer(this);
+        connect(timer, &QTimer::timeout, this, [this] {
+            this->triggerOnceReadDistance();
+        });
+        timer->start(1000);
+    }
 
     return true;
 }
