@@ -4,9 +4,12 @@
 #include "WitImuData.h"
 #include <QWidget>
 
+#include "HKCamSearcher.h"
+
 
 class VideoWidget;
 class QTimer;
+
 
 
 namespace TF {
@@ -15,6 +18,8 @@ namespace TF {
     class TFDistClient;
 
     class WitImuSerial;
+
+    class HKCamSearcher;
 
     class FuMainMeaPage : public QWidget
     {
@@ -30,6 +35,8 @@ namespace TF {
         void initActions();
 
         void initForm();
+
+        void initHardware();
 
         void initMea();
 
@@ -73,6 +80,9 @@ namespace TF {
         WitImuSerial *mWitImuSerial{nullptr};
         QThread *mWitImuSerialThread{nullptr};
         WitImuData mImuData;
+
+        // HK cam
+        HKCamSearcher* mCamSearcher{nullptr};
     };
 
 } // TF

@@ -19,6 +19,7 @@ namespace TF {
 
     class FuSideTabBar;
     class FuMainMeaPage;
+    class FuCamPage;
 
     class FuMainWid_Ui {
 
@@ -41,6 +42,7 @@ namespace TF {
         QVector<QWidget *> mPages;
 
         FuMainMeaPage *mMainMeaPage {nullptr};
+        FuCamPage *mCamPage {nullptr};
     };
 
 };

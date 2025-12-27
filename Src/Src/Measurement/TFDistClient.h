@@ -5,7 +5,7 @@
  **************************************************************************
    File   : FILE_NAME
    Author : tao.jing
-   Date   : 2025年12月24日
+   Date   : 2025.12.24
    Brief  :
 **************************************************************************/
 #ifndef FIREAPP_TFDISTCLIENT_H
@@ -121,6 +121,8 @@ namespace TF {
         void onBytesArrived(const QByteArray& bytes);
 
     private:
+        bool triggerOnceReadDistance();
+
         void parseLoop();
 
         static uint16_t crc16Rtu(const uint8_t* data, size_t len);
@@ -130,10 +132,13 @@ namespace TF {
         static constexpr uint8_t H1 = 0x03;
         static constexpr uint8_t H2 = 0x04;
 
-        static QByteArray cmdOpenContinuous(); // 01 06 00 11 00 02 58 0E
+        static QByteArray cmdOpenContinuous();   // 01 06 00 11 00 02 58 0E
+        static QByteArray cmdReadDistanceOnce(); // 01 03 00 15 00 02 D5 CF
         static QByteArray cmdClose(); // 01 06 00 11 00 00 D9 CF
 
     private:
+        std::string mMode;
+
         // worker thread
         QThread mRecvThread;
         DistRecvWorker* mWorker = nullptr;

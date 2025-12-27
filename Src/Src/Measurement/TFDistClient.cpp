@@ -5,13 +5,14 @@
  **************************************************************************
    File   : FILE_NAME
    Author : tao.jing
-   Date   : 2025年12月24日
+   Date   : 2025.12.24
    Brief  :
 **************************************************************************/
 #include "TFDistClient.h"
 #include "TFMeaManager.h"
 #include "TConfig.h"
 #include "TFException.h"
+#include <QTimer>
 #include <QDebug>
 
 
@@ -76,6 +77,8 @@ TF::TFDistClient::~TFDistClient() {
 bool TF::TFDistClient::open() {
     if (mRunning.load()) return true;
 
+    mMode = GET_STR_CONFIG("Distance", "Mode");
+
     mFilter.reset();
 
     DistSettings s;
@@ -108,21 +111,29 @@ bool TF::TFDistClient::open() {
     }
 
     // 2) Send start and continuous measurement cmd
-    const QByteArray openCmd = cmdOpenContinuous();
-    qint64 nWrite = -1;
-    QMetaObject::invokeMethod(
-        mWorker,
-        [&] { nWrite = mWorker->sendRaw(openCmd); },
-        Qt::BlockingQueuedConnection
-    );
-    if (nWrite != openCmd.size()) {
-        close();
-        return false;
+    if (mMode == "Continuous") {
+        const QByteArray openCmd = cmdOpenContinuous();
+        qint64 nWrite = -1;
+        QMetaObject::invokeMethod(
+            mWorker,
+            [&] { nWrite = mWorker->sendRaw(openCmd); },
+            Qt::BlockingQueuedConnection
+        );
+        if (nWrite != openCmd.size()) {
+            close();
+            return false;
+        }
     }
 
     // 3) Start parsing thread
     mRunning.store(true);
     mParseThread = std::thread(&TFDistClient::parseLoop, this);
+
+    auto timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, [this] {
+        this->triggerOnceReadDistance();
+    });
+    timer->start(1000);
 
     return true;
 }
@@ -272,7 +283,28 @@ QByteArray TF::TFDistClient::cmdOpenContinuous() {
     return QByteArray::fromHex("010600110002580E");
 }
 
+QByteArray TF::TFDistClient::cmdReadDistanceOnce() {
+    // 01 03 00 15 00 02 D5 CF
+    return QByteArray::fromHex("010300150002D5CF");
+}
+
 QByteArray TF::TFDistClient::cmdClose() {
     // 01 06 00 11 00 00 D9 CF
     return QByteArray::fromHex("010600110000D9CF");
+}
+
+bool TF::TFDistClient::triggerOnceReadDistance()
+{
+    if (!mWorker) return false;
+
+    const QByteArray readCmd = cmdReadDistanceOnce();
+
+    qint64 nWrite = -1;
+    QMetaObject::invokeMethod(
+        mWorker,
+        [&] { nWrite = mWorker->sendRaw(readCmd); },
+        Qt::BlockingQueuedConnection
+    );
+
+    return (nWrite == readCmd.size());
 }

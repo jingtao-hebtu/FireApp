@@ -10,6 +10,7 @@
 #include "ThermalManager.h"
 #include "TFDistClient.h"
 #include "WitImuSerial.h"
+#include "HKCamSearcher.h"
 #include "TFException.h"
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -29,6 +30,7 @@ TF::FuMainMeaPage::~FuMainMeaPage() {
 
 void TF::FuMainMeaPage::initAfterDisplay() {
     initMea();
+    initHardware();
 }
 
 void TF::FuMainMeaPage::initActions() {
@@ -78,6 +80,11 @@ void TF::FuMainMeaPage::initForm() {
     mUi->mVideoWid->hideButtonAll();
 
     mVideoWid = mUi->mVideoWid;
+}
+
+void TF::FuMainMeaPage::initHardware() {
+    mCamSearcher = new HKCamSearcher(this);
+    mCamSearcher->searchDevice();
 }
 
 void TF::FuMainMeaPage::initMea() {
