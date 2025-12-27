@@ -10,7 +10,6 @@ class QCheckBox;
 class QPushButton;
 class QString;
 class QLabel;
-class QLineEdit;
 class QProgressBar;
 class QFrame;
 
@@ -70,10 +69,9 @@ namespace TF {
         TechToggleButton* mSaveToggleBtn{nullptr};
         TechActionButton* mCamConfigBtn{nullptr};
 
-        QLabel* mDistLabel {nullptr};
-        QLineEdit* mDistEdit {nullptr};
-        QLabel* mTiltAngleLabel {nullptr};
-        QLineEdit* mTiltAngleEdit {nullptr};
+        QFrame* mMetricsPanel {nullptr};
+        QLabel* mDistValueLabel {nullptr};
+        QLabel* mTiltAngleValueLabel {nullptr};
 
         QFrame* mBatteryPanel {nullptr};
         QProgressBar* mBatteryLevelBar {nullptr};
