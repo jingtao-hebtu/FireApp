@@ -169,7 +169,7 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
         titleLabel->setObjectName("MetricTitle");
         titleLabel->setAlignment(Qt::AlignCenter);
 
-        auto *value = new QLabel(tr("---"), item);
+        auto *value = new QLabel(QCoreApplication::translate("Page", "---"), item);
         value->setObjectName("MetricValue");
         value->setAlignment(Qt::AlignCenter);
 
@@ -180,7 +180,7 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
         return item;
     };
 
-    metricsLayout->addWidget(createMetricWidget(tr("距离 (m)"), &mDistValueLabel));
+    metricsLayout->addWidget(createMetricWidget(QCoreApplication::translate("Page", "距离 (m)"), &mDistValueLabel));
 
     auto *metricDivider = new QFrame(mMetricsPanel);
     metricDivider->setObjectName("MetricDivider");
@@ -188,7 +188,7 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     metricDivider->setFrameShadow(QFrame::Plain);
     metricsLayout->addWidget(metricDivider);
 
-    metricsLayout->addWidget(createMetricWidget(tr("倾角 (°)"), &mTiltAngleValueLabel));
+    metricsLayout->addWidget(createMetricWidget(QCoreApplication::translate("Page", "倾角 (°)"), &mTiltAngleValueLabel));
 
     mCtrlHLayout->addWidget(mMetricsPanel);
     mCtrlHLayout->setAlignment(mMetricsPanel, Qt::AlignVCenter);
@@ -221,7 +221,7 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     mBatteryLevelBar->setTextVisible(true);
     mBatteryLevelBar->setFixedSize(130, 22);
 
-    mBatteryStatusLabel = new QLabel(tr("电量 --% · 未连接"), mBatteryPanel);
+    mBatteryStatusLabel = new QLabel(QCoreApplication::translate("Page", "电量 --% · 未连接"), mBatteryPanel);
     mBatteryStatusLabel->setObjectName("BatteryStatusLabel");
     mBatteryStatusLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
@@ -239,7 +239,7 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     mBatteryChargeIcon->setObjectName("BatteryChargeIcon");
     mBatteryChargeIcon->setAlignment(Qt::AlignCenter);
 
-    mBatteryChargeCurrent = new QLabel(tr("1.8 A"), mChargeInfoWidget);
+    mBatteryChargeCurrent = new QLabel(QCoreApplication::translate("Page", "1.8 A"), mChargeInfoWidget);
     mBatteryChargeCurrent->setObjectName("BatteryChargeCurrent");
     mBatteryChargeCurrent->setAlignment(Qt::AlignCenter);
 
@@ -248,7 +248,7 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
 
     batteryLayout->addWidget(mChargeInfoWidget);
 
-    mBatteryTempLabel = new QLabel(tr("温度 36.5°C"), mBatteryPanel);
+    mBatteryTempLabel = new QLabel(QCoreApplication::translate("Page", "温度 36.5°C"), mBatteryPanel);
     mBatteryTempLabel->setObjectName("BatteryTempLabel");
     mBatteryTempLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
@@ -287,14 +287,14 @@ void TF::FuMainMeaPage_Ui::updateBatteryLevelVisuals(int level) {
 
     QString statusText;
     if (level >= 95) {
-        statusText = tr("满电");
+        statusText = QCoreApplication::translate("Page", "满电");
     } else if (level < 20) {
-        statusText = tr("低电");
+        statusText = QCoreApplication::translate("Page", "低电");
     } else {
-        statusText = tr("正常");
+        statusText = QCoreApplication::translate("Page", "正常");
     }
 
-    mBatteryStatusLabel->setText(tr("电量 %1% · %2").arg(level).arg(statusText));
+    mBatteryStatusLabel->setText(QCoreApplication::translate("Page", "电量 %1% · %2").arg(level).arg(statusText));
 }
 
 void TF::FuMainMeaPage_Ui::setVideoAreaStretch(int mainVideoStretch, int sideColumnStretch) {
