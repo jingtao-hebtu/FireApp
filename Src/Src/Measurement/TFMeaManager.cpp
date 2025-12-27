@@ -39,3 +39,10 @@ void TF::TFMeaManager::updateCurDist(float dist) {
         emit mMainMeaPage->updateDist(dist);
     }
 }
+
+void TF::TFMeaManager::updateWitImuData(const WitImuData &data) {
+    mCurWitImuData = data;
+    if (mMainMeaPage) {
+        emit mMainMeaPage->updateWitImuData(data);
+    }
+}

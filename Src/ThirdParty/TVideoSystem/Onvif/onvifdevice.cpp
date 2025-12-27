@@ -154,6 +154,7 @@ bool OnvifDevice::checkData(QNetworkReply *reply, QByteArray &data, const QStrin
         }
     } else {
         emit receiveError(url, data);
+        qDebug() << reply->error();
         emit receiveError(QString("%1 -> 错误标识: %2  错误信息: %3").arg(flag).arg(reply->error()).arg(reply->errorString()));
     }
 

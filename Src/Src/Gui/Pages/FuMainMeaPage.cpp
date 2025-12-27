@@ -9,6 +9,7 @@
 #include "DetectManager.h"
 #include "ThermalManager.h"
 #include "TFDistClient.h"
+#include "WitImuSerial.h"
 #include "TFException.h"
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -22,6 +23,7 @@ TF::FuMainMeaPage::FuMainMeaPage(QWidget* parent) : QWidget(parent), mUi(new FuM
 }
 
 TF::FuMainMeaPage::~FuMainMeaPage() {
+    deinitMea();
     delete mUi;
 }
 
@@ -31,19 +33,22 @@ void TF::FuMainMeaPage::initAfterDisplay() {
 
 void TF::FuMainMeaPage::initActions() {
     connect(mUi->mMainCamToggleBtn, &QPushButton::pressed,
-    this, &FuMainMeaPage::onMainCamBtnPressed);
+            this, &FuMainMeaPage::onMainCamBtnPressed);
 
     connect(mUi->mThermalCamToggleBtn, &QPushButton::pressed,
-    this, &FuMainMeaPage::onThermalCamBtnPressed);
+            this, &FuMainMeaPage::onThermalCamBtnPressed);
 
     connect(mUi->mSaveToggleBtn, &QPushButton::toggled,
-        this, &FuMainMeaPage::onSaveBtnToggled);
+            this, &FuMainMeaPage::onSaveBtnToggled);
 
     connect(mUi->mAiToggleBtn, &QPushButton::toggled,
-        this, &FuMainMeaPage::onAiBtnToggled);
+            this, &FuMainMeaPage::onAiBtnToggled);
 
     connect(this, &FuMainMeaPage::updateDist,
-        this, &FuMainMeaPage::onUpdateDist);
+            this, &FuMainMeaPage::onUpdateDist);
+
+    connect(this, &FuMainMeaPage::updateWitImuData,
+            this, &FuMainMeaPage::onUpdateWitImuData);
 }
 
 void TF::FuMainMeaPage::initForm() {
@@ -85,10 +90,37 @@ void TF::FuMainMeaPage::initMea() {
     mDistClient = new TFDistClient(this);
     try {
         mDistClient->open();
-    } catch (TFPromptException &e) {
+    }
+    catch (TFPromptException& e) {
         QMessageBox::critical(this, "错误", e.what());
     }
 
+    mWitImuSerialThread = new QThread(this);
+    mWitImuSerial = new WitImuSerial();
+    mWitImuSerial->moveToThread(mWitImuSerialThread);
+
+    connect(mWitImuSerialThread, &QThread::finished,
+            mWitImuSerial, &QObject::deleteLater);
+    connect(this, &FuMainMeaPage::requestWitImuOpen,
+            mWitImuSerial, &WitImuSerial::onRequestWitImuOpen, Qt::QueuedConnection);
+    connect(this, &FuMainMeaPage::requestWitImuClose,
+            mWitImuSerial, &WitImuSerial::onRequestWitImuClose, Qt::QueuedConnection);
+
+    mWitImuSerialThread->start();
+    emit requestWitImuOpen();
+}
+
+void TF::FuMainMeaPage::deinitMea() {
+    if (mWitImuSerialThread && mWitImuSerialThread->isRunning() && mWitImuSerial) {
+        QMetaObject::invokeMethod(
+            mWitImuSerial,
+            &WitImuSerial::close,
+            Qt::BlockingQueuedConnection
+        );
+
+        mWitImuSerialThread->quit();
+        mWitImuSerialThread->wait();
+    }
 }
 
 void TF::FuMainMeaPage::onMainCamBtnPressed() {
@@ -103,7 +135,8 @@ void TF::FuMainMeaPage::onMainCamBtnPressed() {
             if (mVideoWid->open(video_url.c_str())) {
                 mMainCamPlaying.store(true);
                 mCurrentUrl = video_url.c_str();
-            } else {
+            }
+            else {
                 mUi->mMainCamToggleBtn->setChecked(false);
             }
         }
@@ -123,7 +156,8 @@ void TF::FuMainMeaPage::onThermalCamBtnPressed() {
         if (!ThermalManager::instance().getThermalOnState()) {
             try {
                 ThermalManager::instance().start();
-            } catch (TFPromptException &e) {
+            }
+            catch (TFPromptException& e) {
                 QMessageBox::critical(this, "错误", e.what());
             }
         }
@@ -133,7 +167,8 @@ void TF::FuMainMeaPage::onThermalCamBtnPressed() {
         if (ThermalManager::instance().getThermalOnState()) {
             try {
                 ThermalManager::instance().stop();
-            } catch (TFPromptException &e) {
+            }
+            catch (TFPromptException& e) {
                 QMessageBox::critical(this, "错误", e.what());
             }
         }
@@ -161,7 +196,8 @@ void TF::FuMainMeaPage::onSaveBtnToggled(bool checked) {
         const QString filePath = QDir(videoDir).filePath(QString("%1.mp4").arg(timestamp));
         mVideoWid->recordStart(filePath);
         mRecording.store(true);
-    } else {
+    }
+    else {
         if (mRecording.load()) {
             mVideoWid->recordStop();
             mRecording.store(false);
@@ -183,7 +219,8 @@ void TF::FuMainMeaPage::onAiBtnToggled(bool checked) {
         //mDetectorThread->setPause(false);
         mVideoWid->startDetect();
         TFDetectManager::instance().startDetect();
-    } else {
+    }
+    else {
         //mDetectorThread->setPause(true);
         TFDetectManager::instance().stopDetect();
         mVideoWid->stopDetect();
@@ -197,4 +234,10 @@ void TF::FuMainMeaPage::onUpdateDist(float dist) {
 
 void TF::FuMainMeaPage::onDistTimeout() {
     mUi->mDistEdit->setText(" --- ");
+}
+
+void TF::FuMainMeaPage::onUpdateWitImuData(const WitImuData& data) {
+    mImuData = data;
+    auto tilt_angle = data.angle.x;
+    mUi->mTiltAngleEdit->setText(QString::number(tilt_angle));
 }

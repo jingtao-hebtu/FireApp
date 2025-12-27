@@ -1,6 +1,7 @@
 #ifndef FIREAPP_MAINMEAPAGE_H
 #define FIREAPP_MAINMEAPAGE_H
 
+#include "WitImuData.h"
 #include <QWidget>
 
 
@@ -12,6 +13,8 @@ namespace TF {
     class FuMainMeaPage_Ui;
 
     class TFDistClient;
+
+    class WitImuSerial;
 
     class FuMainMeaPage : public QWidget
     {
@@ -30,8 +33,14 @@ namespace TF {
 
         void initMea();
 
+        void deinitMea();
+
     signals:
         void updateDist(float dist);
+
+        void requestWitImuOpen();
+        void requestWitImuClose();
+        void updateWitImuData(const WitImuData& data);
 
     private slots:
         void onMainCamBtnPressed();
@@ -46,6 +55,8 @@ namespace TF {
         void onUpdateDist(float dist);
         void onDistTimeout();
 
+        void onUpdateWitImuData(const WitImuData& data);
+
     private:
         FuMainMeaPage_Ui* mUi;
         VideoWidget* mVideoWid{nullptr};
@@ -58,6 +69,10 @@ namespace TF {
         // Measurement
         TFDistClient *mDistClient{nullptr};
         QTimer *mDistTimeoutTimer{nullptr};
+
+        WitImuSerial *mWitImuSerial{nullptr};
+        QThread *mWitImuSerialThread{nullptr};
+        WitImuData mImuData;
     };
 
 } // TF

@@ -3,6 +3,7 @@
 
 #include "TSingleton.h"
 #include "TFMeaDef.h"
+#include "WitImuData.h"
 
 
 namespace T_QtBase {
@@ -36,6 +37,9 @@ namespace TF {
         // Distance LDS50
         void updateCurDist(float dist);
 
+        // WitImu
+        void updateWitImuData(const WitImuData &data);
+
     private:
         T_QtBase::TSweepCurveViewer *mFireHeightCurveViewer {};
         T_QtBase::TSweepCurveViewer *mFireAreaCurveViewer {};
@@ -43,6 +47,8 @@ namespace TF {
         FuMainMeaPage *mMainMeaPage {};
 
         float mCurDist {};
+
+        WitImuData mCurWitImuData {};
 
     };
 };
