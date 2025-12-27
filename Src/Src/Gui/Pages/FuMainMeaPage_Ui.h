@@ -11,6 +11,8 @@ class QPushButton;
 class QString;
 class QLabel;
 class QLineEdit;
+class QProgressBar;
+class QFrame;
 
 
 namespace T_QtBase {
@@ -39,11 +41,13 @@ namespace TF {
         void initThermalCamera();
         void initStatistics();
         void initCtrlArea();
+        void initBatteryInfoArea();
         T_QtBase::TSweepCurveViewer* createCurveViewer(const QString &name,
                                                        int x_min,
                                                        int x_max,
                                                        int y_min,
                                                        int y_max);
+        void updateBatteryLevelVisuals(int level);
 
     private:
         QWidget *mWid{};
@@ -70,6 +74,14 @@ namespace TF {
         QLineEdit* mDistEdit {nullptr};
         QLabel* mTiltAngleLabel {nullptr};
         QLineEdit* mTiltAngleEdit {nullptr};
+
+        QFrame* mBatteryPanel {nullptr};
+        QProgressBar* mBatteryLevelBar {nullptr};
+        QLabel* mBatteryStatusLabel {nullptr};
+        QWidget* mChargeInfoWidget {nullptr};
+        QLabel* mBatteryChargeIcon {nullptr};
+        QLabel* mBatteryChargeCurrent {nullptr};
+        QLabel* mBatteryTempLabel {nullptr};
 
         int mMainVideoStretch {6};
         int mSideColumnStretch {2};

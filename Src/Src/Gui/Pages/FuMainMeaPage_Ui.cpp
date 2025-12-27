@@ -8,9 +8,17 @@
 #include "ThermalManager.h"
 #include "TConfig.h"
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QSizePolicy>
 #include <QWidget>
 #include <QString>
+#include <QFrame>
+#include <QProgressBar>
+#include <QStyle>
+#include <QLabel>
+#include <QLineEdit>
+#include <QGridLayout>
+#include <QSpacerItem>
 
 
 void TF::FuMainMeaPage_Ui::setupUi(QWidget* wid) {
@@ -167,6 +175,105 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
 
     auto hspacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Expanding);
     mCtrlHLayout->addItem(hspacer);
+
+    initBatteryInfoArea();
+}
+
+void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
+    mBatteryPanel = new QFrame(mWid);
+    mBatteryPanel->setObjectName("BatteryPanel");
+    mBatteryPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+    auto *batteryLayout = new QHBoxLayout(mBatteryPanel);
+    batteryLayout->setObjectName("BatteryLayout");
+    batteryLayout->setContentsMargins(12, 8, 12, 8);
+    batteryLayout->setSpacing(12);
+
+    auto *batteryColumn = new QVBoxLayout();
+    batteryColumn->setContentsMargins(0, 0, 0, 0);
+    batteryColumn->setSpacing(4);
+
+    mBatteryLevelBar = new QProgressBar(mBatteryPanel);
+    mBatteryLevelBar->setObjectName("BatteryBar");
+    mBatteryLevelBar->setRange(0, 100);
+    mBatteryLevelBar->setFormat("%p%");
+    mBatteryLevelBar->setAlignment(Qt::AlignCenter);
+    mBatteryLevelBar->setTextVisible(true);
+    mBatteryLevelBar->setFixedSize(150, 26);
+
+    mBatteryStatusLabel = new QLabel(tr("电量 --% · 未连接"), mBatteryPanel);
+    mBatteryStatusLabel->setObjectName("BatteryStatusLabel");
+    mBatteryStatusLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    batteryColumn->addWidget(mBatteryLevelBar);
+    batteryColumn->addWidget(mBatteryStatusLabel);
+
+    batteryLayout->addLayout(batteryColumn);
+
+    mChargeInfoWidget = new QWidget(mBatteryPanel);
+    auto *chargeLayout = new QVBoxLayout(mChargeInfoWidget);
+    chargeLayout->setContentsMargins(0, 0, 0, 0);
+    chargeLayout->setSpacing(2);
+
+    mBatteryChargeIcon = new QLabel(QString::fromUtf8("⚡"), mChargeInfoWidget);
+    mBatteryChargeIcon->setObjectName("BatteryChargeIcon");
+    mBatteryChargeIcon->setAlignment(Qt::AlignCenter);
+
+    mBatteryChargeCurrent = new QLabel(tr("1.8 A"), mChargeInfoWidget);
+    mBatteryChargeCurrent->setObjectName("BatteryChargeCurrent");
+    mBatteryChargeCurrent->setAlignment(Qt::AlignCenter);
+
+    chargeLayout->addWidget(mBatteryChargeIcon);
+    chargeLayout->addWidget(mBatteryChargeCurrent);
+
+    batteryLayout->addWidget(mChargeInfoWidget);
+
+    mBatteryTempLabel = new QLabel(tr("温度 36.5°C"), mBatteryPanel);
+    mBatteryTempLabel->setObjectName("BatteryTempLabel");
+    mBatteryTempLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+
+    batteryLayout->addWidget(mBatteryTempLabel);
+    batteryLayout->setAlignment(mBatteryTempLabel, Qt::AlignVCenter);
+
+    mCtrlHLayout->addWidget(mBatteryPanel);
+
+    updateBatteryLevelVisuals(86);
+}
+
+void TF::FuMainMeaPage_Ui::updateBatteryLevelVisuals(int level) {
+    if (!mBatteryLevelBar || !mBatteryStatusLabel) {
+        return;
+    }
+
+    if (level < 0) {
+        level = 0;
+    }
+    if (level > 100) {
+        level = 100;
+    }
+
+    QString state = "high";
+    if (level < 20) {
+        state = "low";
+    } else if (level < 60) {
+        state = "mid";
+    }
+
+    mBatteryLevelBar->setProperty("batteryState", state);
+    mBatteryLevelBar->style()->unpolish(mBatteryLevelBar);
+    mBatteryLevelBar->style()->polish(mBatteryLevelBar);
+    mBatteryLevelBar->setValue(level);
+
+    QString statusText;
+    if (level >= 95) {
+        statusText = tr("满电");
+    } else if (level < 20) {
+        statusText = tr("低电");
+    } else {
+        statusText = tr("正常");
+    }
+
+    mBatteryStatusLabel->setText(tr("电量 %1% · %2").arg(level).arg(statusText));
 }
 
 void TF::FuMainMeaPage_Ui::setVideoAreaStretch(int mainVideoStretch, int sideColumnStretch) {

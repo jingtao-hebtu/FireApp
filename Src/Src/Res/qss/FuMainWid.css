@@ -128,3 +128,61 @@ QMessageBox .QLabel {
     font-size: 16px;
     font-family: "微软雅黑";
 }
+
+#BatteryPanel {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0f1b2f, stop:1 #0b1222);
+    border: 1px solid #22334f;
+    border-radius: 14px;
+    padding: 6px 10px;
+    color: #e5edff;
+}
+
+#BatteryPanel QLabel {
+    padding: 0;
+}
+
+#BatteryBar {
+    background: rgba(13, 20, 35, 180);
+    border: 1px solid #2c3d5c;
+    border-radius: 10px;
+    color: #f0f6ff;
+    font-weight: 700;
+    text-align: center;
+}
+
+#BatteryBar::chunk {
+    border-radius: 8px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2af0a0, stop:1 #3dbdff);
+}
+
+#BatteryBar[batteryState="mid"]::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #f5d76e, stop:1 #ffa83f);
+}
+
+#BatteryBar[batteryState="low"]::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #ff6b6b, stop:1 #ff3b3b);
+}
+
+#BatteryStatusLabel {
+    color: #9db5ff;
+    font-size: 13px;
+    letter-spacing: 0.4px;
+}
+
+#BatteryChargeIcon {
+    color: #4be1ff;
+    font-size: 18px;
+}
+
+#BatteryChargeCurrent {
+    color: #7de0ff;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+}
+
+#BatteryTempLabel {
+    color: #f6d365;
+    font-size: 14px;
+    font-weight: 700;
+    padding-left: 10px;
+}
