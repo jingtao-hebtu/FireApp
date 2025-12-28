@@ -74,9 +74,9 @@ namespace TF {
         const quint16 mReadStart = 18;
         const quint16 mReadCount = 21;
 
-        int mPollIntervalMs = 2000;
-        int mResponseTimeoutMs = 800;
-        int mReconnectIntervalMs = 3000;
+        int mPollIntervalMs = 4000;
+        int mResponseTimeoutMs = 1200;
+        int mReconnectIntervalMs = 6000;
     };
 };
 

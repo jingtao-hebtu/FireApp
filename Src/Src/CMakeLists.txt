@@ -45,6 +45,7 @@ target_link_libraries(${PROJECT_NAME}
         ${ONNX_RUNTIME_LIBS}
         ${LIBUVC_LIBS}
         ${TensorRT-YOLO_LIBs}
+        ${SQLTIE_LIBS}
         CUDA::cudart
         CUDA::cublas
 )

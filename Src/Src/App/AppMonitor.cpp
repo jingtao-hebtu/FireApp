@@ -16,6 +16,7 @@ Copyright(C), tao.jing All rights reserved
 #include "AppLocalConfig.h"
 #include "DetectManager.h"
 #include "ThermalManager.h"
+#include "DbManager.h"
 #include "TLog.h"
 #include <iostream>
 
@@ -39,6 +40,7 @@ int TF::AppMonitor::initApp(int argc, char* argv[]) {
     try {
         TFDetectManager::instance().init();
         ThermalManager::instance().init();
+        //DbManager::instance().init();
     } catch (std::exception &ex) {
         LOG_F(ERROR, "Init TFDetectManager failed %s.", ex.what());
     }

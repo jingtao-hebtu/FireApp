@@ -98,15 +98,12 @@ void TF::FuMainMeaPage::initHardware() {
         mBatteryDataTimer = new QTimer(this);
         mBatteryDataTimer->setInterval(6000);
         mBatteryDataTimer->setSingleShot(true);
-        connect(mBatteryDataTimer, &QTimer::timeout, this, &FuMainMeaPage::onBatteryDataTimeout);
+        connect(mBatteryDataTimer, &QTimer::timeout,
+            this, &FuMainMeaPage::onBatteryDataTimeout);
     }
 
     mUi->showBatteryPlaceholders();
     mBatteryDataTimer->start();
-
-    // HK Cam
-    mCamSearcher = new HKCamSearcher(this);
-    mCamSearcher->searchDevice();
 
     // BMS
     qRegisterMetaType<BmsStatus>("BmsStatus");
@@ -327,7 +324,7 @@ void TF::FuMainMeaPage::onBmsStatusUpdated(const BmsStatus& status) {
 }
 
 void TF::FuMainMeaPage::onBmsConnectionStateChanged(bool connected) {
-    LOG_F(INFO, "BMS connection state %d", connected);
+    //LOG_F(INFO, "BMS connection state %d", connected);
     if (!connected) {
         if (mBatteryDataTimer) {
             mBatteryDataTimer->stop();
@@ -338,8 +335,8 @@ void TF::FuMainMeaPage::onBmsConnectionStateChanged(bool connected) {
     }
 }
 
-void TF::FuMainMeaPage::onBatteryStatusChanged(int level,
-    const QString& current, const QString& voltage, QString temp) {
+void TF::FuMainMeaPage::onBatteryStatusChanged(int level, const QString& current,
+    const QString& voltage, const QString& temp) {
     mUi->updateBatteryLevelVisuals(level);
     mUi->mBatteryChargeCurrent->setText(QString("%1 A").arg(current));
     mUi->mBatteryTempLabel->setText(QCoreApplication::translate("Page", "温度 %1 °C").arg(temp));

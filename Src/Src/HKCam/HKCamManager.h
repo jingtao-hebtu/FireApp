@@ -13,7 +13,6 @@
 #define FIREAPP_HKCAMMANAGER_H
 
 
-class OnvifDevice;
 
 namespace TF {
     class HKCamManager
@@ -21,10 +20,6 @@ namespace TF {
 
 
     private:
-
-
-    private:
-        OnvifDevice* mHKOnvifDevice {nullptr};
 
     };
 };

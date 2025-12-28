@@ -20,8 +20,6 @@ namespace TF {
 
     class WitImuSerial;
 
-    class HKCamSearcher;
-
     class CamConfigWid;
 
     class BmsWorker;
@@ -79,7 +77,8 @@ namespace TF {
         // Bms
         void onBmsStatusUpdated(const BmsStatus& status);
         void onBmsConnectionStateChanged(bool connected);
-        void onBatteryStatusChanged(int level, const QString& current, const QString& voltage, QString temp);
+        void onBatteryStatusChanged(int level, const QString& current,
+            const QString& voltage, const QString& temp);
         void onBatteryDataTimeout();
 
     private:
@@ -100,7 +99,6 @@ namespace TF {
         WitImuData mImuData;
 
         // HK cam
-        HKCamSearcher* mCamSearcher{nullptr};
         CamConfigWid *mCamConfigWid{nullptr};
 
         // BMS

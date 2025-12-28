@@ -13,6 +13,7 @@ Copyright(C), tao.jing All rights reserved
 #include "TYamlHelper.h"
 #include "TSysUtils.h"
 #include "TFException.h"
+#include "PathConfig.h"
 #include "TLog.h"
 
 
@@ -30,4 +31,7 @@ void TF::AppLocalConfig::initAppConfig() {
         TF_LOG_THROW_RUNTIME("Config file %s not found.", file_path.c_str());
     }
     TBase::TConfig::instance().addYamlConfigFile(file_path);
+
+    auto app_config_dir = TBase::getDirFromFilePath(file_path);
+    TFPathParam("AppConfigDir") = app_config_dir;
 }

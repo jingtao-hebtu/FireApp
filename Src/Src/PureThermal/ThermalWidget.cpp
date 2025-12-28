@@ -36,8 +36,10 @@ namespace TF {
         if (!m_image.isNull()) {
             QPainter p(this);
 
-            QImage scaled = m_image.scaled(size(), Qt::KeepAspectRatio,
-                                           Qt::SmoothTransformation);
+            m_image = m_image.transformed(QTransform().rotate(90));
+            //QImage scaled = m_image.scaled(size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            QImage scaled = m_image.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
             const QPoint topLeft((width() - scaled.width()) / 2,
                                  (height() - scaled.height()) / 2);
             p.drawImage(topLeft, scaled);

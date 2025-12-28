@@ -107,7 +107,9 @@ namespace TF {
             return;
         }
 
-        emit stopWorker();
+        if (mWorker) {
+            mWorker->stopWork();
+        }
         if (mThread) {
             mThread->quit();
             mThread->wait();
