@@ -12,7 +12,6 @@
     border-right: 1px solid #1f2c46;
     border-top-left-radius: 12px;
     border-bottom-left-radius: 12px;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 70);
 }
 
 QLabel {
@@ -56,7 +55,6 @@ QToolButton[sideTab="true"] {
     font-weight: 700;
     font-family: "微软雅黑";
     letter-spacing: 0.4px;
-    box-shadow: inset 0 0 0 1px rgba(83, 160, 255, 30);
 }
 
 QToolButton[sideTab="true"]::menu-indicator {
@@ -67,7 +65,6 @@ QToolButton[sideTab="true"]:hover {
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(65, 136, 255, 90), stop:1 rgba(26, 60, 108, 140));
     border-color: #4dd7ff;
     color: #e7f7ff;
-    box-shadow: 0 0 10px rgba(77, 215, 255, 60);
 }
 
 QToolButton[sideTab="true"]:checked {
@@ -75,7 +72,6 @@ QToolButton[sideTab="true"]:checked {
     border: 1px solid #5be4ff;
     padding-left: 10px;
     color: #e4fff8;
-    box-shadow: 0 0 12px rgba(91, 228, 255, 50);
 }
 
 QStackedWidget {
@@ -117,14 +113,12 @@ QToolTip {
     border: 1px solid #1f2c46;
     border-radius: 14px;
     background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0f1b2f, stop:1 #0b1222);
-    box-shadow: inset 0 0 0 1px rgba(77, 215, 255, 10), 0 12px 30px rgba(0, 0, 0, 40);
 }
 
 QFrame#InfraredFrame, QFrame#StatisticsFrame {
     border: 1px solid rgba(77, 215, 255, 40);
     border-radius: 10px;
     background: qlineargradient(x1:0, y1:0, x2:1, y2:0.8, stop:0 rgba(21, 39, 70, 200), stop:1 rgba(10, 23, 42, 200));
-    box-shadow: inset 0 0 0 1px rgba(91, 228, 255, 20);
 }
 
 QLabel#PanelTitle {

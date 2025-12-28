@@ -148,6 +148,19 @@ void TF::FuMainMeaPage::initMea() {
 }
 
 void TF::FuMainMeaPage::deinitMea() {
+    if (mBmsThread && mBmsThread->isRunning()) {
+        if (mBmsWorker) {
+            QMetaObject::invokeMethod(
+                mBmsWorker,
+                &BmsWorker::onStop,
+                Qt::BlockingQueuedConnection
+            );
+        }
+
+        mBmsThread->quit();
+        mBmsThread->wait();
+    }
+
     if (mWitImuSerialThread && mWitImuSerialThread->isRunning() && mWitImuSerial) {
         QMetaObject::invokeMethod(
             mWitImuSerial,
