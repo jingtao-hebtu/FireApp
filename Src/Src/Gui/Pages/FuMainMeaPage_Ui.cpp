@@ -74,10 +74,30 @@ void TF::FuMainMeaPage_Ui::initThermalCamera() {
     mThermalWid = new QWidget(mVideoSideWid);
     mThermalWid->setObjectName("InfraredVideoWid");
     mThermalWid->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    auto *thermalLayout = new QVBoxLayout(mThermalWid);
+    thermalLayout->setContentsMargins(12, 12, 12, 12);
+    thermalLayout->setSpacing(8);
 
-    mThermalCamera = new ThermalCamera(mThermalWid);
-    mThermalWidget = new ThermalWidget(mThermalCamera, mThermalWid);
+    auto *thermalTitle = new QLabel(QCoreApplication::translate("Page", "红外模组"), mThermalWid);
+    thermalTitle->setObjectName("PanelTitle");
+    thermalTitle->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    auto *thermalFrame = new QFrame(mThermalWid);
+    thermalFrame->setObjectName("InfraredFrame");
+    auto *thermalFrameLayout = new QVBoxLayout(thermalFrame);
+    thermalFrameLayout->setContentsMargins(6, 6, 6, 6);
+    thermalFrameLayout->setSpacing(4);
+
+    mThermalCamera = new ThermalCamera(thermalFrame);
+    mThermalWidget = new ThermalWidget(mThermalCamera, thermalFrame);
+    mThermalWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ThermalManager::instance().setThermalCamera(mThermalCamera);
+
+    thermalFrameLayout->addWidget(mThermalWidget);
+
+    thermalLayout->addWidget(thermalTitle);
+    thermalLayout->addWidget(thermalFrame);
+    thermalLayout->setStretchFactor(thermalFrame, 1);
 }
 
 void TF::FuMainMeaPage_Ui::initStatistics() {
@@ -88,16 +108,30 @@ void TF::FuMainMeaPage_Ui::initStatistics() {
     mStatisticsWid->setSizePolicy(statisticsPolicy);
 
     mStatisticsVLayout = new QVBoxLayout(mStatisticsWid);
-    mStatisticsVLayout->setSpacing(0);
-    mStatisticsVLayout->setContentsMargins(0, 0, 0, 0);
+    mStatisticsVLayout->setSpacing(8);
+    mStatisticsVLayout->setContentsMargins(12, 12, 12, 12);
+
+    auto *statisticsTitle = new QLabel(QCoreApplication::translate("Page", "统计曲线"), mStatisticsWid);
+    statisticsTitle->setObjectName("PanelTitle");
+    statisticsTitle->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    auto *statisticsFrame = new QFrame(mStatisticsWid);
+    statisticsFrame->setObjectName("StatisticsFrame");
+    auto *statisticsFrameLayout = new QVBoxLayout(statisticsFrame);
+    statisticsFrameLayout->setSpacing(6);
+    statisticsFrameLayout->setContentsMargins(8, 8, 8, 8);
 
     mFireHeightCurveViewer = createCurveViewer("火焰高度", 0, 100, 0, 1000);
     mFireAreaCurveViewer = createCurveViewer("火焰面积", 0, 100, 0, 1000);
 
-    mStatisticsVLayout->addWidget(mFireHeightCurveViewer);
-    mStatisticsVLayout->addWidget(mFireAreaCurveViewer);
-    mStatisticsVLayout->setStretch(0, 1);
-    mStatisticsVLayout->setStretch(1, 1);
+    statisticsFrameLayout->addWidget(mFireHeightCurveViewer);
+    statisticsFrameLayout->addWidget(mFireAreaCurveViewer);
+    statisticsFrameLayout->setStretch(0, 1);
+    statisticsFrameLayout->setStretch(1, 1);
+
+    mStatisticsVLayout->addWidget(statisticsTitle);
+    mStatisticsVLayout->addWidget(statisticsFrame);
+    mStatisticsVLayout->setStretchFactor(statisticsFrame, 1);
 
     TFMeaManager::instance().setHeightCurveViewer(mFireHeightCurveViewer);
     TFMeaManager::instance().setAreaCurveViewer(mFireAreaCurveViewer);
@@ -141,6 +175,13 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
 
     mCamConfigBtn = new TechActionButton("相机配置", mWid);
     mCamConfigBtn->setObjectName("CamConfig");
+
+    const int controlButtonHeight = 66;
+    mMainCamToggleBtn->setFixedHeight(controlButtonHeight);
+    mThermalCamToggleBtn->setFixedHeight(controlButtonHeight);
+    mAiToggleBtn->setFixedHeight(controlButtonHeight);
+    mSaveToggleBtn->setFixedHeight(controlButtonHeight);
+    mCamConfigBtn->setFixedHeight(controlButtonHeight);
 
     mCtrlHLayout->addWidget(mMainCamToggleBtn);
     mCtrlHLayout->addWidget(mThermalCamToggleBtn);

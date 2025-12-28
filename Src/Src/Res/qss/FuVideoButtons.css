@@ -1,18 +1,21 @@
 TechButtonBase, TF--TechButtonBase {
     color: #f4f8ff;
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0d182a, stop:1 #0a1220);
-    border: 2px solid #1f2f4a;
-    border-radius: 14px;
-    padding: 18px 24px;
-    font-size: 18px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0c1c2f, stop:1 #0a1220);
+    border: 1px solid #244066;
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-size: 16px;
     font-weight: 700;
-    letter-spacing: 1px;
-    qproperty-iconSize: 22px 22px;
+    letter-spacing: 0.8px;
+    qproperty-iconSize: 20px 20px;
+    min-height: 60px;
+    max-height: 66px;
+    box-shadow: inset 0 0 0 1px rgba(77, 215, 255, 18), 0 8px 22px rgba(0, 0, 0, 35);
 }
 
 TechButtonBase:hover, TF--TechButtonBase:hover {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #12233a, stop:1 #0d1830);
-    border-color: #5db8ff;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #123456, stop:1 #0d2036);
+    border-color: #5be4ff;
     color: #ffffff;
 }
 
@@ -24,13 +27,13 @@ TechButtonBase:pressed, TF--TechButtonBase:pressed {
 }
 
 TechToggleButton, TF--TechToggleButton {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0f2036, stop:1 #0b1a2d);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0f243a, stop:1 #0b1a2d);
     border: 1px solid #2c3f5e;
     outline: none;
 }
 
 TechToggleButton:hover, TF--TechToggleButton:hover {
-    border-color: #6be4ff;
+    border-color: #7de0ff;
     outline: none;
 }
 
@@ -39,6 +42,7 @@ TechToggleButton:checked, TF--TechToggleButton:checked {
     border: 1px solid #3ad1f8;
     color: #d8fff6;
     outline-color: none;
+    box-shadow: 0 0 12px rgba(91, 228, 255, 45);
 }
 
 TechToggleButton:checked:hover, TF--TechToggleButton:checked:hover {
@@ -48,7 +52,7 @@ TechToggleButton:checked:hover, TF--TechToggleButton:checked:hover {
 }
 
 TechActionButton, TF--TechActionButton {
-    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1a2d4a, stop:1 #13233b);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1a2d4a, stop:1 #142a45);
     border: 1px solid #2f4466;
     outline: none;
 }

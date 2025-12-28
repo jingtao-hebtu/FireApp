@@ -6,10 +6,13 @@
 }
 
 #SideTabBar {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(32, 54, 90, 56), stop:0.45 rgba(10, 16, 28, 0), stop:1 rgba(10, 16, 28, 0));
-    border-right: 1px solid #1c2840;
+    background: qradialgradient(cx:0.2, cy:0.2, radius:1, fx:0.2, fy:0.2,
+                                stop:0 rgba(60, 116, 255, 18), stop:1 rgba(14, 26, 48, 120)),
+                qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #0c1424, stop:1 #0a0f1c);
+    border-right: 1px solid #1f2c46;
     border-top-left-radius: 12px;
     border-bottom-left-radius: 12px;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 70);
 }
 
 QLabel {
@@ -44,15 +47,16 @@ QLabel {
 }
 
 QToolButton[sideTab="true"] {
-    border: 1px solid transparent;
-    background: rgba(255, 255, 255, 5);
+    border: 1px solid rgba(53, 102, 178, 90);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(29, 49, 82, 180), stop:1 rgba(15, 27, 48, 160));
     border-radius: 14px;
-    padding: 12px 10px 10px 10px;
-    color: #9fb0c8;
+    padding: 10px 10px 10px 10px;
+    color: #9ad8ff;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 700;
     font-family: "微软雅黑";
-    letter-spacing: 0.3px;
+    letter-spacing: 0.4px;
+    box-shadow: inset 0 0 0 1px rgba(83, 160, 255, 30);
 }
 
 QToolButton[sideTab="true"]::menu-indicator {
@@ -60,16 +64,18 @@ QToolButton[sideTab="true"]::menu-indicator {
 }
 
 QToolButton[sideTab="true"]:hover {
-    background-color: rgba(62, 123, 255, 36);
-    border-color: rgba(59, 130, 246, 166);
-    color: #d9e4ff;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(65, 136, 255, 90), stop:1 rgba(26, 60, 108, 140));
+    border-color: #4dd7ff;
+    color: #e7f7ff;
+    box-shadow: 0 0 10px rgba(77, 215, 255, 60);
 }
 
 QToolButton[sideTab="true"]:checked {
-    background-color: rgba(62, 123, 255, 56);
-    border: 1px solid #3b82f6;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(64, 196, 255, 140), stop:1 rgba(26, 86, 135, 200));
+    border: 1px solid #5be4ff;
     padding-left: 10px;
-    color: #4fd1c5;
+    color: #e4fff8;
+    box-shadow: 0 0 12px rgba(91, 228, 255, 50);
 }
 
 QStackedWidget {
@@ -107,16 +113,26 @@ QToolTip {
     padding: 6px 8px;
 }
 
-#InfraredVideoWid {
-    border: 2px solid #2b364b;
-    border-radius: 6px;
-    background: qlineargradient(x1:0, y1:0, x2:0.2, y2:1, stop:0 #121b32, stop:1 #0a0f1c);
+#InfraredVideoWid, #StatisticsWid {
+    border: 1px solid #1f2c46;
+    border-radius: 14px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0f1b2f, stop:1 #0b1222);
+    box-shadow: inset 0 0 0 1px rgba(77, 215, 255, 10), 0 12px 30px rgba(0, 0, 0, 40);
 }
 
-#StatisticsWid {
-    border: 2px solid #2b364b;
-    border-radius: 6px;
-    background: qlineargradient(x1:0, y1:0, x2:0.2, y2:1, stop:0 #121b32, stop:1 #0a0f1c);
+QFrame#InfraredFrame, QFrame#StatisticsFrame {
+    border: 1px solid rgba(77, 215, 255, 40);
+    border-radius: 10px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0.8, stop:0 rgba(21, 39, 70, 200), stop:1 rgba(10, 23, 42, 200));
+    box-shadow: inset 0 0 0 1px rgba(91, 228, 255, 20);
+}
+
+QLabel#PanelTitle {
+    color: #7de0ff;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 4px 2px 2px 2px;
 }
 
 QMessageBox {
