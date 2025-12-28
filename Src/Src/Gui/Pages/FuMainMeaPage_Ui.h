@@ -67,6 +67,7 @@ namespace TF {
         TechToggleButton* mMainCamToggleBtn{nullptr};
         TechToggleButton* mThermalCamToggleBtn{nullptr};
         TechToggleButton* mAiToggleBtn{nullptr};
+        TechToggleButton* mAiSaveToggleBtn{nullptr};
         TechToggleButton* mSaveToggleBtn{nullptr};
         TechActionButton* mCamConfigBtn{nullptr};
 

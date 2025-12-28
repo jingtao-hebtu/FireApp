@@ -7,6 +7,7 @@
 #include "TConfig.h"
 #include "FuVideoButtons.h"
 #include "DetectManager.h"
+#include "AiResultSaveManager.h"
 #include "ThermalManager.h"
 #include "TFDistClient.h"
 #include "WitImuSerial.h"
@@ -46,6 +47,9 @@ void TF::FuMainMeaPage::initActions() {
 
     connect(mUi->mSaveToggleBtn, &QPushButton::toggled,
             this, &FuMainMeaPage::onSaveBtnToggled);
+
+    connect(mUi->mAiSaveToggleBtn, &QPushButton::toggled,
+            this, &FuMainMeaPage::onAiSaveBtnToggled);
 
     connect(mUi->mAiToggleBtn, &QPushButton::toggled,
             this, &FuMainMeaPage::onAiBtnToggled);
@@ -264,6 +268,10 @@ void TF::FuMainMeaPage::onSaveBtnToggled(bool checked) {
             mRecording.store(false);
         }
     }
+}
+
+void TF::FuMainMeaPage::onAiSaveBtnToggled(bool checked) {
+    AiResultSaveManager::instance().setEnabled(checked);
 }
 
 void TF::FuMainMeaPage::onAiBtnToggled(bool checked) {

@@ -170,6 +170,9 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     mAiToggleBtn = new TechToggleButton("AI检测", mWid);
     mAiToggleBtn->setObjectName("StartStopAi");
 
+    mAiSaveToggleBtn = new TechToggleButton("保存AI结果", mWid);
+    mAiSaveToggleBtn->setObjectName("StartStopAiSave");
+
     mSaveToggleBtn = new TechToggleButton("保存视频", mWid);
     mSaveToggleBtn->setObjectName("StartStopSave");
 
@@ -180,12 +183,14 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     mMainCamToggleBtn->setFixedHeight(controlButtonHeight);
     mThermalCamToggleBtn->setFixedHeight(controlButtonHeight);
     mAiToggleBtn->setFixedHeight(controlButtonHeight);
+    mAiSaveToggleBtn->setFixedHeight(controlButtonHeight);
     mSaveToggleBtn->setFixedHeight(controlButtonHeight);
     mCamConfigBtn->setFixedHeight(controlButtonHeight);
 
     mCtrlHLayout->addWidget(mMainCamToggleBtn);
     mCtrlHLayout->addWidget(mThermalCamToggleBtn);
     mCtrlHLayout->addWidget(mAiToggleBtn);
+    mCtrlHLayout->addWidget(mAiSaveToggleBtn);
     mCtrlHLayout->addWidget(mSaveToggleBtn);
     mCtrlHLayout->addWidget(mCamConfigBtn);
     mCtrlHLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
