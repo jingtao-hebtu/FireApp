@@ -77,8 +77,9 @@ namespace TF {
 
         // Bms
         void onBmsStatusUpdated(const BmsStatus& status);
-        static void onBmsConnectionStateChanged(bool connected);
+        void onBmsConnectionStateChanged(bool connected);
         void onBatteryStatusChanged(int level, const QString& current, const QString& voltage, QString temp);
+        void onBatteryDataTimeout();
 
     private:
         FuMainMeaPage_Ui* mUi;
@@ -104,6 +105,7 @@ namespace TF {
         // BMS
         QThread   *mBmsThread{nullptr};
         BmsWorker *mBmsWorker{nullptr};
+        QTimer *mBatteryDataTimer{nullptr};
     };
 
 } // TF

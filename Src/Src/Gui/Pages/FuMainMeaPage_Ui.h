@@ -47,6 +47,7 @@ namespace TF {
                                                        int y_min,
                                                        int y_max);
         void updateBatteryLevelVisuals(int level);
+        void showBatteryPlaceholders();
 
     private:
         QWidget *mWid{};

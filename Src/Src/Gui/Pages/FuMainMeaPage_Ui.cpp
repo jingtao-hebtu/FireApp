@@ -298,8 +298,7 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
 
     mCtrlHLayout->addWidget(mBatteryPanel);
     mCtrlHLayout->setAlignment(mBatteryPanel, Qt::AlignVCenter);
-
-    updateBatteryLevelVisuals(86);
+    showBatteryPlaceholders();
 }
 
 void TF::FuMainMeaPage_Ui::updateBatteryLevelVisuals(int level) {
@@ -324,6 +323,7 @@ void TF::FuMainMeaPage_Ui::updateBatteryLevelVisuals(int level) {
     mBatteryLevelBar->setProperty("batteryState", state);
     mBatteryLevelBar->style()->unpolish(mBatteryLevelBar);
     mBatteryLevelBar->style()->polish(mBatteryLevelBar);
+    mBatteryLevelBar->setFormat("%p%");
     mBatteryLevelBar->setValue(level);
 
     QString statusText;
@@ -336,6 +336,23 @@ void TF::FuMainMeaPage_Ui::updateBatteryLevelVisuals(int level) {
     }
 
     mBatteryStatusLabel->setText(QCoreApplication::translate("Page", "电量 %1% · %2").arg(level).arg(statusText));
+}
+
+void TF::FuMainMeaPage_Ui::showBatteryPlaceholders() {
+    if (!mBatteryLevelBar || !mBatteryStatusLabel || !mBatteryChargeCurrent || !mBatteryTempLabel) {
+        return;
+    }
+
+    mBatteryLevelBar->setProperty("batteryState", "unknown");
+    mBatteryLevelBar->style()->unpolish(mBatteryLevelBar);
+    mBatteryLevelBar->style()->polish(mBatteryLevelBar);
+    mBatteryLevelBar->setValue(0);
+    mBatteryLevelBar->setFormat(" --- ");
+
+    const auto placeholder = QCoreApplication::translate("Page", "---");
+    mBatteryStatusLabel->setText(QCoreApplication::translate("Page", "电量 %1 · %2").arg(placeholder, placeholder));
+    mBatteryChargeCurrent->setText(placeholder);
+    mBatteryTempLabel->setText(QCoreApplication::translate("Page", "温度 %1").arg(placeholder));
 }
 
 void TF::FuMainMeaPage_Ui::setVideoAreaStretch(int mainVideoStretch, int sideColumnStretch) {
