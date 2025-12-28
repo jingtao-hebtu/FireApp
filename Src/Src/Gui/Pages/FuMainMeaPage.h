@@ -66,6 +66,7 @@ namespace TF {
         void onThermalCamBtnPressed();
         void onSaveBtnToggled(bool checked);
         void onAiBtnToggled(bool checked);
+        void onAiSaveBtnToggled(bool checked);
 
         // Measurements
         void onUpdateDist(float dist);

@@ -1,6 +1,7 @@
 #include "DetectorWorker.h"
 #include "DetectManager.h"
 #include "TCvMatQImage.h"
+#include "AiResultSaveManager.h"
 #include "TLog.h"
 #include <QtGlobal>
 
@@ -73,8 +74,9 @@ namespace TF {
 
             size_t detect_num = 0;
             std::vector<Detection> detections;
+            int detectionId = -1;
             try {
-                TFDetectManager::instance().runDetectWithPreview(cv_im, detect_num, detections);
+                detectionId = TFDetectManager::instance().runDetectWithPreview(cv_im, detect_num, detections);
             } catch (const cv::Exception &e) {
                 LOG_F(ERROR, "Object detect inference failed: %s.", e.what());
             } catch (const std::exception &e) {
@@ -104,6 +106,9 @@ namespace TF {
             });
 
             QImage q_im = QtOcv::mat2Image(cv_im);
+            if (detectionId >= 0) {
+                AiResultSaveManager::instance().submitResult(q_im, task.sourceFlag, task.timeCost, detectionId, detect_num);
+            }
             emit frameProcessed(task.sourceFlag, q_im, max_height, task.timeCost);
         }
     }
