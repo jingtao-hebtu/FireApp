@@ -59,6 +59,7 @@ namespace TF {
 
     private:
         QString mPortName;
+        int mBaudRate {9600};
         quint8 mSlaveId = 1;
 
         QSerialPort* mSerial = nullptr;

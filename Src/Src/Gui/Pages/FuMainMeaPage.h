@@ -59,6 +59,8 @@ namespace TF {
         void startBms();
         void stopBms();
 
+        void batteryStatusChanged(int level, float current, float voltage, float temp);
+
     private slots:
         void onMainCamBtnPressed();
         void onThermalCamBtnPressed();
@@ -75,7 +77,8 @@ namespace TF {
 
         // Bms
         void onBmsStatusUpdated(const BmsStatus& status);
-        void onBmsConnectionStateChanged(bool connected);
+        static void onBmsConnectionStateChanged(bool connected);
+        void onBatteryStatusChanged(int level, const QString& current, const QString& voltage, QString temp);
 
     private:
         FuMainMeaPage_Ui* mUi;

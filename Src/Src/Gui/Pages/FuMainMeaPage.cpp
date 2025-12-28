@@ -115,6 +115,7 @@ void TF::FuMainMeaPage::initHardware() {
         &FuMainMeaPage::onBmsConnectionStateChanged, Qt::QueuedConnection);
 
     mBmsThread->start();
+    emit initBms();
 }
 
 void TF::FuMainMeaPage::initMea() {
@@ -291,14 +292,29 @@ void TF::FuMainMeaPage::onCamConfigBtnPressed() {
 }
 
 void TF::FuMainMeaPage::onBmsStatusUpdated(const BmsStatus& status) {
-    LOG_F(INFO, "BMS total voltage %f", status.mTotalVoltage_V);
-    LOG_F(INFO, "BMS remain capacity %f", status.mRemainCapacity_Ah);
+    /*
+    LOG_F(INFO, "BMS total voltage %f V", status.mTotalVoltage_V);
+    LOG_F(INFO, "BMS current %f A", status.mCurrent_A);
+    LOG_F(INFO, "BMS remain capacity %f Ah", status.mRemainCapacity_Ah);
+    LOG_F(INFO, "BMS temp %f degree", status.mTemp1_C);
+    */
+    int level = static_cast<int>(status.mRemainCapacity_Ah / 50.0f * 100);
+    auto current = QString::number(status.mCurrent_A, 'f', 2);
+    auto voltage = QString::number(status.mTotalVoltage_V, 'f', 1);
+    auto temp = QString::number(status.mTemp1_C, 'f', 1);
+    onBatteryStatusChanged(level, current, voltage, temp);
 }
 
 void TF::FuMainMeaPage::onBmsConnectionStateChanged(bool connected) {
     LOG_F(INFO, "BMS connection state %d", connected);
 }
 
+void TF::FuMainMeaPage::onBatteryStatusChanged(int level,
+    const QString& current, const QString& voltage, QString temp) {
+    mUi->updateBatteryLevelVisuals(level);
+    mUi->mBatteryChargeCurrent->setText(QString("%1 A").arg(current));
+    mUi->mBatteryTempLabel->setText(QCoreApplication::translate("Page", "温度 %1 °C").arg(temp));
+}
 
 void TF::FuMainMeaPage::onUpdateDist(float dist) {
     mUi->mDistValueLabel->setText(QString::number(dist, 'f', 1));

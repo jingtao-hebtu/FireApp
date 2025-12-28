@@ -29,6 +29,7 @@ void TF::BmsWorker::onInitialize() {
     // Execute in the worker thread: create the serial port and timer,
     //  and ensure the thread affinity is correctly configured.
     mPortName = GET_STR_CONFIG("Battery", "PortName").c_str();
+    mBaudRate = GET_INT_CONFIG("Battery", "Baud");
     mSlaveId = GET_INT_CONFIG("Battery", "SlaveId");
 
     if (!mSerial) {

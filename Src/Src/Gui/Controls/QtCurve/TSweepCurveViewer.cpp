@@ -28,9 +28,8 @@ namespace T_QtBase {
     void TSweepCurveViewer::initAction() {
         connect(this, SIGNAL(receiveIndexValue(std::int32_t,float)),
                 this, SLOT(onReceiveIndexValue(std::int32_t,float)));
-        connect(this, SIGNAL(receiveIndexValues(std::vector<std::int32_t>&,std::vector<float>&)),
-                this, SLOT(onReceiveIndexValues(std::vector<std::int32_t>&,std::vector<float>&)));
-        connect(this, SIGNAL(receiveNextValue(float)),
+        connect(this, SIGNAL(receiveIndexValues(const std::vector<std::int32_t>&,const std::vector<float>&)),
+                this, SLOT(onReceiveIndexValues(const std::vector<std::int32_t>&,const std::vector<float>&)));        connect(this, SIGNAL(receiveNextValue(float)),
                 this, SLOT(onReceiveNextValue(float)));
     }
 
