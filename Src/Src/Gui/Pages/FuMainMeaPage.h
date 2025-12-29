@@ -35,6 +35,7 @@ namespace TF {
 
         void initAfterDisplay();
         void setExperimentName(const QString &name);
+        [[nodiscard]] QString experimentName() const { return mExperimentName; }
 
     private:
         void initActions();
@@ -93,6 +94,7 @@ namespace TF {
         std::atomic<bool> mRecording{false};
 
         QString mCurrentUrl;
+        QString mExperimentName;
 
         // Measurement
         TFDistClient *mDistClient{nullptr};

@@ -12,6 +12,7 @@ Copyright(C), tao.jing All rights reserved
 #include "FuMainWid_Ui.h"
 #include "FuSideTabBar.h"
 #include "FuMainMeaPage.h"
+#include "ExpInfoDialog.h"
 #include <QApplication>
 #include <QFile>
 #include <QMessageBox>
@@ -171,6 +172,14 @@ void TF::FuMainWid::setupConnections() {
 
     connect(mUi->mSideTabBar, &FuSideTabBar::cameraConfigRequested,
             mUi->mMainMeaPage, &FuMainMeaPage::onCamConfigBtnPressed);
+
+    connect(mUi->mSideTabBar, &FuSideTabBar::newExperimentRequested, this, [this]() {
+        ExpInfoDialog dialog(this);
+        dialog.setExperimentName(mUi->mMainMeaPage->experimentName());
+        if (dialog.exec() == QDialog::Accepted) {
+            mUi->mMainMeaPage->setExperimentName(dialog.experimentName());
+        }
+    });
 
     mUi->mSideTabBar->setCurrentIndex(0);
 }
