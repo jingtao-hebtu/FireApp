@@ -15,6 +15,8 @@
 
 #include "HKCamZmqClient.h"
 
+#include <QElapsedTimer>
+#include <QFutureWatcher>
 #include <QJsonObject>
 #include <initializer_list>
 
@@ -62,9 +64,15 @@ namespace TF {
         QWidget *createButtonPanel();
 
         void updateConnectionStatus();
+        void updateControlsEnabled();
         void updateInfoDisplay();
 
         bool ensureConnected();
+        void startConnectionAttempt();
+        void updateConnectionProgress();
+        void handleConnectFinished();
+        void handleConnectTimeout();
+        void cleanupConnectUi();
         void loadRanges();
         void refreshCurrentValues();
         void refreshFocus();
@@ -97,17 +105,32 @@ namespace TF {
 
         TechActionButton *mFocusIncBtn {nullptr};
         TechActionButton *mFocusDecBtn {nullptr};
+        TechActionButton *mFocusResetBtn {nullptr};
         TechActionButton *mExposureIncBtn {nullptr};
         TechActionButton *mExposureDecBtn {nullptr};
+        TechActionButton *mExposureAutoBtn {nullptr};
 
         QTimer *mAdjustTimer {nullptr};
+        QTimer *mConnectDialogTimer {nullptr};
         int mCurrentAction {-1};
         bool mApplyingAdjustment {false};
+        bool mConnecting {false};
+        bool mConnectTimedOut {false};
 
         HKCamZmqClient mClient;
         bool mConnected {false};
         bool mRangesLoaded {false};
         bool mAutoConnectTried {false};
+
+        struct ConnectResult {
+            bool success {false};
+            std::string error;
+        };
+
+        QFutureWatcher<ConnectResult> *mConnectWatcher {nullptr};
+        QWidget *mConnectDialog {nullptr};
+        QLabel *mConnectDialogLabel {nullptr};
+        QElapsedTimer mConnectElapsed;
 
         double mFocusMinNormalized {0.0};
         double mFocusMaxNormalized {1.0};
