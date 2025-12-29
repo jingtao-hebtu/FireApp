@@ -4,6 +4,7 @@
 #include "WitImuData.h"
 #include "BmsData.h"
 #include <QWidget>
+#include <QString>
 
 #include "HKCamSearcher.h"
 
@@ -33,6 +34,7 @@ namespace TF {
         ~FuMainMeaPage() override;
 
         void initAfterDisplay();
+        void setExperimentName(const QString &name);
 
     private:
         void initActions();
@@ -44,6 +46,8 @@ namespace TF {
         void initMea();
 
         void deinitMea();
+
+        void updateRecordingStatus(bool recording);
 
     signals:
         void updateDist(float dist);

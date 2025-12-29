@@ -38,6 +38,18 @@ void TF::FuMainMeaPage::initAfterDisplay() {
     initHardware();
 }
 
+void TF::FuMainMeaPage::setExperimentName(const QString &name) {
+    if (mUi) {
+        mUi->setExperimentName(name);
+    }
+}
+
+void TF::FuMainMeaPage::updateRecordingStatus(bool recording) {
+    if (mUi) {
+        mUi->setRecordingStatus(recording);
+    }
+}
+
 void TF::FuMainMeaPage::initActions() {
     connect(mUi->mMainCamToggleBtn, &QPushButton::pressed,
             this, &FuMainMeaPage::onMainCamBtnPressed);
@@ -244,6 +256,7 @@ void TF::FuMainMeaPage::onSaveBtnToggled(bool checked) {
     if (checked) {
         if (!mVideoWid->getIsRunning()) {
             mUi->mSaveToggleBtn->setChecked(false);
+            updateRecordingStatus(mRecording.load());
             return;
         }
 
@@ -264,6 +277,8 @@ void TF::FuMainMeaPage::onSaveBtnToggled(bool checked) {
             mRecording.store(false);
         }
     }
+
+    updateRecordingStatus(mRecording.load());
 }
 
 void TF::FuMainMeaPage::onAiSaveBtnToggled(bool checked) {
