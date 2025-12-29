@@ -31,6 +31,8 @@ namespace TF {
 
         void initAfterDisplay();
 
+        void dumpLayoutDiagnostics() const;
+
     private:
         void setupUi();
         void setupConnections();
