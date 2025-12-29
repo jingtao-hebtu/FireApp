@@ -39,8 +39,9 @@ void TF::FuMainMeaPage::initAfterDisplay() {
 }
 
 void TF::FuMainMeaPage::setExperimentName(const QString &name) {
+    mExperimentName = name.trimmed();
     if (mUi) {
-        mUi->setExperimentName(name);
+        mUi->setExperimentName(mExperimentName);
     }
 }
 
