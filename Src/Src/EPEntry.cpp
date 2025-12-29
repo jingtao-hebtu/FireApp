@@ -11,6 +11,7 @@
 #include <QApplication>
 #include "AppMonitor.h"
 #include "FuMainWid.h"
+#include <QScreen>
 #include <QtGlobal>
 
 
@@ -29,6 +30,12 @@ int main(int argc, char *argv[]) {
     TF::FuMainWid win;
     win.show();
     TF::AppMonitor::instance().setMainWid(&win);
+
+    auto scr = QGuiApplication::primaryScreen();
+    qInfo() << "availableGeometry" << scr->availableGeometry();
+    if (scr->availableGeometry().width() < 1100) {
+        win.showFullScreen();
+    }
 
     //frmConfigIpcSearch win;
     //win.show();
