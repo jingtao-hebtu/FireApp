@@ -141,7 +141,7 @@ bool HKCamPythonServer::StartBlocking(const HKCamServerConfig &cfg, std::string 
 
 bool HKCamPythonServer::CheckExistingServer(std::string &outError)
 {
-    HKCamZmqClient client;
+    auto &client = HKCamZmqClient::instance();
     client.Configure(m_config.endpoint, m_config.timeoutMs);
 
     TF::RpcResponse resp;
@@ -154,7 +154,7 @@ bool HKCamPythonServer::CheckExistingServer(std::string &outError)
 
 bool HKCamPythonServer::WaitForReady(std::string &outError)
 {
-    HKCamZmqClient client;
+    auto &client = HKCamZmqClient::instance();
     client.Configure(m_config.endpoint, m_config.timeoutMs);
     TF::RpcResponse resp;
 
@@ -303,7 +303,7 @@ void HKCamPythonServer::Stop()
         return;
     }
 
-    HKCamZmqClient client;
+    auto &client = HKCamZmqClient::instance();
     client.Configure(m_config.endpoint, m_config.timeoutMs);
     QJsonObject shutdownData;
     std::string shutdownErr;

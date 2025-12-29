@@ -350,10 +350,11 @@ void TF::CamConfigWid::startConnectionAttempt() {
     mConnectDialogTimer->start();
     mConnectDialog->show();
 
-    auto future = QtConcurrent::run([this]() {
+    auto future = QtConcurrent::run([]() {
         ConnectResult result;
         std::string error;
-        result.success = mClient.Connect(kHKCamEndpoint, kHKCamTimeoutMs, kHKCamRetries, error);
+        auto &client = HKCamZmqClient::instance();
+        result.success = client.Connect(kHKCamEndpoint, kHKCamTimeoutMs, kHKCamRetries, error);
         result.error = error;
         return result;
     });
@@ -439,9 +440,10 @@ void TF::CamConfigWid::loadRanges() {
         return;
     }
 
+    auto &client = HKCamZmqClient::instance();
     std::string error;
     QJsonObject range;
-    if (mClient.GetZoomRange(range, error)) {
+    if (client.GetZoomRange(range, error)) {
         mFocusMinNormalized = readDoubleFromKeys(range, {"min", "min_zoom", "zoom_min"}, 0.0);
         mFocusMaxNormalized = readDoubleFromKeys(range, {"max", "max_zoom", "zoom_max"}, 1.0);
     } else {
@@ -449,7 +451,7 @@ void TF::CamConfigWid::loadRanges() {
     }
 
     QJsonObject exposureRange;
-    if (mClient.GetExposureRange(exposureRange, error)) {
+    if (client.GetExposureRange(exposureRange, error)) {
         mExposureMinNormalized = readDoubleFromKeys(exposureRange, {"min", "min_exposure", "exposure_min"}, 0.0);
         mExposureMaxNormalized = readDoubleFromKeys(exposureRange, {"max", "max_exposure", "exposure_max"}, 1.0);
     } else {
@@ -471,10 +473,11 @@ void TF::CamConfigWid::refreshFocus() {
         return;
     }
 
+    auto &client = HKCamZmqClient::instance();
     std::string error;
     QJsonObject raw;
     double zoom = 0.0;
-    if (mClient.GetZoom(zoom, raw, error)) {
+    if (client.GetZoom(zoom, raw, error)) {
         mFocusValue = clampNormalized(zoom, mFocusMinNormalized, mFocusMaxNormalized);
     } else {
         qWarning("GetZoom failed: %s", error.c_str());
@@ -486,9 +489,10 @@ void TF::CamConfigWid::refreshExposure() {
         return;
     }
 
+    auto &client = HKCamZmqClient::instance();
     std::string error;
     QJsonObject exposureObj;
-    if (mClient.GetExposure(exposureObj, error)) {
+    if (client.GetExposure(exposureObj, error)) {
         const auto exposure = readDoubleFromKeys(exposureObj, {"value", "exposure", "exposure_s", "exposure_us"}, mExposureValue);
         mExposureValue = clampNormalized(exposure, mExposureMinNormalized, mExposureMaxNormalized);
     } else {
@@ -543,9 +547,10 @@ void TF::CamConfigWid::adjustFocus(double delta) {
         return;
     }
 
+    auto &client = HKCamZmqClient::instance();
     std::string error;
     QJsonObject raw;
-    if (mClient.ZoomStep(delta, std::nullopt, raw, error)) {
+    if (client.ZoomStep(delta, std::nullopt, raw, error)) {
         const auto zoom = readDoubleFromKeys(raw, {"value", "zoom"}, mFocusValue + delta);
         mFocusValue = clampNormalized(zoom, mFocusMinNormalized, mFocusMaxNormalized);
     } else {
@@ -559,10 +564,11 @@ void TF::CamConfigWid::setFocusNormalized(double value) {
         return;
     }
 
+    auto &client = HKCamZmqClient::instance();
     const double target = clampNormalized(value, mFocusMinNormalized, mFocusMaxNormalized);
     std::string error;
     QJsonObject raw;
-    if (mClient.SetZoomAbs(target, std::nullopt, raw, error)) {
+    if (client.SetZoomAbs(target, std::nullopt, raw, error)) {
         const auto zoom = readDoubleFromKeys(raw, {"value", "zoom"}, target);
         mFocusValue = clampNormalized(zoom, mFocusMinNormalized, mFocusMaxNormalized);
     } else {
@@ -585,12 +591,13 @@ void TF::CamConfigWid::setExposureNormalized(double value) {
         return;
     }
 
+    auto &client = HKCamZmqClient::instance();
     const double target = clampNormalized(value, mExposureMinNormalized, mExposureMaxNormalized);
     const double exposureSeconds = mapToDisplay(target, mExposureDisplayMin, mExposureDisplayMax);
 
     std::string error;
     QJsonObject raw;
-    if (mClient.SetExposureBySeconds(exposureSeconds, true, true, raw, error)) {
+    if (client.SetExposureBySeconds(exposureSeconds, true, true, raw, error)) {
         const auto exposure = readDoubleFromKeys(raw, {"value", "exposure", "exposure_s"}, target);
         mExposureValue = clampNormalized(exposure, mExposureMinNormalized, mExposureMaxNormalized);
     } else {
@@ -604,9 +611,10 @@ void TF::CamConfigWid::setExposureAutoInternal() {
         return;
     }
 
+    auto &client = HKCamZmqClient::instance();
     std::string error;
     QJsonObject raw;
-    if (!mClient.SetExposureByShutter("auto", true, true, raw, error)) {
+    if (!client.SetExposureByShutter("auto", true, true, raw, error)) {
         qWarning("SetExposure auto failed: %s", error.c_str());
     } else {
         refreshExposure();
