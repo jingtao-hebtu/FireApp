@@ -25,6 +25,15 @@ namespace TF {
         ResetSocket();
     }
 
+    void HKCamZmqClient::Configure(const std::string& endpoint, int timeoutMs)
+    {
+        std::lock_guard<std::mutex> guard(m_mutex);
+        m_endpoint = endpoint;
+        m_timeoutMs = timeoutMs;
+        m_requestId = 1;
+        ResetSocket();
+    }
+
     void HKCamZmqClient::ResetSocket() {
         if (m_socket) {
             try {
@@ -416,6 +425,18 @@ namespace TF {
             return false;
         }
         outRaw = result.response.data;
+        return true;
+    }
+
+    bool HKCamZmqClient::Shutdown(QJsonObject& outData, std::string& outError)
+    {
+        const auto result = Call("shutdown", QJsonObject());
+        if (!result.success)
+        {
+            outError = result.errorReason.toStdString();
+            return false;
+        }
+        outData = result.response.data;
         return true;
     }
 }
