@@ -40,6 +40,9 @@ namespace TF {
         // WitImu
         void updateWitImuData(const WitImuData &data);
 
+        [[nodiscard]] float currentDist() const { return mCurDist; }
+        [[nodiscard]] float currentTiltAngle() const { return mCurWitImuData.angle.x; }
+
     private:
         T_QtBase::TSweepCurveViewer *mFireHeightCurveViewer {};
         T_QtBase::TSweepCurveViewer *mFireAreaCurveViewer {};

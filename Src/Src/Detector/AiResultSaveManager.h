@@ -58,7 +58,9 @@ namespace TF {
                           const QString &sourceFlag,
                           int timeCost,
                           int detectionId,
-                          std::size_t detectedCount);
+                          std::size_t detectedCount,
+                          float fireHeight,
+                          float fireArea);
 
         [[nodiscard]] std::vector<AiResultMetaInfo> recentRecords() const;
 

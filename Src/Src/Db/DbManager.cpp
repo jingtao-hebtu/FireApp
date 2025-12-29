@@ -711,6 +711,38 @@ void TF::DbManager::EndExperiment(int exp_id, std::int64_t end_time) {
     txn.commit();
 }
 
+bool TF::DbManager::ExperimentNameExists(std::string_view name) const {
+    if (name.empty()) {
+        return false;
+    }
+
+    std::scoped_lock lk(mMtx);
+    const auto& d = db();
+
+    SQLite::Statement q(d, "SELECT 1 FROM Experiment WHERE name=? LIMIT 1;");
+    q.bind(1, std::string{name});
+    return q.executeStep();
+}
+
+int TF::DbManager::CreateExperiment(std::string_view name, std::int64_t start_time) {
+    if (name.empty()) {
+        return -1;
+    }
+
+    std::scoped_lock lk(mMtx);
+    auto& d = db();
+
+    SQLite::Transaction txn(d);
+    SQLite::Statement st(d, "INSERT INTO Experiment(name, start_time) VALUES(?, ?);");
+    st.bind(1, std::string{name});
+    st.bind(2, static_cast<long long>(start_time));
+    st.exec();
+
+    const auto id = static_cast<int>(d.getLastInsertRowid());
+    txn.commit();
+    return id;
+}
+
 std::optional<TF::DbManager::ExperimentInfo> TF::DbManager::GetExperiment(int exp_id) const {
     std::scoped_lock lk(mMtx);
     const auto& d = db();

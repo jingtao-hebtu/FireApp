@@ -7,6 +7,7 @@
 
 #include "DetectManager.h"
 #include "TLog.h"
+#include "ExperimentParamManager.h"
 
 namespace TF {
 
@@ -164,7 +165,9 @@ namespace TF {
                                            const QString &sourceFlag,
                                            int timeCost,
                                            int detectionId,
-                                           std::size_t detectedCount) {
+                                           std::size_t detectedCount,
+                                           float fireHeight,
+                                           float fireArea) {
         if (!mEnabled.load()) {
             return;
         }
@@ -177,6 +180,11 @@ namespace TF {
             return;
         }
 
+        auto record = ExperimentParamManager::instance().prepareSample(fireHeight, fireArea);
+        if (!record.has_value()) {
+            return;
+        }
+
         ensureWorker();
         if (mThread && !mThread->isRunning()) {
             mThread->start();
@@ -186,15 +194,9 @@ namespace TF {
             return;
         }
 
-        QString dirPath = QDir(QDir::currentPath()).filePath("ai_results");
-        QDir dir(dirPath);
-        if (!dir.exists()) {
-            dir.mkpath(".");
-        }
-
-        const QString timestamp = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_zzz");
-        const QString fileName = QString("%1_%2.png").arg(sourceFlag.isEmpty() ? "ai" : sourceFlag, timestamp);
-        const QString filePath = dir.filePath(fileName);
+        const QString filePath = record->imagePath.isEmpty()
+            ? QDir(QDir::currentPath()).filePath("ai_results/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_zzz") + ".png")
+            : record->imagePath;
 
         const QString description = QString("flag:%1 detectId:%2 count:%3 cost:%4ms")
                                         .arg(sourceFlag)

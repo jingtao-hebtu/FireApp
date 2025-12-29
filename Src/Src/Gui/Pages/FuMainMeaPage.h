@@ -69,6 +69,7 @@ namespace TF {
         void onSaveBtnToggled(bool checked);
         void onAiBtnToggled(bool checked);
         void onAiSaveBtnToggled(bool checked);
+        void onRecordingToggled(bool checked);
 
         // Measurements
         void onUpdateDist(float dist);
