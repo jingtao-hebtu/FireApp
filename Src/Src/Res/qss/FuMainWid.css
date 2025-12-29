@@ -235,3 +235,38 @@ QFrame#MetricDivider {
     min-width: 1px;
     border: none;
 }
+
+#ExperimentPanel {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0d1a30, stop:1 #0a1220);
+    border: 1px solid #22334f;
+    border-radius: 12px;
+    padding: 8px 12px;
+    min-width: 200px;
+    max-width: 240px;
+    min-height: 66px;
+    max-height: 66px;
+}
+
+#ExperimentPanel[recording="true"] {
+    border-color: #4be1ff;
+}
+
+#ExperimentNameLabel {
+    color: #e6eeff;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#ExperimentStatusLabel {
+    color: #7fb3ff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+QFrame#ExperimentDivider {
+    background: #1f2c46;
+    min-height: 1px;
+    max-height: 1px;
+    border: none;
+}

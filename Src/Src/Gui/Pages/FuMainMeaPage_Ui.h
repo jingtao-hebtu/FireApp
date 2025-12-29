@@ -48,6 +48,8 @@ namespace TF {
                                                        int y_max);
         void updateBatteryLevelVisuals(int level);
         void showBatteryPlaceholders();
+        void setExperimentName(const QString &name);
+        void setRecordingStatus(bool recording);
 
     private:
         QWidget *mWid{};
@@ -74,6 +76,10 @@ namespace TF {
         QFrame* mMetricsPanel {nullptr};
         QLabel* mDistValueLabel {nullptr};
         QLabel* mTiltAngleValueLabel {nullptr};
+
+        QFrame* mExperimentPanel {nullptr};
+        QLabel* mExperimentNameLabel {nullptr};
+        QLabel* mExperimentStatusLabel {nullptr};
 
         QFrame* mBatteryPanel {nullptr};
         QProgressBar* mBatteryLevelBar {nullptr};
