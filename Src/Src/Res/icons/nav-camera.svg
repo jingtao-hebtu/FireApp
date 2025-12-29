@@ -1,0 +1,17 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="camGradient" x1="10" y1="6" x2="54" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E8F9"/>
+      <stop offset="1" stop-color="#5A7CFF"/>
+    </linearGradient>
+    <linearGradient id="lensGradient" x1="24" y1="22" x2="40" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A1B34" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#112D52" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+  <rect x="9" y="14" width="46" height="34" rx="9" fill="#0E1729" stroke="url(#camGradient)" stroke-width="2"/>
+  <path d="M23 14L27 9.5C27.6 8.7 28.58 8.2 29.62 8.2H34.38C35.42 8.2 36.4 8.7 37 9.5L41 14" stroke="url(#camGradient)" stroke-width="2.2" stroke-linecap="round"/>
+  <circle cx="32" cy="31" r="11" fill="url(#lensGradient)" stroke="url(#camGradient)" stroke-width="2"/>
+  <circle cx="32" cy="31" r="6" fill="#0F2648" stroke="#73FBD3" stroke-width="2"/>
+  <circle cx="45" cy="21" r="3" fill="#73FBD3" fill-opacity="0.85"/>
+</svg>

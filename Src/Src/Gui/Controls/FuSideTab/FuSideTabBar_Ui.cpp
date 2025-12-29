@@ -46,7 +46,11 @@ namespace TF {
             QToolButton *mButton;
         };
 
-        QToolButton* createTabButton(QWidget *parent, const QIcon &icon, const QString &tooltip, bool checkable = true) {
+        QToolButton* createTabButton(QWidget *parent,
+                                     const QIcon &icon,
+                                     const QString &tooltip,
+                                     bool checkable = true,
+                                     const QByteArray &role = QByteArrayLiteral("sideTab")) {
             auto *button = new QToolButton(parent);
             button->setCheckable(checkable);
             button->setAutoExclusive(checkable);
@@ -56,7 +60,7 @@ namespace TF {
             button->setFixedSize(60, 56);
             button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
             button->setFont(QFont("Noto Sans", 9, QFont::DemiBold));
-            button->setProperty("sideTab", true);
+            button->setProperty(role.constData(), true);
 
             auto *autoCenterFilter = new AutoCenterIconFilter(button);
             button->installEventFilter(autoCenterFilter);
@@ -107,8 +111,34 @@ namespace TF {
 
         mLayout->addStretch();
 
-        mShutdownButton = createTabButton(mWid, QIcon(QStringLiteral(":/icons/nav-shutdown.svg")), QObject::tr("关机"), false);
+        auto *actionDivider = new QFrame(mWid);
+        actionDivider->setObjectName("SideActionDivider");
+        actionDivider->setFrameShape(QFrame::HLine);
+        actionDivider->setFrameShadow(QFrame::Plain);
+
+        auto *actionPanel = new QWidget(mWid);
+        auto *actionLayout = new QVBoxLayout(actionPanel);
+        actionLayout->setContentsMargins(2, 2, 2, 2);
+        actionLayout->setSpacing(8);
+
+        mCamConfigButton = createTabButton(mWid,
+                                           QIcon(QStringLiteral(":/icons/nav-camera.svg")),
+                                           QObject::tr("相机配置"),
+                                           false,
+                                           QByteArrayLiteral("sideAction"));
+        mCamConfigButton->setObjectName("CamConfigButton");
+
+        mShutdownButton = createTabButton(mWid,
+                                          QIcon(QStringLiteral(":/icons/nav-shutdown.svg")),
+                                          QObject::tr("关机"),
+                                          false,
+                                          QByteArrayLiteral("sideAction"));
         mShutdownButton->setObjectName("ShutdownButton");
-        mLayout->addWidget(mShutdownButton, 0, Qt::AlignHCenter);
+
+        actionLayout->addWidget(mCamConfigButton, 0, Qt::AlignHCenter);
+        actionLayout->addWidget(mShutdownButton, 0, Qt::AlignHCenter);
+
+        mLayout->addWidget(actionDivider);
+        mLayout->addWidget(actionPanel);
     }
 }

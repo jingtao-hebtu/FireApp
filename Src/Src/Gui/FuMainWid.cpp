@@ -169,5 +169,8 @@ void TF::FuMainWid::setupConnections() {
         }
     });
 
+    connect(mUi->mSideTabBar, &FuSideTabBar::cameraConfigRequested,
+            mUi->mMainMeaPage, &FuMainMeaPage::onCamConfigBtnPressed);
+
     mUi->mSideTabBar->setCurrentIndex(0);
 }

@@ -29,6 +29,7 @@ namespace TF {
 
     signals:
         void tabSelected(int index);
+        void cameraConfigRequested();
 
     private:
         void setupUi();
