@@ -16,6 +16,7 @@ Copyright(C), tao.jing All rights reserved
 #include "ExperimentParamManager.h"
 #include <QApplication>
 #include <QFile>
+#include <QCoreApplication>
 #include <QMessageBox>
 #include <QGuiApplication>
 #include <QScreen>
@@ -29,11 +30,13 @@ TF::FuMainWid::FuMainWid(QWidget* parent) : QWidget(parent) {
     setupUi();
     initStyle();
     initActions();
+    startHKCamPythonServer();
 
     setupConnections();
 }
 
 TF::FuMainWid::~FuMainWid() {
+    stopHKCamPythonServer();
     delete mUi;
 }
 
@@ -190,4 +193,39 @@ void TF::FuMainWid::setupConnections() {
     });
 
     mUi->mSideTabBar->setCurrentIndex(0);
+}
+
+namespace {
+    TF::HKCamServerConfig DefaultHKCamServerConfig()
+    {
+        TF::HKCamServerConfig cfg;
+        cfg.pythonExe = "python3";
+        cfg.scriptPath = QCoreApplication::applicationDirPath().toStdString() + "/onvif_rpc_server.py";
+        cfg.cameraIp = "192.168.1.64";
+        cfg.cameraPort = 80;
+        cfg.username = "admin";
+        cfg.password = "hebtu123";
+        cfg.profileIndex = 0;
+        cfg.endpoint = "tcp://127.0.0.1:5555";
+        cfg.timeoutMs = 3000;
+        cfg.startRetries = 30;
+        cfg.startPollIntervalMs = 200;
+        cfg.createNoWindow = true;
+        cfg.allowStopExternal = false;
+        return cfg;
+    }
+}
+
+void TF::FuMainWid::startHKCamPythonServer()
+{
+    std::string error;
+    if (!mCamPythonServer.StartBlocking(DefaultHKCamServerConfig(), error))
+    {
+        qWarning().noquote() << "Failed to start HKCam python server:" << QString::fromStdString(error);
+    }
+}
+
+void TF::FuMainWid::stopHKCamPythonServer()
+{
+    mCamPythonServer.Stop();
 }

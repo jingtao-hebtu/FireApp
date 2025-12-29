@@ -13,6 +13,7 @@ Copyright(C), tao.jing All rights reserved
 
 #include <QWidget>
 
+#include "HKCamPythonServer.h"
 
 namespace TF {
 
@@ -41,6 +42,9 @@ namespace TF {
 
         void initActions();
 
+        void startHKCamPythonServer();
+        void stopHKCamPythonServer();
+
     signals:
         void promptError(const QString &msg);
 
@@ -49,6 +53,7 @@ namespace TF {
 
     private:
         FuMainWid_Ui *mUi;
+        HKCamPythonServer mCamPythonServer;
 
     };
 
