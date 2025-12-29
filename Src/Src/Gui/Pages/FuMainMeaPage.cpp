@@ -73,6 +73,13 @@ void TF::FuMainMeaPage::initActions() {
 
     connect(mUi->mCamConfigBtn, &QPushButton::pressed,
         this, &FuMainMeaPage::onCamConfigBtnPressed);
+
+    connect(mUi->mRecordingToggleButton, &QPushButton::toggled,
+            this, [this](bool checked) {
+                if (mUi) {
+                    mUi->setRecordingStatus(checked);
+                }
+            });
 }
 
 void TF::FuMainMeaPage::initForm() {

@@ -294,6 +294,26 @@ QFrame#MetricDivider {
     letter-spacing: 0.5px;
 }
 
+QPushButton#ExperimentStatusToggle {
+    min-width: 60px;
+    max-width: 72px;
+    min-height: 24px;
+    max-height: 28px;
+    padding: 2px 10px;
+    border-radius: 8px;
+    border: 1px solid #22334f;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #13233c, stop:1 #0f1c30);
+    color: #9ab8e8;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+QPushButton#ExperimentStatusToggle:checked {
+    border-color: #4be1ff;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #12344f, stop:1 #0f2a44);
+    color: #d9f4ff;
+}
+
 QFrame#ExperimentDivider {
     background: #1f2c46;
     min-height: 1px;

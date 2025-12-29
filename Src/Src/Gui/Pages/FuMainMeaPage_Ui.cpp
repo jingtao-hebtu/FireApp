@@ -7,6 +7,7 @@
 #include "TFMeaManager.h"
 #include "ThermalManager.h"
 #include "TConfig.h"
+#include <QSignalBlocker>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QSizePolicy>
@@ -17,6 +18,7 @@
 #include <QStyle>
 #include <QSpacerItem>
 #include <QLabel>
+#include <QPushButton>
 
 
 void TF::FuMainMeaPage_Ui::setupUi(QWidget* wid) {
@@ -217,13 +219,27 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     experimentDivider->setFrameShape(QFrame::HLine);
     experimentDivider->setFrameShadow(QFrame::Plain);
 
+    auto *experimentStatusRow = new QHBoxLayout();
+    experimentStatusRow->setContentsMargins(0, 0, 0, 0);
+    experimentStatusRow->setSpacing(8);
+
     mExperimentStatusLabel = new QLabel(QCoreApplication::translate("Page", "未记录"), mExperimentPanel);
     mExperimentStatusLabel->setObjectName("ExperimentStatusLabel");
     mExperimentStatusLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
+    mRecordingToggleButton = new QPushButton(QCoreApplication::translate("Page", "状态"), mExperimentPanel);
+    mRecordingToggleButton->setObjectName("ExperimentStatusToggle");
+    mRecordingToggleButton->setCheckable(true);
+    mRecordingToggleButton->setCursor(Qt::PointingHandCursor);
+    mRecordingToggleButton->setFixedSize(64, 28);
+
+    experimentStatusRow->addWidget(mExperimentStatusLabel);
+    experimentStatusRow->addStretch();
+    experimentStatusRow->addWidget(mRecordingToggleButton);
+
     experimentLayout->addWidget(mExperimentNameLabel);
     experimentLayout->addWidget(experimentDivider);
-    experimentLayout->addWidget(mExperimentStatusLabel);
+    experimentLayout->addLayout(experimentStatusRow);
 
     setExperimentName(QString());
     setRecordingStatus(false);
@@ -420,6 +436,14 @@ void TF::FuMainMeaPage_Ui::setRecordingStatus(bool recording) {
     mExperimentPanel->setProperty("recording", recording);
     mExperimentPanel->style()->unpolish(mExperimentPanel);
     mExperimentPanel->style()->polish(mExperimentPanel);
+
+    if (mRecordingToggleButton) {
+        const QSignalBlocker blocker(mRecordingToggleButton);
+        mRecordingToggleButton->setChecked(recording);
+        mRecordingToggleButton->setText(recording
+                                        ? QCoreApplication::translate("Page", "记录中")
+                                        : QCoreApplication::translate("Page", "状态"));
+    }
 }
 
 void TF::FuMainMeaPage_Ui::setVideoAreaStretch(int mainVideoStretch, int sideColumnStretch) {

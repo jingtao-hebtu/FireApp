@@ -80,6 +80,7 @@ namespace TF {
         QFrame* mExperimentPanel {nullptr};
         QLabel* mExperimentNameLabel {nullptr};
         QLabel* mExperimentStatusLabel {nullptr};
+        QPushButton* mRecordingToggleButton {nullptr};
 
         QFrame* mBatteryPanel {nullptr};
         QProgressBar* mBatteryLevelBar {nullptr};
