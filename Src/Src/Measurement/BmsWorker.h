@@ -15,6 +15,9 @@
 #include <QSerialPort>
 
 
+class QTimer;
+
+
 namespace TF {
     class BmsWorker : public QObject
     {

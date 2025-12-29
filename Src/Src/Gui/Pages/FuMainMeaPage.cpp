@@ -48,8 +48,7 @@ void TF::FuMainMeaPage::initActions() {
     connect(mUi->mSaveToggleBtn, &QPushButton::toggled,
             this, &FuMainMeaPage::onSaveBtnToggled);
 
-    connect(mUi->mAiSaveToggleBtn, &QPushButton::toggled,
-            this, &FuMainMeaPage::onAiSaveBtnToggled);
+    //connect(mUi->mAiSaveToggleBtn, &QPushButton::toggled,
 
     connect(mUi->mAiToggleBtn, &QPushButton::toggled,
             this, &FuMainMeaPage::onAiBtnToggled);
