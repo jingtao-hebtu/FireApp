@@ -10,15 +10,23 @@
 **************************************************************************/
 #include "CamConfigWid.h"
 #include "FuVideoButtons.h"
+#include "HKCamTypes.h"
+#include <QDebug>
+#include <QFrame>
+#include <QGraphicsDropShadowEffect>
+#include <QHBoxLayout>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPoint>
 #include <QRect>
 #include <QPushButton>
-#include <QGraphicsDropShadowEffect>
 #include <QColor>
 #include <QSizePolicy>
+#include <QShowEvent>
+#include <QVBoxLayout>
+#include <QTimer>
+#include <optional>
 
 
 TF::CamConfigWid::CamConfigWid(QWidget *parent)
@@ -75,6 +83,7 @@ void TF::CamConfigWid::setupUi() {
     mainLayout->setContentsMargins(14, 14, 14, 14);
     mainLayout->setSpacing(12);
 
+    mainLayout->addWidget(createConnectionPanel());
     mainLayout->addWidget(createInfoPanel());
 
     auto *separator = new QFrame(this);
@@ -83,19 +92,71 @@ void TF::CamConfigWid::setupUi() {
     mainLayout->addWidget(separator);
 
     mainLayout->addWidget(createButtonPanel());
+
+    mAdjustTimer = new QTimer(this);
+    mAdjustTimer->setInterval(150);
+    connect(mAdjustTimer, &QTimer::timeout, this, [this]() { applyAdjustment(mCurrentAction); });
+}
+
+QWidget *TF::CamConfigWid::createConnectionPanel() {
+    auto *panel = new QWidget(this);
+    auto *layout = new QHBoxLayout(panel);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(10);
+
+    auto *labelTitle = new QLabel(tr("连接状态"), panel);
+    labelTitle->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    mConnectionStatusLabel = new QLabel(tr("未连接"), panel);
+    mConnectionStatusLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    auto *connectBtn = new TechActionButton(tr("连接"), panel);
+    connect(connectBtn, &QPushButton::clicked, this, &CamConfigWid::onConnectClicked);
+
+    layout->addWidget(labelTitle);
+    layout->addWidget(mConnectionStatusLabel, 1);
+    layout->addWidget(connectBtn);
+
+    return panel;
 }
 
 QWidget *TF::CamConfigWid::createInfoPanel() {
     auto *panel = new QWidget(this);
     auto *grid = new QGridLayout(panel);
     grid->setContentsMargins(0, 0, 0, 0);
-    grid->setHorizontalSpacing(10);
-    grid->setVerticalSpacing(6);
+    grid->setHorizontalSpacing(12);
+    grid->setVerticalSpacing(8);
 
-    mFocusEdit = createInfoField(tr("焦距"), grid, 0);
-    mBrightnessEdit = createInfoField(tr("亮度"), grid, 1);
-    mApertureEdit = createInfoField(tr("光圈"), grid, 2);
-    mExposureEdit = createInfoField(tr("曝光"), grid, 3);
+    auto addRow = [this, grid](int row, const QString &title,
+                               QLabel **minLabel, QLabel **currentLabel, QLabel **maxLabel) {
+        auto *titleLabel = new QLabel(title, this);
+        titleLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+        titleLabel->setMinimumWidth(52);
+
+        auto createValueLabel = [this]() {
+            auto *lbl = new QLabel("-", this);
+            lbl->setAlignment(Qt::AlignCenter);
+            lbl->setMinimumHeight(32);
+            lbl->setStyleSheet("background: #11141c; border: 1px solid #2f3545; border-radius: 8px; padding: 6px; font-weight: 600;");
+            return lbl;
+        };
+
+        *minLabel = createValueLabel();
+        *currentLabel = createValueLabel();
+        *maxLabel = createValueLabel();
+
+        grid->addWidget(titleLabel, row, 0);
+        grid->addWidget(*minLabel, row, 1);
+        grid->addWidget(*currentLabel, row, 2);
+        grid->addWidget(*maxLabel, row, 3);
+    };
+
+    addRow(0, tr("焦距"), &mFocusMinLabel, &mFocusCurrentLabel, &mFocusMaxLabel);
+    addRow(1, tr("曝光"), &mExposureMinLabel, &mExposureCurrentLabel, &mExposureMaxLabel);
+
+    grid->setColumnStretch(1, 1);
+    grid->setColumnStretch(2, 1);
+    grid->setColumnStretch(3, 1);
 
     return panel;
 }
@@ -114,57 +175,55 @@ QWidget *TF::CamConfigWid::createButtonPanel() {
         return btn;
     };
 
-    auto *connectBtn = createActionButton(tr("连接"));
-    auto *focusIncBtn = createActionButton(tr("焦距 +"));
-    auto *focusDecBtn = createActionButton(tr("焦距 -"));
-    auto *brightnessIncBtn = createActionButton(tr("亮度 +"));
-    auto *brightnessDecBtn = createActionButton(tr("亮度 -"));
+    mFocusIncBtn = createActionButton(tr("焦距 +"));
+    mFocusDecBtn = createActionButton(tr("焦距 -"));
+    auto *focusResetBtn = createActionButton(tr("默认焦距"));
+    mExposureIncBtn = createActionButton(tr("曝光 +"));
+    mExposureDecBtn = createActionButton(tr("曝光 -"));
+    auto *exposureAutoBtn = createActionButton(tr("自动曝光"));
 
-    layout->addWidget(connectBtn, 0, 0);
-    layout->addWidget(focusIncBtn, 0, 1);
-    layout->addWidget(focusDecBtn, 0, 2);
-    layout->addWidget(brightnessIncBtn, 1, 0);
-    layout->addWidget(brightnessDecBtn, 1, 1);
+    layout->addWidget(mFocusIncBtn, 0, 0);
+    layout->addWidget(mFocusDecBtn, 0, 1);
+    layout->addWidget(focusResetBtn, 0, 2);
+    layout->addWidget(mExposureIncBtn, 1, 0);
+    layout->addWidget(mExposureDecBtn, 1, 1);
+    layout->addWidget(exposureAutoBtn, 1, 2);
+
+    layout->setColumnStretch(0, 1);
+    layout->setColumnStretch(1, 1);
     layout->setColumnStretch(2, 1);
 
-    connect(connectBtn, &QPushButton::clicked, this, &CamConfigWid::onConnectClicked);
-    connect(focusIncBtn, &QPushButton::clicked, this, &CamConfigWid::onFocusIncrease);
-    connect(focusDecBtn, &QPushButton::clicked, this, &CamConfigWid::onFocusDecrease);
-    connect(brightnessIncBtn, &QPushButton::clicked, this, &CamConfigWid::onBrightnessIncrease);
-    connect(brightnessDecBtn, &QPushButton::clicked, this, &CamConfigWid::onBrightnessDecrease);
+    connect(mFocusIncBtn, &QPushButton::pressed, this, &CamConfigWid::onFocusIncrease);
+    connect(mFocusIncBtn, &QPushButton::released, this, &CamConfigWid::stopContinuousAdjust);
+    connect(mFocusDecBtn, &QPushButton::pressed, this, &CamConfigWid::onFocusDecrease);
+    connect(mFocusDecBtn, &QPushButton::released, this, &CamConfigWid::stopContinuousAdjust);
+    connect(focusResetBtn, &QPushButton::clicked, this, &CamConfigWid::onFocusReset);
+
+    connect(mExposureIncBtn, &QPushButton::pressed, this, &CamConfigWid::onExposureIncrease);
+    connect(mExposureIncBtn, &QPushButton::released, this, &CamConfigWid::stopContinuousAdjust);
+    connect(mExposureDecBtn, &QPushButton::pressed, this, &CamConfigWid::onExposureDecrease);
+    connect(mExposureDecBtn, &QPushButton::released, this, &CamConfigWid::stopContinuousAdjust);
+    connect(exposureAutoBtn, &QPushButton::clicked, this, &CamConfigWid::onExposureAuto);
 
     return panel;
 }
 
-QLineEdit *TF::CamConfigWid::createInfoField(const QString &labelText, QGridLayout *layout, int row) {
-    auto *label = new QLabel(labelText, this);
-    label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    label->setMinimumWidth(68);
-
-    auto *edit = new QLineEdit(this);
-    edit->setReadOnly(true);
-    edit->setAlignment(Qt::AlignCenter);
-    edit->setMinimumHeight(40);
-
-    layout->addWidget(label, row, 0, 1, 1);
-    layout->addWidget(edit, row, 1, 1, 2);
-
-    return edit;
-}
-
 void TF::CamConfigWid::updateInfoDisplay() {
-    if (mFocusEdit) {
-        mFocusEdit->setText(QString::number(mFocus));
-    }
-    if (mBrightnessEdit) {
-        mBrightnessEdit->setText(QString::number(mBrightness));
-    }
-    if (mApertureEdit) {
-        mApertureEdit->setText(QString::number(mAperture));
-    }
-    if (mExposureEdit) {
-        mExposureEdit->setText(QString::number(mExposure));
-    }
+    const auto focusMin = mapToDisplay(mFocusMinNormalized, mFocusDisplayMin, mFocusDisplayMax);
+    const auto focusMax = mapToDisplay(mFocusMaxNormalized, mFocusDisplayMin, mFocusDisplayMax);
+    const auto focusCurrent = mapToDisplay(mFocusValue, mFocusDisplayMin, mFocusDisplayMax);
+
+    const auto exposureMin = mapToDisplay(mExposureMinNormalized, mExposureDisplayMin, mExposureDisplayMax);
+    const auto exposureMax = mapToDisplay(mExposureMaxNormalized, mExposureDisplayMin, mExposureDisplayMax);
+    const auto exposureCurrent = mapToDisplay(mExposureValue, mExposureDisplayMin, mExposureDisplayMax);
+
+    if (mFocusMinLabel) mFocusMinLabel->setText(QString::number(focusMin, 'f', 2));
+    if (mFocusMaxLabel) mFocusMaxLabel->setText(QString::number(focusMax, 'f', 2));
+    if (mFocusCurrentLabel) mFocusCurrentLabel->setText(QString::number(focusCurrent, 'f', 2));
+
+    if (mExposureMinLabel) mExposureMinLabel->setText(QString::number(exposureMin, 'f', 2));
+    if (mExposureMaxLabel) mExposureMaxLabel->setText(QString::number(exposureMax, 'f', 2));
+    if (mExposureCurrentLabel) mExposureCurrentLabel->setText(QString::number(exposureCurrent, 'f', 2));
 }
 
 void TF::CamConfigWid::showAt(const QRect &targetRect) {
@@ -180,35 +239,274 @@ void TF::CamConfigWid::showAt(const QRect &targetRect) {
 }
 
 void TF::CamConfigWid::onConnectClicked() {
-    // Placeholder for real connection logic
-    mExposure = (mExposure + 1) % 10;
+    ensureConnected();
+}
+
+void TF::CamConfigWid::showEvent(QShowEvent *event) {
+    QWidget::showEvent(event);
+    if (!mAutoConnectTried) {
+        mAutoConnectTried = true;
+        QTimer::singleShot(0, this, &CamConfigWid::ensureConnected);
+    }
+}
+
+void TF::CamConfigWid::updateConnectionStatus() {
+    if (!mConnectionStatusLabel) {
+        return;
+    }
+    if (mConnected) {
+        mConnectionStatusLabel->setText(tr("已连接"));
+        mConnectionStatusLabel->setStyleSheet("color: #4caf50; font-weight: bold;");
+    } else {
+        mConnectionStatusLabel->setText(tr("未连接"));
+        mConnectionStatusLabel->setStyleSheet("color: #f44336; font-weight: bold;");
+    }
+}
+
+bool TF::CamConfigWid::ensureConnected() {
+    if (mConnected) {
+        return true;
+    }
+
+    std::string error;
+    static constexpr const char *kEndpoint = "tcp://127.0.0.1:5555";
+    static constexpr int kTimeoutMs = 3000;
+    static constexpr int kRetries = 3;
+    mConnected = mClient.Connect(kEndpoint, kTimeoutMs, kRetries, error);
+    if (!mConnected) {
+        qWarning("HKCam connect failed: %s", error.c_str());
+    }
+    updateConnectionStatus();
+    if (mConnected) {
+        loadRanges();
+        refreshCurrentValues();
+    }
+    return mConnected;
+}
+
+void TF::CamConfigWid::loadRanges() {
+    if (mRangesLoaded || !mConnected) {
+        return;
+    }
+
+    std::string error;
+    QJsonObject range;
+    if (mClient.GetZoomRange(range, error)) {
+        mFocusMinNormalized = readDoubleFromKeys(range, {"min", "min_zoom", "zoom_min"}, 0.0);
+        mFocusMaxNormalized = readDoubleFromKeys(range, {"max", "max_zoom", "zoom_max"}, 1.0);
+    } else {
+        qWarning("GetZoomRange failed: %s", error.c_str());
+    }
+
+    QJsonObject exposureRange;
+    if (mClient.GetExposureRange(exposureRange, error)) {
+        mExposureMinNormalized = readDoubleFromKeys(exposureRange, {"min", "min_exposure", "exposure_min"}, 0.0);
+        mExposureMaxNormalized = readDoubleFromKeys(exposureRange, {"max", "max_exposure", "exposure_max"}, 1.0);
+    } else {
+        qWarning("GetExposureRange failed: %s", error.c_str());
+    }
+
+    mRangesLoaded = true;
     updateInfoDisplay();
 }
 
-void TF::CamConfigWid::adjustFocus(int delta) {
-    mFocus += delta;
+void TF::CamConfigWid::refreshCurrentValues() {
+    refreshFocus();
+    refreshExposure();
     updateInfoDisplay();
 }
 
-void TF::CamConfigWid::adjustBrightness(int delta) {
-    mBrightness += delta;
+void TF::CamConfigWid::refreshFocus() {
+    if (!mConnected) {
+        return;
+    }
+
+    std::string error;
+    QJsonObject raw;
+    double zoom = 0.0;
+    if (mClient.GetZoom(zoom, raw, error)) {
+        mFocusValue = clampNormalized(zoom, mFocusMinNormalized, mFocusMaxNormalized);
+    } else {
+        qWarning("GetZoom failed: %s", error.c_str());
+    }
+}
+
+void TF::CamConfigWid::refreshExposure() {
+    if (!mConnected) {
+        return;
+    }
+
+    std::string error;
+    QJsonObject exposureObj;
+    if (mClient.GetExposure(exposureObj, error)) {
+        const auto exposure = readDoubleFromKeys(exposureObj, {"value", "exposure", "exposure_s", "exposure_us"}, mExposureValue);
+        mExposureValue = clampNormalized(exposure, mExposureMinNormalized, mExposureMaxNormalized);
+    } else {
+        qWarning("GetExposure failed: %s", error.c_str());
+    }
+}
+
+void TF::CamConfigWid::startContinuousAdjust(int action) {
+    mCurrentAction = action;
+    applyAdjustment(action);
+    mAdjustTimer->start();
+}
+
+void TF::CamConfigWid::stopContinuousAdjust() {
+    if (mAdjustTimer) {
+        mAdjustTimer->stop();
+    }
+    mCurrentAction = -1;
+}
+
+void TF::CamConfigWid::applyAdjustment(int action) {
+    if (mApplyingAdjustment || action == -1) {
+        return;
+    }
+    mApplyingAdjustment = true;
+
+    constexpr double kFocusStep = 0.02;
+    constexpr double kExposureStep = 0.02;
+
+    switch (action) {
+        case FocusIncreaseAction:
+            adjustFocus(kFocusStep);
+            break;
+        case FocusDecreaseAction:
+            adjustFocus(-kFocusStep);
+            break;
+        case ExposureIncreaseAction:
+            adjustExposure(kExposureStep);
+            break;
+        case ExposureDecreaseAction:
+            adjustExposure(-kExposureStep);
+            break;
+        default:
+            break;
+    }
+
+    mApplyingAdjustment = false;
+}
+
+void TF::CamConfigWid::adjustFocus(double delta) {
+    if (!ensureConnected()) {
+        return;
+    }
+
+    std::string error;
+    QJsonObject raw;
+    if (mClient.ZoomStep(delta, std::nullopt, raw, error)) {
+        const auto zoom = readDoubleFromKeys(raw, {"value", "zoom"}, mFocusValue + delta);
+        mFocusValue = clampNormalized(zoom, mFocusMinNormalized, mFocusMaxNormalized);
+    } else {
+        qWarning("ZoomStep failed: %s", error.c_str());
+    }
     updateInfoDisplay();
+}
+
+void TF::CamConfigWid::setFocusNormalized(double value) {
+    if (!ensureConnected()) {
+        return;
+    }
+
+    const double target = clampNormalized(value, mFocusMinNormalized, mFocusMaxNormalized);
+    std::string error;
+    QJsonObject raw;
+    if (mClient.SetZoomAbs(target, std::nullopt, raw, error)) {
+        const auto zoom = readDoubleFromKeys(raw, {"value", "zoom"}, target);
+        mFocusValue = clampNormalized(zoom, mFocusMinNormalized, mFocusMaxNormalized);
+    } else {
+        qWarning("SetZoomAbs failed: %s", error.c_str());
+    }
+    updateInfoDisplay();
+}
+
+void TF::CamConfigWid::adjustExposure(double delta) {
+    if (!ensureConnected()) {
+        return;
+    }
+
+    const double target = clampNormalized(mExposureValue + delta, mExposureMinNormalized, mExposureMaxNormalized);
+    setExposureNormalized(target);
+}
+
+void TF::CamConfigWid::setExposureNormalized(double value) {
+    if (!ensureConnected()) {
+        return;
+    }
+
+    const double target = clampNormalized(value, mExposureMinNormalized, mExposureMaxNormalized);
+    const double exposureSeconds = mapToDisplay(target, mExposureDisplayMin, mExposureDisplayMax);
+
+    std::string error;
+    QJsonObject raw;
+    if (mClient.SetExposureBySeconds(exposureSeconds, true, true, raw, error)) {
+        const auto exposure = readDoubleFromKeys(raw, {"value", "exposure", "exposure_s"}, target);
+        mExposureValue = clampNormalized(exposure, mExposureMinNormalized, mExposureMaxNormalized);
+    } else {
+        qWarning("SetExposureBySeconds failed: %s", error.c_str());
+    }
+    updateInfoDisplay();
+}
+
+void TF::CamConfigWid::setExposureAutoInternal() {
+    if (!ensureConnected()) {
+        return;
+    }
+
+    std::string error;
+    QJsonObject raw;
+    if (!mClient.SetExposureByShutter("auto", true, true, raw, error)) {
+        qWarning("SetExposure auto failed: %s", error.c_str());
+    } else {
+        refreshExposure();
+        updateInfoDisplay();
+    }
+}
+
+double TF::CamConfigWid::mapToDisplay(double normalized, double min, double max) const {
+    return min + (max - min) * normalized;
+}
+
+double TF::CamConfigWid::clampNormalized(double value, double min, double max) const {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+}
+
+double TF::CamConfigWid::readDoubleFromKeys(const QJsonObject &obj, const std::initializer_list<QString> &keys, double defaultValue) const {
+    for (const auto &key : keys) {
+        if (obj.contains(key)) {
+            return obj.value(key).toDouble(defaultValue);
+        }
+    }
+    return defaultValue;
 }
 
 void TF::CamConfigWid::onFocusIncrease() {
-    adjustFocus(1);
+    startContinuousAdjust(FocusIncreaseAction);
 }
 
 void TF::CamConfigWid::onFocusDecrease() {
-    adjustFocus(-1);
+    startContinuousAdjust(FocusDecreaseAction);
 }
 
-void TF::CamConfigWid::onBrightnessIncrease() {
-    adjustBrightness(1);
+void TF::CamConfigWid::onFocusReset() {
+    stopContinuousAdjust();
+    setFocusNormalized(mFocusMinNormalized);
 }
 
-void TF::CamConfigWid::onBrightnessDecrease() {
-    adjustBrightness(-1);
+void TF::CamConfigWid::onExposureIncrease() {
+    startContinuousAdjust(ExposureIncreaseAction);
+}
+
+void TF::CamConfigWid::onExposureDecrease() {
+    startContinuousAdjust(ExposureDecreaseAction);
+}
+
+void TF::CamConfigWid::onExposureAuto() {
+    stopContinuousAdjust();
+    setExposureAutoInternal();
 }
 
 

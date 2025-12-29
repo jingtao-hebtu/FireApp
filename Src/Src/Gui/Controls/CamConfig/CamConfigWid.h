@@ -13,6 +13,15 @@
 
 #include <QWidget>
 
+#include "HKCamZmqClient.h"
+
+#include <QJsonObject>
+#include <initializer_list>
+
+class QLabel;
+class QTimer;
+class TechActionButton;
+
 class QGridLayout;
 class QLineEdit;
 class QRect;
@@ -27,32 +36,92 @@ namespace TF {
 
         void showAt(const QRect &targetRect);
 
+    protected:
+        void showEvent(QShowEvent *event) override;
+
     private slots:
         void onConnectClicked();
         void onFocusIncrease();
         void onFocusDecrease();
-        void onBrightnessIncrease();
-        void onBrightnessDecrease();
+        void onFocusReset();
+        void onExposureIncrease();
+        void onExposureDecrease();
+        void onExposureAuto();
 
     private:
+        enum AdjustAction {
+            FocusIncreaseAction = 0,
+            FocusDecreaseAction,
+            ExposureIncreaseAction,
+            ExposureDecreaseAction
+        };
+
         void setupUi();
+        QWidget *createConnectionPanel();
         QWidget *createInfoPanel();
         QWidget *createButtonPanel();
-        QLineEdit *createInfoField(const QString &labelText, QGridLayout *layout, int row);
+
+        void updateConnectionStatus();
         void updateInfoDisplay();
-        void adjustFocus(int delta);
-        void adjustBrightness(int delta);
+
+        bool ensureConnected();
+        void loadRanges();
+        void refreshCurrentValues();
+        void refreshFocus();
+        void refreshExposure();
+
+        void startContinuousAdjust(int action);
+        void stopContinuousAdjust();
+        void applyAdjustment(int action);
+
+        void adjustFocus(double delta);
+        void setFocusNormalized(double value);
+        void adjustExposure(double delta);
+        void setExposureNormalized(double value);
+        void setExposureAutoInternal();
+
+        double mapToDisplay(double normalized, double min, double max) const;
+        double clampNormalized(double value, double min, double max) const;
+        double readDoubleFromKeys(const QJsonObject &obj, const std::initializer_list<QString> &keys, double defaultValue) const;
 
     private:
-        QLineEdit *mFocusEdit {nullptr};
-        QLineEdit *mBrightnessEdit {nullptr};
-        QLineEdit *mApertureEdit {nullptr};
-        QLineEdit *mExposureEdit {nullptr};
+        QLabel *mConnectionStatusLabel {nullptr};
 
-        int mFocus {0};
-        int mBrightness {0};
-        int mAperture {0};
-        int mExposure {0};
+        QLabel *mFocusMinLabel {nullptr};
+        QLabel *mFocusCurrentLabel {nullptr};
+        QLabel *mFocusMaxLabel {nullptr};
+
+        QLabel *mExposureMinLabel {nullptr};
+        QLabel *mExposureCurrentLabel {nullptr};
+        QLabel *mExposureMaxLabel {nullptr};
+
+        TechActionButton *mFocusIncBtn {nullptr};
+        TechActionButton *mFocusDecBtn {nullptr};
+        TechActionButton *mExposureIncBtn {nullptr};
+        TechActionButton *mExposureDecBtn {nullptr};
+
+        QTimer *mAdjustTimer {nullptr};
+        int mCurrentAction {-1};
+        bool mApplyingAdjustment {false};
+
+        HKCamZmqClient mClient;
+        bool mConnected {false};
+        bool mRangesLoaded {false};
+        bool mAutoConnectTried {false};
+
+        double mFocusMinNormalized {0.0};
+        double mFocusMaxNormalized {1.0};
+        double mFocusValue {0.0};
+
+        double mExposureMinNormalized {0.0};
+        double mExposureMaxNormalized {1.0};
+        double mExposureValue {0.0};
+
+        // Display ranges for mapping normalized values to actual units
+        double mFocusDisplayMin {5.8};
+        double mFocusDisplayMax {30.0};
+        double mExposureDisplayMin {0.0};
+        double mExposureDisplayMax {1.0};
     };
 }
 
