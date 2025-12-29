@@ -25,7 +25,11 @@ void TF::AppLocalConfig::initConfigs() {
 void TF::AppLocalConfig::initAppConfig() {
     // --- Search for App config file: TFConfigs/TFConfigs.yml
     bool found = false;
-    std::string file_path("TFConfigs/TFConfigs.yml");
+#ifdef _WIN32
+    std::string file_path("TFConfigs/TFConfigsWin.yml");
+#elif __linux__
+    std::string file_path("TFConfigs/TFConfigsLinux.yml");
+#endif
     file_path = TBase::searchFileInParentDirs(file_path, found);
     if (!found) {
         TF_LOG_THROW_RUNTIME("Config file %s not found.", file_path.c_str());
