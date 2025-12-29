@@ -189,7 +189,8 @@ namespace TF {
         }
 
         if (mWorker) {
-            QMetaObject::invokeMethod(mWorker, &ExperimentDbWorker::stopWork, Qt::QueuedConnection);
+            // 使用直接调用避免依赖事件循环（startWork 中未开启事件循环，QueuedConnection 将无法投递并导致线程无法退出）
+            QMetaObject::invokeMethod(mWorker, &ExperimentDbWorker::stopWork, Qt::DirectConnection);
         }
 
         mWorkerThread->quit();
