@@ -1,6 +1,6 @@
-VideoURL: "E:\\Project\\Fire\\FireDet\\Data\\Video\\Video\\C0201-1.mp4"
+#VideoURL: "E:\\Project\\Fire\\FireDet\\Data\\Video\\Video\\C0201-1.mp4"
 #VideoURL: "E:\\Project\\CNOOC\\EP\\Data\\Video\\field7.mp4"
-#VideoURL: "rtsp://admin:fire123456@192.168.1.64:554/Streaming/Channels/101?transportmode=unicast&profile=Profile_1"
+VideoURL: "rtsp://admin:fireAi1A@192.168.6.68:554/Streaming/Channels/101?transportmode=unicast&profile=Profile_1"
 
 
 MainUi:
@@ -9,7 +9,7 @@ MainUi:
 
 RGBCam:
   UserName: admin
-  Password: fire123456
+  Password: fireAi1A
   NeedPrintDebugInfo: true
   PreviewDetectedImg: true
   NeedSaveOriImg: true

@@ -257,10 +257,6 @@ void TF::CamConfigWid::onConnectClicked() {
 
 void TF::CamConfigWid::showEvent(QShowEvent *event) {
     QWidget::showEvent(event);
-    if (!mAutoConnectTried) {
-        mAutoConnectTried = true;
-        QTimer::singleShot(0, this, &CamConfigWid::ensureConnected);
-    }
 }
 
 void TF::CamConfigWid::updateConnectionStatus() {

@@ -122,7 +122,6 @@ namespace TF {
         HKCamZmqClient mClient;
         bool mConnected {false};
         bool mRangesLoaded {false};
-        bool mAutoConnectTried {false};
 
         struct ConnectResult {
             bool success {false};
