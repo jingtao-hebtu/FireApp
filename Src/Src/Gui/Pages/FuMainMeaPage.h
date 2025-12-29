@@ -6,7 +6,6 @@
 #include <QWidget>
 #include <QString>
 
-#include "HKCamSearcher.h"
 
 
 class VideoWidget;

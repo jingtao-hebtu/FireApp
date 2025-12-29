@@ -11,7 +11,6 @@
 #include "ThermalManager.h"
 #include "TFDistClient.h"
 #include "WitImuSerial.h"
-#include "HKCamSearcher.h"
 #include "TFException.h"
 #include "CamConfigWid.h"
 #include "BmsWorker.h"
