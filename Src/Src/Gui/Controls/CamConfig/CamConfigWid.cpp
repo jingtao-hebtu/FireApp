@@ -320,6 +320,17 @@ void TF::CamConfigWid::startConnectionAttempt() {
         mConnectDialog = new QDialog(this);
         mConnectDialog->setModal(true);
         mConnectDialog->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+        mConnectDialog->setStyleSheet(
+        "QDialog {"
+        "  background-color: #333333;"
+        "  border: 1px solid #555555;"
+        "  border-radius: 8px;"
+        "}"
+        "QLabel {"
+        "  color: white;"
+        "}"
+    );
+
         auto *dialogLayout = new QVBoxLayout(mConnectDialog);
         dialogLayout->setContentsMargins(20, 20, 20, 20);
         dialogLayout->setSpacing(12);
@@ -372,14 +383,16 @@ void TF::CamConfigWid::handleConnectFinished() {
         return;
     }
 
-    const auto result = mConnectWatcher->result();
-    mConnectWatcher->deleteLater();
-    mConnectWatcher = nullptr;
-
     if (mConnectTimedOut) {
+        mConnectWatcher->deleteLater();
+        mConnectWatcher = nullptr;
         cleanupConnectUi();
         return;
     }
+
+    const auto result = mConnectWatcher->result();
+    mConnectWatcher->deleteLater();
+    mConnectWatcher = nullptr;
 
     mConnecting = false;
     mConnected = result.success;

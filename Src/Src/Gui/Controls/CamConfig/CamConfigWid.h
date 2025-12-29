@@ -130,7 +130,7 @@ namespace TF {
         };
 
         QFutureWatcher<ConnectResult> *mConnectWatcher {nullptr};
-        QWidget *mConnectDialog {nullptr};
+        QDialog *mConnectDialog {nullptr};
         QLabel *mConnectDialogLabel {nullptr};
         QElapsedTimer mConnectElapsed;
 
