@@ -29,7 +29,7 @@ void TF::FuMainWid_Ui::setupUi(QWidget *wid) {
 
     mSideTabBar = new FuSideTabBar(mWid);
     mSideTabBar->setObjectName("SideTabBar");
-    mSideTabBar->setFixedWidth(70);
+    mSideTabBar->setFixedWidth(80);
 
     mContentWidget = new QWidget(mWid);
     mContentLayout = new QVBoxLayout(mContentWidget);
