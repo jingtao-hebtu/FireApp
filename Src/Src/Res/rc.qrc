@@ -6,5 +6,6 @@
         <file>icons/nav-control.svg</file>
         <file>icons/nav-logs.svg</file>
         <file>icons/nav-status.svg</file>
+        <file>icons/nav-shutdown.svg</file>
     </qresource>
 </RCC>

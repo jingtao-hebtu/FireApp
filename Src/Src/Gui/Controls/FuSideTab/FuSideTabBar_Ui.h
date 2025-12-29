@@ -27,6 +27,7 @@ namespace TF {
         QWidget *mWid {nullptr};
         QVBoxLayout *mLayout {nullptr};
         QList<QToolButton*> mButtons {};
+        QToolButton *mShutdownButton {nullptr};
     };
 }
 

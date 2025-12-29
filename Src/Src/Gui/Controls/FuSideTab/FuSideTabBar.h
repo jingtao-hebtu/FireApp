@@ -33,6 +33,7 @@ namespace TF {
     private:
         void setupUi();
         void setupConnections();
+        void confirmShutdown();
 
     private:
         FuSideTabBar_Ui *mUi {nullptr};
