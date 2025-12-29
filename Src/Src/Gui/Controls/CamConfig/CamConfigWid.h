@@ -119,7 +119,6 @@ namespace TF {
         bool mConnecting {false};
         bool mConnectTimedOut {false};
 
-        HKCamZmqClient mClient;
         bool mConnected {false};
         bool mRangesLoaded {false};
 

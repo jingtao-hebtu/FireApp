@@ -132,7 +132,7 @@ int HKCamTest(int argc, char **argv)
         return 1;
     }
 
-    HKCamZmqClient client;
+    auto &client = HKCamZmqClient::instance();
     std::string connectErr;
     if (!client.Connect(serverCfg.endpoint, serverCfg.timeoutMs, retries, connectErr))
     {

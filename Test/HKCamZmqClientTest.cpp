@@ -91,7 +91,7 @@ int main(int argc, char **argv)
         }
     }
 
-    HKCamZmqClient client;
+    auto &client = HKCamZmqClient::instance();
     std::string connectErr;
     if (!client.Connect(endpoint, timeoutMs, retries, connectErr))
     {

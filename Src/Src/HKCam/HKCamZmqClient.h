@@ -10,15 +10,13 @@
 #include <zmq.hpp>
 
 #include "HKCamTypes.h"
+#include "TSingleton.h"
 
 namespace TF
 {
-    class HKCamZmqClient
+    class HKCamZmqClient : public TBase::TSingleton<HKCamZmqClient>
     {
     public:
-        HKCamZmqClient();
-        ~HKCamZmqClient();
-
         void Configure(const std::string &endpoint, int timeoutMs);
         bool Connect(const std::string &endpoint, int timeoutMs, int retries, std::string &outError);
 
@@ -39,6 +37,11 @@ namespace TF
         bool Shutdown(QJsonObject &outData, std::string &outError);
 
     private:
+        friend class TBase::TSingleton<HKCamZmqClient>;
+
+        HKCamZmqClient();
+        ~HKCamZmqClient();
+
         bool EnsureSocket(std::string &outError);
         void ResetSocket();
         RpcCallResult Call(const std::string &op, const QJsonObject &params);
