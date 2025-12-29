@@ -182,7 +182,7 @@ QWidget *TF::CamConfigWid::createButtonPanel() {
     layout->setVerticalSpacing(10);
 
     auto createActionButton = [panel](const QString &text) {
-        auto *btn = new TechActionButton(text, panel);
+        auto *btn = new TF::TechActionButton(text, panel);
         btn->setMinimumSize(90, 44);
         btn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         return btn;

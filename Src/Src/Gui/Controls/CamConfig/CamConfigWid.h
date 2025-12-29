@@ -22,13 +22,15 @@
 
 class QLabel;
 class QTimer;
-class TechActionButton;
+
 
 class QGridLayout;
 class QLineEdit;
 class QRect;
 
 namespace TF {
+
+    class TechActionButton;
 
     class CamConfigWid : public QWidget {
         Q_OBJECT

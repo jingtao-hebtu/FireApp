@@ -112,6 +112,20 @@ void TF::DbManager::EnsureSchema() {
         "CREATE INDEX IF NOT EXISTS idx_Data_exp_sample_ch "
         "ON Data(exp_id, sample_id, channel_id);"
     );
+
+    // Experiment
+    d.exec(
+        "CREATE TABLE IF NOT EXISTS Experiment ("
+        "  exp_id     INTEGER PRIMARY KEY,"
+        "  name       TEXT    NOT NULL,"
+        "  start_time INTEGER NOT NULL,"
+        "  end_time   INTEGER,"
+        "  CHECK (length(name) > 0),"
+        "  CHECK (end_time IS NULL OR end_time >= start_time)"
+        ");"
+    );
+    d.exec("CREATE INDEX IF NOT EXISTS idx_Experiment_start_time ON Experiment(start_time);");
+    d.exec("CREATE INDEX IF NOT EXISTS idx_Experiment_name ON Experiment(name);");
 }
 
 void TF::DbManager::ConfigureForIngest() {
@@ -463,6 +477,143 @@ std::optional<TF::DbManager::ChannelPoint> TF::DbManager::GetLastPoint(int exp_i
     p.datetime  = static_cast<i64>(q.getColumn(1).getInt64());
     p.value     = q.getColumn(2).getDouble();
     return p;
+}
+
+void TF::DbManager::UpsertExperiment(const ExperimentInfo& info) {
+    std::scoped_lock lk(mMtx);
+    auto& d = db();
+
+    SQLite::Transaction txn(d);
+
+    SQLite::Statement st(d,
+        "INSERT INTO Experiment(exp_id, name, start_time, end_time) "
+        "VALUES(?,?,?,?) "
+        "ON CONFLICT(exp_id) DO UPDATE SET "
+        "  name=excluded.name, "
+        "  start_time=excluded.start_time, "
+        "  end_time=excluded.end_time;"
+    );
+
+    st.bind(1, info.exp_id);
+    st.bind(2, info.name);
+    st.bind(3, static_cast<long long>(info.start_time));
+
+    if (info.end_time.has_value()) {
+        st.bind(4, static_cast<long long>(*info.end_time));
+    } else {
+        st.bind(4); // SQLiteCpp：bind(index) 绑定 NULL（常用写法）
+    }
+
+    st.exec();
+    txn.commit();
+}
+
+void TF::DbManager::BeginExperiment(int exp_id, std::string_view name, std::int64_t start_time) {
+    ExperimentInfo info;
+    info.exp_id = exp_id;
+    info.name = std::string{name};
+    info.start_time = start_time;
+    info.end_time.reset();
+    UpsertExperiment(info);
+}
+
+void TF::DbManager::EndExperiment(int exp_id, std::int64_t end_time) {
+    std::scoped_lock lk(mMtx);
+    auto& d = db();
+
+    SQLite::Transaction txn(d);
+
+    SQLite::Statement st(d,
+        "UPDATE Experiment SET end_time=? WHERE exp_id=?;"
+    );
+    st.bind(1, static_cast<long long>(end_time));
+    st.bind(2, exp_id);
+
+    st.exec();
+    txn.commit();
+}
+
+std::optional<TF::DbManager::ExperimentInfo> TF::DbManager::GetExperiment(int exp_id) const {
+    std::scoped_lock lk(mMtx);
+    const auto& d = db();
+
+    SQLite::Statement q(d,
+        "SELECT exp_id, name, start_time, end_time "
+        "FROM Experiment WHERE exp_id=?;"
+    );
+    q.bind(1, exp_id);
+
+    if (!q.executeStep()) {
+        return std::nullopt;
+    }
+
+    ExperimentInfo info;
+    info.exp_id = q.getColumn(0).getInt();
+    info.name = q.getColumn(1).getString();
+    info.start_time = static_cast<std::int64_t>(q.getColumn(2).getInt64());
+
+    if (q.getColumn(3).isNull()) {
+        info.end_time.reset();
+    } else {
+        info.end_time = static_cast<std::int64_t>(q.getColumn(3).getInt64());
+    }
+    return info;
+}
+
+std::vector<TF::DbManager::ExperimentInfo> TF::DbManager::ListExperiments(int limit, int offset) const {
+    std::scoped_lock lk(mMtx);
+    const auto& d = db();
+
+    // limit<=0 视为不限制
+    std::string sql =
+        "SELECT exp_id, name, start_time, end_time "
+        "FROM Experiment "
+        "ORDER BY start_time DESC ";
+
+    if (limit > 0) {
+        sql += "LIMIT ? OFFSET ?;";
+    } else {
+        sql += ";";
+    }
+
+    SQLite::Statement q(d, sql);
+
+    if (limit > 0) {
+        q.bind(1, limit);
+        q.bind(2, offset);
+    }
+
+    std::vector<ExperimentInfo> out;
+    while (q.executeStep()) {
+        ExperimentInfo info;
+        info.exp_id = q.getColumn(0).getInt();
+        info.name = q.getColumn(1).getString();
+        info.start_time = static_cast<std::int64_t>(q.getColumn(2).getInt64());
+        if (q.getColumn(3).isNull()) info.end_time.reset();
+        else info.end_time = static_cast<std::int64_t>(q.getColumn(3).getInt64());
+        out.push_back(std::move(info));
+    }
+    return out;
+}
+
+void TF::DbManager::DeleteExperimentAll(int exp_id) {
+    std::scoped_lock lk(mMtx);
+    auto& d = db();
+
+    SQLite::Transaction txn(d);
+
+    {
+        SQLite::Statement st(d, "DELETE FROM Data WHERE exp_id=?;");
+        st.bind(1, exp_id);
+        st.exec();
+    }
+    {
+        SQLite::Statement st(d, "DELETE FROM Experiment WHERE exp_id=?;");
+        st.bind(1, exp_id);
+        st.exec();
+    }
+
+    txn.commit();
 }
 
 // ---------------- db(): Get connection ----------------

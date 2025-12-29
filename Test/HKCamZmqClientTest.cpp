@@ -6,7 +6,7 @@
 #include <QJsonObject>
 #include <QString>
 
-#include "HKCamZmqClient.h"
+#include "../Src/Src/HKCam/HKCamZmqClient.h"
 
 using TF::HKCamZmqClient;
 
@@ -68,7 +68,7 @@ namespace
     }
 }
 
-int HKCamTest(int argc, char **argv)
+int main(int argc, char **argv)
 {
     std::string endpoint = "tcp://127.0.0.1:5555";
     int timeoutMs = 3000;

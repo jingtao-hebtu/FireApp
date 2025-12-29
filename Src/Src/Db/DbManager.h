@@ -34,6 +34,13 @@ namespace TF {
     public:
         using i64 = std::int64_t;
 
+        struct ExperimentInfo {
+            int exp_id{};
+            std::string name;
+            std::int64_t start_time{};                       // epoch us/ns
+            std::optional<std::int64_t> end_time;            // null = Not end
+        };
+
         struct DataRow
         {
             int exp_id{};
@@ -133,6 +140,14 @@ namespace TF {
         std::size_t CountExperimentRows(int exp_id) const; // COUNT(*)
         void DeleteExperiment(int exp_id); // DELETE FROM Data WHERE exp_id=?
         std::optional<ChannelPoint> GetLastPoint(int exp_id, int channel_id) const;
+
+        // Experiment
+        void UpsertExperiment(const ExperimentInfo& info);
+        void BeginExperiment(int exp_id, std::string_view name, std::int64_t start_time);
+        void EndExperiment(int exp_id, std::int64_t end_time);
+        std::optional<ExperimentInfo> GetExperiment(int exp_id) const;
+        std::vector<ExperimentInfo> ListExperiments(int limit, int offset) const;
+        void DeleteExperimentAll(int exp_id);
 
     private:
         void initParams();
