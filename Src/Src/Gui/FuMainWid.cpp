@@ -12,8 +12,15 @@ Copyright(C), tao.jing All rights reserved
 #include "FuMainWid_Ui.h"
 #include "FuSideTabBar.h"
 #include "FuMainMeaPage.h"
+#include <QApplication>
 #include <QFile>
 #include <QMessageBox>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QLayout>
+#include <QSizePolicy>
+#include <algorithm>
+#include <vector>
 
 
 TF::FuMainWid::FuMainWid(QWidget* parent) : QWidget(parent) {
@@ -30,6 +37,94 @@ TF::FuMainWid::~FuMainWid() {
 
 void TF::FuMainWid::initAfterDisplay() {
     mUi->mMainMeaPage->initAfterDisplay();
+}
+
+namespace {
+
+    QString policyToString(QSizePolicy::Policy policy) {
+        switch (policy) {
+            case QSizePolicy::Fixed: return QStringLiteral("Fixed");
+            case QSizePolicy::Minimum: return QStringLiteral("Minimum");
+            case QSizePolicy::Maximum: return QStringLiteral("Maximum");
+            case QSizePolicy::Preferred: return QStringLiteral("Preferred");
+            case QSizePolicy::Expanding: return QStringLiteral("Expanding");
+            case QSizePolicy::MinimumExpanding: return QStringLiteral("MinimumExpanding");
+            case QSizePolicy::Ignored: return QStringLiteral("Ignored");
+        }
+        return QStringLiteral("Unknown");
+    }
+
+    int widgetMinWidthContribution(const QWidget *widget) {
+        if (widget == nullptr) {
+            return 0;
+        }
+        const auto hint = widget->minimumSizeHint();
+        const auto minSize = widget->minimumSize();
+        const auto sizeHint = widget->sizeHint();
+
+        return std::max({hint.width(), minSize.width(), sizeHint.width()});
+    }
+
+}
+
+void TF::FuMainWid::dumpLayoutDiagnostics() const {
+    const QScreen *screen = this->screen();
+    if (screen == nullptr) {
+        screen = QGuiApplication::primaryScreen();
+    }
+
+    if (screen) {
+        qInfo().noquote() << "[Screen] size:" << screen->size()
+                          << "available:" << screen->availableGeometry()
+                          << "logicalDPI:" << screen->logicalDotsPerInch()
+                          << "physicalDPI:" << screen->physicalDotsPerInch();
+    } else {
+        qInfo() << "[Screen] unavailable";
+    }
+
+    qInfo().noquote() << "[Window] minSize:" << minimumSize()
+                      << "minHint:" << minimumSizeHint()
+                      << "maxSize:" << maximumSize();
+
+    if (layout()) {
+        qInfo().noquote() << "[Layout] sizeConstraint:" << layout()->sizeConstraint()
+                          << "minHint:" << layout()->minimumSize();
+    } else {
+        qInfo() << "[Layout] none";
+    }
+
+    const auto widgetsList = findChildren<QWidget*>(QString(), Qt::FindChildrenRecursively);
+    std::vector<std::pair<int, QWidget*>> contributions;
+    contributions.reserve(widgetsList.size());
+    for (auto *widget : widgetsList) {
+        contributions.emplace_back(widgetMinWidthContribution(widget), widget);
+    }
+
+    std::sort(contributions.begin(), contributions.end(), [](const auto &lhs, const auto &rhs) {
+        return lhs.first > rhs.first;
+    });
+
+    const int limit = std::min<int>(20, contributions.size());
+    qInfo() << "[Widgets] Top" << limit << "by minimum width contribution:";
+    for (int i = 0; i < limit; ++i) {
+        const auto contrib = contributions.at(i).first;
+        const auto *widget = contributions.at(i).second;
+        const auto minSize = widget->minimumSize();
+        const auto minHint = widget->minimumSizeHint();
+        const auto sizeHint = widget->sizeHint();
+        const auto policy = widget->sizePolicy();
+
+        qInfo().noquote() << QString("  [%1] %2 | min:%3x%4 minHint:%5x%6 sizeHint:%7x%8 | policy:%9/%10 HFW:%11 | contrib:%12")
+                             .arg(widget->objectName().isEmpty() ? QStringLiteral("<no object>") : widget->objectName())
+                             .arg(widget->metaObject()->className())
+                             .arg(minSize.width()).arg(minSize.height())
+                             .arg(minHint.width()).arg(minHint.height())
+                             .arg(sizeHint.width()).arg(sizeHint.height())
+                             .arg(policyToString(policy.horizontalPolicy()))
+                             .arg(policyToString(policy.verticalPolicy()))
+                             .arg(policy.hasHeightForWidth())
+                             .arg(contrib);
+    }
 }
 
 void TF::FuMainWid::setupUi() {

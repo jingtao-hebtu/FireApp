@@ -11,10 +11,14 @@
 #include <QApplication>
 #include "AppMonitor.h"
 #include "FuMainWid.h"
+#include <QtGlobal>
 
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+
+    const auto args = a.arguments();
+    const bool dumpLayout = args.contains("--dump-layout") || qEnvironmentVariableIsSet("UI_DUMP_LAYOUT");
 
     TF::AppMonitor::initApp(argc, argv);
 
@@ -30,6 +34,12 @@ int main(int argc, char *argv[]) {
     //win.show();
 
     TF::AppMonitor::instance().initAfterWid();
+
+    if (dumpLayout) {
+        a.processEvents();
+        win.dumpLayoutDiagnostics();
+        return 0;
+    }
 
     return QApplication::exec();
 }

@@ -27,7 +27,7 @@ void TF::FuMainMeaPage_Ui::setupUi(QWidget* wid) {
 
     auto height = GET_INT_CONFIG("MainUi", "Height");
     auto width = GET_INT_CONFIG("MainUi", "Width");
-    mWid->resize(height, width);
+    mWid->resize(width, height);
     mMainVLayout = new QVBoxLayout(mWid);
     mMainVLayout->setSpacing(6);
     mMainVLayout->setObjectName("MainVLayout");
@@ -197,7 +197,8 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
 
     mMetricsPanel = new QFrame(mWid);
     mMetricsPanel->setObjectName("MetricsPanel");
-    mMetricsPanel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    mMetricsPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mMetricsPanel->setMinimumWidth(140);
     mMetricsPanel->setFixedHeight(66);
 
     auto *metricsLayout = new QHBoxLayout(mMetricsPanel);
@@ -245,9 +246,9 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
 void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     mBatteryPanel = new QFrame(mWid);
     mBatteryPanel->setObjectName("BatteryPanel");
-    mBatteryPanel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    mBatteryPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mBatteryPanel->setFixedHeight(66);
-    mBatteryPanel->setMinimumWidth(260);
+    mBatteryPanel->setMinimumWidth(200);
     mBatteryPanel->setMaximumWidth(320);
 
     auto *batteryLayout = new QHBoxLayout(mBatteryPanel);
