@@ -69,7 +69,7 @@ namespace TF {
         TechToggleButton* mMainCamToggleBtn{nullptr};
         TechToggleButton* mThermalCamToggleBtn{nullptr};
         TechToggleButton* mAiToggleBtn{nullptr};
-        //TechToggleButton* mAiSaveToggleBtn{nullptr};
+        TechToggleButton* mAiSaveToggleBtn{nullptr};
         TechToggleButton* mSaveToggleBtn{nullptr};
 
         QFrame* mMetricsPanel {nullptr};

@@ -26,7 +26,7 @@ QString TF::TechButtonBase::buttonStyleSheet() {
 
 void TF::TechButtonBase::applySharedSetup() {
     setCursor(Qt::PointingHandCursor);
-    setMinimumWidth(65);
+    setMinimumWidth(50);
     setMinimumHeight(66);
     QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     sizePolicy.setHorizontalStretch(0);

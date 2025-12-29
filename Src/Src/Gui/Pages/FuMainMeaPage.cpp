@@ -398,7 +398,7 @@ void TF::FuMainMeaPage::onBatteryStatusChanged(int level, const QString& current
     const QString& voltage, const QString& temp) {
     mUi->updateBatteryLevelVisuals(level);
     mUi->mBatteryChargeCurrent->setText(QString("%1 A").arg(current));
-    mUi->mBatteryTempLabel->setText(QCoreApplication::translate("Page", "温度 %1 °C").arg(temp));
+    mUi->mBatteryTempLabel->setText(QCoreApplication::translate("Page", "%1 °C").arg(temp));
 }
 
 void TF::FuMainMeaPage::onBatteryDataTimeout() {
