@@ -13,6 +13,7 @@ Copyright(C), tao.jing All rights reserved
 #include "FuSideTabBar.h"
 #include "FuMainMeaPage.h"
 #include "ExpInfoDialog.h"
+#include "ExperimentParamManager.h"
 #include <QApplication>
 #include <QFile>
 #include <QMessageBox>
@@ -176,8 +177,15 @@ void TF::FuMainWid::setupConnections() {
     connect(mUi->mSideTabBar, &FuSideTabBar::newExperimentRequested, this, [this]() {
         ExpInfoDialog dialog(this);
         dialog.setExperimentName(mUi->mMainMeaPage->experimentName());
-        if (dialog.exec() == QDialog::Accepted) {
-            mUi->mMainMeaPage->setExperimentName(dialog.experimentName());
+        while (dialog.exec() == QDialog::Accepted) {
+            const auto name = dialog.experimentName();
+            if (ExperimentParamManager::instance().experimentNameExists(name)) {
+                QMessageBox::warning(this, tr("提示"), tr("实验已存在，请重新输入"));
+                continue;
+            }
+
+            mUi->mMainMeaPage->setExperimentName(name);
+            break;
         }
     });
 

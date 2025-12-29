@@ -107,7 +107,8 @@ namespace TF {
 
             QImage q_im = QtOcv::mat2Image(cv_im);
             if (detectionId >= 0) {
-                AiResultSaveManager::instance().submitResult(q_im, task.sourceFlag, task.timeCost, detectionId, detect_num);
+                AiResultSaveManager::instance().submitResult(q_im, task.sourceFlag, task.timeCost, detectionId, detect_num,
+                                                            max_height, max_area);
             }
             emit frameProcessed(task.sourceFlag, q_im, max_height, task.timeCost);
         }

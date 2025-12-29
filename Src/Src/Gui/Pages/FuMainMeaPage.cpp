@@ -8,6 +8,7 @@
 #include "FuVideoButtons.h"
 #include "DetectManager.h"
 #include "AiResultSaveManager.h"
+#include "ExperimentParamManager.h"
 #include "ThermalManager.h"
 #include "TFDistClient.h"
 #include "WitImuSerial.h"
@@ -18,6 +19,8 @@
 #include <QVBoxLayout>
 #include <QPoint>
 #include <QRect>
+#include <QMessageBox>
+#include <QSignalBlocker>
 
 
 TF::FuMainMeaPage::FuMainMeaPage(QWidget* parent) : QWidget(parent), mUi(new FuMainMeaPage_Ui) {
@@ -70,11 +73,7 @@ void TF::FuMainMeaPage::initActions() {
             this, &FuMainMeaPage::onUpdateWitImuData);
 
     connect(mUi->mRecordingToggleButton, &QPushButton::toggled,
-            this, [this](bool checked) {
-                if (mUi) {
-                    mUi->setRecordingStatus(checked);
-                }
-            });
+            this, &FuMainMeaPage::onRecordingToggled);
 }
 
 void TF::FuMainMeaPage::initForm() {
@@ -263,7 +262,6 @@ void TF::FuMainMeaPage::onSaveBtnToggled(bool checked) {
     if (checked) {
         if (!mVideoWid->getIsRunning()) {
             mUi->mSaveToggleBtn->setChecked(false);
-            updateRecordingStatus(mRecording.load());
             return;
         }
 
@@ -284,12 +282,52 @@ void TF::FuMainMeaPage::onSaveBtnToggled(bool checked) {
             mRecording.store(false);
         }
     }
-
-    updateRecordingStatus(mRecording.load());
 }
 
 void TF::FuMainMeaPage::onAiSaveBtnToggled(bool checked) {
     AiResultSaveManager::instance().setEnabled(checked);
+}
+
+void TF::FuMainMeaPage::onRecordingToggled(bool checked) {
+    if (!mUi || !mUi->mRecordingToggleButton) {
+        return;
+    }
+
+    auto resetToggle = [this]() {
+        const QSignalBlocker blocker(mUi->mRecordingToggleButton);
+        mUi->mRecordingToggleButton->setChecked(false);
+        updateRecordingStatus(false);
+    };
+
+    if (checked) {
+        if (mExperimentName.trimmed().isEmpty()) {
+            QMessageBox::warning(this, tr("提示"), tr("请先输入实验名称"));
+            resetToggle();
+            return;
+        }
+
+        auto &mgr = ExperimentParamManager::instance();
+        if (mgr.experimentNameExists(mExperimentName)) {
+            QMessageBox::warning(this, tr("提示"), tr("实验已存在，请重新输入"));
+            resetToggle();
+            return;
+        }
+
+        QString error;
+        if (!mgr.startRecording(mExperimentName, &error)) {
+            QMessageBox::warning(this, tr("提示"), error.isEmpty() ? tr("启动实验记录失败") : error);
+            resetToggle();
+            return;
+        }
+
+        AiResultSaveManager::instance().setEnabled(true);
+        updateRecordingStatus(true);
+        return;
+    }
+
+    ExperimentParamManager::instance().stopRecording();
+    AiResultSaveManager::instance().setEnabled(false);
+    updateRecordingStatus(false);
 }
 
 void TF::FuMainMeaPage::onAiBtnToggled(bool checked) {
