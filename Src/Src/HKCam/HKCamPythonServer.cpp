@@ -182,6 +182,7 @@ bool HKCamPythonServer::LaunchProcess(std::string &outError)
     std::vector<std::string> args = {
         m_config.pythonExe,
         m_config.scriptPath,
+        /*
         "--ip",
         m_config.cameraIp,
         "--port",
@@ -193,7 +194,8 @@ bool HKCamPythonServer::LaunchProcess(std::string &outError)
         "--profile-index",
         std::to_string(m_config.profileIndex),
         "--bind",
-        m_config.endpoint};
+        m_config.endpoint */
+    };
 
     const auto commandLine = JoinArgs(args);
     m_lastCommandLine = commandLine;

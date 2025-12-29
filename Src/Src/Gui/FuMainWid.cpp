@@ -199,16 +199,16 @@ namespace {
     TF::HKCamServerConfig DefaultHKCamServerConfig()
     {
         TF::HKCamServerConfig cfg;
-        cfg.pythonExe = "python3";
-        cfg.scriptPath = QCoreApplication::applicationDirPath().toStdString() + "/onvif_rpc_server.py";
-        cfg.cameraIp = "192.168.1.64";
+        cfg.pythonExe = "D:\\Software\\anaconda3\\envs\\fire_onvif\\python.exe";
+        cfg.scriptPath = "E:\\Project\\Fire\\FireSensors\\HKCam\\FireOnvif\\app.py ";
+        cfg.cameraIp = "192.168.6.66";
         cfg.cameraPort = 80;
         cfg.username = "admin";
-        cfg.password = "hebtu123";
+        cfg.password = "fireAi1A";
         cfg.profileIndex = 0;
         cfg.endpoint = "tcp://127.0.0.1:5555";
-        cfg.timeoutMs = 3000;
-        cfg.startRetries = 30;
+        cfg.timeoutMs = 4000;
+        cfg.startRetries = 20;
         cfg.startPollIntervalMs = 200;
         cfg.createNoWindow = true;
         cfg.allowStopExternal = false;

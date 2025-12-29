@@ -99,21 +99,20 @@ void TF::DbManager::initDb() {
 
 void TF::DbManager::initChannelCache() {
     try {
-        // 建议：带 OPEN_CREATE，避免文件不存在时 OPEN_READWRITE 直接失败
-        mDB = new SQLite::Database(mDBFile, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+        if (mDB == nullptr) {
+            mDB = new SQLite::Database(mDBFile, SQLite::OPEN_READWRITE);
+        }
 
-        // 可选：写入吞吐友好的一些 PRAGMA（你如果已经在别处设了可忽略）
+        // PRAGMA
         mDB->exec("PRAGMA foreign_keys = ON;");
         mDB->exec("PRAGMA journal_mode = WAL;");
         mDB->exec("PRAGMA synchronous = NORMAL;");
-        mDB->exec("PRAGMA busy_timeout = 5000;"); // 避免偶发锁冲突直接失败
+        mDB->exec("PRAGMA busy_timeout = 5000;");
     }
     catch (std::exception &e) {
         LOG_F(ERROR, "SQLite open exception: %s.", e.what());
         return;
     }
-
-    LOG_F(INFO, "Load database file path %s.", mDBFile.c_str());
 
     // 关键：连接完成后加载 Channel 映射缓存
     try {
