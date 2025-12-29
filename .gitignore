@@ -23,3 +23,6 @@ build/
 *.lib
 *.pdb
 *.exp
+
+*.db-shm
+*.db-wal

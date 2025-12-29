@@ -19,6 +19,8 @@
 #include <utility>
 #include <iostream>
 
+#include "TFException.h"
+
 
 namespace TF {
     const char* InsertSql(DbManager::ConflictPolicy policy) {
@@ -56,11 +58,12 @@ namespace TF {
 void TF::DbManager::init() {
     initParams();
     initDb();
+    initChannelCache();
 }
 
 void TF::DbManager::initParams() {
     auto db_file_dir = GET_STR_CONFIG("Database", "DbDir");
-    db_file_dir = TBase::joinPath({TFPathParam("AppConfigDir"), db_file_dir});
+    db_file_dir = TBase::joinPath({TFPathParam("AppConfigDir"), "TFConfigs", db_file_dir});
     auto db_file_name = GET_STR_CONFIG("Database", "DbFileName");
     auto db_file_path = TBase::joinPath(db_file_dir, db_file_name);
     mDBFile = db_file_path;
@@ -68,6 +71,7 @@ void TF::DbManager::initParams() {
 
 void TF::DbManager::initDb() {
     if (mDBFile.empty()) {
+        TF_LOG_THROW_RUNTIME("SQLite file path empty: %s.", mDBFile.c_str());
         return;
     }
 
@@ -80,6 +84,7 @@ void TF::DbManager::initDb() {
     }
     catch (std::exception &e) {
         LOG_F(ERROR, "SQLite open exception: %s.", e.what());
+        TF_LOG_THROW_RUNTIME("SQLite open exception: %s.", e.what());
         return;
     }
 
@@ -674,10 +679,10 @@ void TF::DbManager::UpsertExperiment(const ExperimentInfo& info) {
 
     st.bind(1, info.exp_id);
     st.bind(2, info.name);
-    st.bind(3, static_cast<long long>(info.start_time));
+    st.bind(3, static_cast<std::int64_t>(info.start_time));
 
     if (info.end_time.has_value()) {
-        st.bind(4, static_cast<long long>(*info.end_time));
+        st.bind(4, static_cast<std::int64_t>(*info.end_time));
     } else {
         st.bind(4); // SQLiteCpp：bind(index) 绑定 NULL（常用写法）
     }
@@ -704,7 +709,7 @@ void TF::DbManager::EndExperiment(int exp_id, std::int64_t end_time) {
     SQLite::Statement st(d,
         "UPDATE Experiment SET end_time=? WHERE exp_id=?;"
     );
-    st.bind(1, static_cast<long long>(end_time));
+    st.bind(1, static_cast<std::int64_t>(end_time));
     st.bind(2, exp_id);
 
     st.exec();
@@ -735,7 +740,7 @@ int TF::DbManager::CreateExperiment(std::string_view name, std::int64_t start_ti
     SQLite::Transaction txn(d);
     SQLite::Statement st(d, "INSERT INTO Experiment(name, start_time) VALUES(?, ?);");
     st.bind(1, std::string{name});
-    st.bind(2, static_cast<long long>(start_time));
+    st.bind(2, static_cast<std::int64_t>(start_time));
     st.exec();
 
     const auto id = static_cast<int>(d.getLastInsertRowid());
