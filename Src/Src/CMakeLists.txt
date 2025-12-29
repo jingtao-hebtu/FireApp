@@ -49,6 +49,8 @@ target_link_libraries(${PROJECT_NAME}
         CUDA::cudart
         CUDA::cublas
         SQLiteCpp
+        ${ZeroMQ_LIBRARIES}
+        ${ZMQ_LIBS}
 )
 
 
