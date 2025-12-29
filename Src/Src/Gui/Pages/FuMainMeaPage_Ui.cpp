@@ -164,22 +164,22 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     mCtrlHLayout->setObjectName("CtrlHLayout");
     mCtrlHLayout->setContentsMargins(0, 0, 0, 0);
 
-    mMainCamToggleBtn = new TechToggleButton("主相机", mWid);
+    mMainCamToggleBtn = new TechToggleButton("相机", mWid);
     mMainCamToggleBtn->setObjectName("StartStopStream");
 
-    mThermalCamToggleBtn = new TechToggleButton("红外模块", mWid);
+    mThermalCamToggleBtn = new TechToggleButton("红外", mWid);
     mThermalCamToggleBtn->setObjectName("StartStopThermal");
 
-    mAiToggleBtn = new TechToggleButton("AI检测", mWid);
+    mAiToggleBtn = new TechToggleButton("AI", mWid);
     mAiToggleBtn->setObjectName("StartStopAi");
 
     //mAiSaveToggleBtn = new TechToggleButton("保存AI结果", mWid);
     //mAiSaveToggleBtn->setObjectName("StartStopAiSave");
 
-    mSaveToggleBtn = new TechToggleButton("保存视频", mWid);
+    mSaveToggleBtn = new TechToggleButton("保存", mWid);
     mSaveToggleBtn->setObjectName("StartStopSave");
 
-    mCamConfigBtn = new TechActionButton("相机配置", mWid);
+    mCamConfigBtn = new TechActionButton("配置", mWid);
     mCamConfigBtn->setObjectName("CamConfig");
 
     const int controlButtonHeight = 66;
