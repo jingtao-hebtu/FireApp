@@ -93,10 +93,10 @@ void TF::FuMainWid::dumpLayoutDiagnostics() const {
         qInfo() << "[Layout] none";
     }
 
-    std::vector<QWidget*> widgets = findChildren<QWidget*>(QString(), Qt::FindChildrenRecursively).toVector().toStdVector();
+    const auto widgetsList = findChildren<QWidget*>(QString(), Qt::FindChildrenRecursively);
     std::vector<std::pair<int, QWidget*>> contributions;
-    contributions.reserve(widgets.size());
-    for (auto *widget : widgets) {
+    contributions.reserve(widgetsList.size());
+    for (auto *widget : widgetsList) {
         contributions.emplace_back(widgetMinWidthContribution(widget), widget);
     }
 
