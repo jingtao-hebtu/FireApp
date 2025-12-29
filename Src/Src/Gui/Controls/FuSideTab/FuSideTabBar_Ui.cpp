@@ -17,7 +17,10 @@ Copyright(C), tao.jing All rights reserved
 #include <QFrame>
 #include <QFont>
 #include <QEvent>
+#include <QPixmap>
 #include <QtGlobal>
+#include <QPainter>
+#include <QSvgRenderer>
 
 namespace TF {
 
@@ -45,6 +48,23 @@ namespace TF {
         private:
             QToolButton *mButton;
         };
+
+        QIcon loadSvgIcon(const QString &iconPath) {
+            QSvgRenderer renderer(iconPath);
+            if (!renderer.isValid()) {
+                return QIcon(iconPath);
+            }
+
+            const QSize canvasSize(96, 96);
+            QPixmap pixmap(canvasSize);
+            pixmap.fill(Qt::transparent);
+
+            QPainter painter(&pixmap);
+            renderer.render(&painter);
+            painter.end();
+
+            return QIcon(pixmap);
+        }
 
         QToolButton* createTabButton(QWidget *parent,
                                      const QIcon &icon,
@@ -99,7 +119,7 @@ namespace TF {
         };
 
         for (const auto &tab : tabs) {
-            mButtons.append(createTabButton(mWid, QIcon(tab.iconPath), tab.tooltip));
+            mButtons.append(createTabButton(mWid, loadSvgIcon(tab.iconPath), tab.tooltip));
         }
 
         mLayout->addWidget(brandLabel);
@@ -122,21 +142,21 @@ namespace TF {
         actionLayout->setSpacing(8);
 
         mNewExperimentButton = createTabButton(mWid,
-                                               QIcon(QStringLiteral(":/icons/nav-logs.svg")),
+                                               loadSvgIcon(QStringLiteral(":/icons/nav-logs.svg")),
                                                QObject::tr("新建实验"),
                                                false,
                                                QByteArrayLiteral("sideAction"));
         mNewExperimentButton->setObjectName("NewExperimentButton");
 
         mCamConfigButton = createTabButton(mWid,
-                                           QIcon(QStringLiteral(":/icons/nav-camera.svg")),
+                                           loadSvgIcon(QStringLiteral(":/icons/nav-camera.svg")),
                                            QObject::tr("相机配置"),
                                            false,
                                            QByteArrayLiteral("sideAction"));
         mCamConfigButton->setObjectName("CamConfigButton");
 
         mShutdownButton = createTabButton(mWid,
-                                          QIcon(QStringLiteral(":/icons/nav-shutdown.svg")),
+                                          loadSvgIcon(QStringLiteral(":/icons/nav-shutdown.svg")),
                                           QObject::tr("关机"),
                                           false,
                                           QByteArrayLiteral("sideAction"));
