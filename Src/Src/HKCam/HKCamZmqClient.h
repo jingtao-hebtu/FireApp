@@ -19,6 +19,7 @@ namespace TF
         HKCamZmqClient();
         ~HKCamZmqClient();
 
+        void Configure(const std::string &endpoint, int timeoutMs);
         bool Connect(const std::string &endpoint, int timeoutMs, int retries, std::string &outError);
 
         bool Ping(RpcResponse &outResponse, std::string &outError);
@@ -35,6 +36,7 @@ namespace TF
         bool SetExposureByMicroseconds(double exposureMicroseconds, bool persist, bool clamp, QJsonObject &outRaw, std::string &outError);
         bool AutoFocusOnce(const QJsonObject &params, QJsonObject &outRaw, std::string &outError);
         bool ZoomStepAutoFocus(double step, std::optional<double> speed, const QJsonObject &extraParams, QJsonObject &outRaw, std::string &outError);
+        bool Shutdown(QJsonObject &outData, std::string &outError);
 
     private:
         bool EnsureSocket(std::string &outError);

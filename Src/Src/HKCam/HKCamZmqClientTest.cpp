@@ -6,9 +6,12 @@
 #include <QJsonObject>
 #include <QString>
 
+#include "HKCamPythonServer.h"
 #include "HKCamZmqClient.h"
 
 using TF::HKCamZmqClient;
+using TF::HKCamPythonServer;
+using TF::HKCamServerConfig;
 
 namespace
 {
@@ -64,14 +67,16 @@ namespace
                   << "10 reconnect\n"
                   << "11 autofocus_once\n"
                   << "12 zoom_step_af\n"
+                  << "99 shutdown_server\n"
                   << "q quit\n";
     }
 }
 
 int HKCamTest(int argc, char **argv)
 {
-    std::string endpoint = "tcp://127.0.0.1:5555";
-    int timeoutMs = 3000;
+    HKCamServerConfig serverCfg;
+    serverCfg.endpoint = "tcp://127.0.0.1:5555";
+    serverCfg.timeoutMs = 3000;
     int retries = 3;
 
     for (int i = 1; i < argc; ++i)
@@ -79,26 +84,63 @@ int HKCamTest(int argc, char **argv)
         std::string arg = argv[i];
         if (arg == "--endpoint" && i + 1 < argc)
         {
-            endpoint = argv[++i];
+            serverCfg.endpoint = argv[++i];
         }
         else if (arg == "--timeout" && i + 1 < argc)
         {
-            timeoutMs = std::stoi(argv[++i]);
+            serverCfg.timeoutMs = std::stoi(argv[++i]);
         }
         else if (arg == "--retries" && i + 1 < argc)
         {
             retries = std::stoi(argv[++i]);
         }
+        else if (arg == "--python" && i + 1 < argc)
+        {
+            serverCfg.pythonExe = argv[++i];
+        }
+        else if (arg == "--script" && i + 1 < argc)
+        {
+            serverCfg.scriptPath = argv[++i];
+        }
+        else if (arg == "--ip" && i + 1 < argc)
+        {
+            serverCfg.cameraIp = argv[++i];
+        }
+        else if (arg == "--user" && i + 1 < argc)
+        {
+            serverCfg.username = argv[++i];
+        }
+        else if (arg == "--password" && i + 1 < argc)
+        {
+            serverCfg.password = argv[++i];
+        }
+        else if (arg == "--port" && i + 1 < argc)
+        {
+            serverCfg.cameraPort = std::stoi(argv[++i]);
+        }
+        else if (arg == "--profile-index" && i + 1 < argc)
+        {
+            serverCfg.profileIndex = std::stoi(argv[++i]);
+        }
+    }
+
+    HKCamPythonServer server;
+    std::string serverErr;
+    if (!server.StartBlocking(serverCfg, serverErr))
+    {
+        std::cerr << "Failed to start python server: " << serverErr << std::endl;
+        return 1;
     }
 
     HKCamZmqClient client;
     std::string connectErr;
-    if (!client.Connect(endpoint, timeoutMs, retries, connectErr))
+    if (!client.Connect(serverCfg.endpoint, serverCfg.timeoutMs, retries, connectErr))
     {
         std::cerr << "Connect failed: " << connectErr << std::endl;
+        server.Stop();
         return 1;
     }
-    std::cout << "Connected to " << endpoint << std::endl;
+    std::cout << "Connected to " << serverCfg.endpoint << std::endl;
 
     while (true)
     {
@@ -333,12 +375,19 @@ int HKCamTest(int argc, char **argv)
                 PrintResponse("zoom_step_af", ok, data, err);
                 break;
             }
+            case 99:
+            {
+                server.Stop();
+                std::cout << "Shutdown requested" << std::endl;
+                break;
+            }
             default:
                 std::cout << "Unknown command" << std::endl;
                 break;
         }
     }
 
+    server.Stop();
     return 0;
 }
 
