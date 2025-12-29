@@ -66,3 +66,9 @@ TechActionButton:pressed, TF--TechActionButton:pressed {
     border-color: #23344f;
     outline: none;
 }
+
+TechActionButton:disabled, TF--TechActionButton:disabled {
+    background: #0f1624;
+    border-color: #1f2a3c;
+    color: #6f7585;
+}
