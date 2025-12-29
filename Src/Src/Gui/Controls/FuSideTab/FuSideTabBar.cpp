@@ -14,6 +14,7 @@ Copyright(C), tao.jing All rights reserved
 #include <QMessageBox>
 #include <QProcess>
 #include <QToolButton>
+#include <QStringList>
 
 namespace TF {
 
@@ -73,6 +74,20 @@ namespace TF {
             return;
         }
 
-        QProcess::startDetached(QStringLiteral("shutdown"), {QStringLiteral("-h"), QStringLiteral("now")});
+        QString program;
+        QStringList arguments;
+
+#if defined(Q_OS_WIN)
+        program = QStringLiteral("shutdown");
+        arguments = {QStringLiteral("/s"), QStringLiteral("/t"), QStringLiteral("0")};
+        QProcess::startDetached(program, arguments);
+#elif defined(Q_OS_LINUX)
+        program = QStringLiteral("bash");
+        arguments = {QStringLiteral("-c"),
+                     QStringLiteral("echo fire | sudo -S shutdown -h now")};
+        QProcess::startDetached(program, arguments);
+#else
+        return;
+#endif
     }
 }
