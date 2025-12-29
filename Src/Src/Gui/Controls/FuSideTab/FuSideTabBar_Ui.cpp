@@ -121,6 +121,13 @@ namespace TF {
         actionLayout->setContentsMargins(2, 2, 2, 2);
         actionLayout->setSpacing(8);
 
+        mNewExperimentButton = createTabButton(mWid,
+                                               QIcon(QStringLiteral(":/icons/nav-logs.svg")),
+                                               QObject::tr("新建实验"),
+                                               false,
+                                               QByteArrayLiteral("sideAction"));
+        mNewExperimentButton->setObjectName("NewExperimentButton");
+
         mCamConfigButton = createTabButton(mWid,
                                            QIcon(QStringLiteral(":/icons/nav-camera.svg")),
                                            QObject::tr("相机配置"),
@@ -135,6 +142,7 @@ namespace TF {
                                           QByteArrayLiteral("sideAction"));
         mShutdownButton->setObjectName("ShutdownButton");
 
+        actionLayout->addWidget(mNewExperimentButton, 0, Qt::AlignHCenter);
         actionLayout->addWidget(mCamConfigButton, 0, Qt::AlignHCenter);
         actionLayout->addWidget(mShutdownButton, 0, Qt::AlignHCenter);
 

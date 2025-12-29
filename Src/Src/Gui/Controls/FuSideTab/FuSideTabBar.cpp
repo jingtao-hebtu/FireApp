@@ -61,6 +61,7 @@ namespace TF {
         }
 
         connect(mButtonGroup, &QButtonGroup::idClicked, this, &FuSideTabBar::tabSelected);
+        connect(mUi->mNewExperimentButton, &QToolButton::clicked, this, &FuSideTabBar::newExperimentRequested);
         connect(mUi->mCamConfigButton, &QToolButton::clicked, this, &FuSideTabBar::cameraConfigRequested);
         connect(mUi->mShutdownButton, &QToolButton::clicked, this, &FuSideTabBar::confirmShutdown);
     }
