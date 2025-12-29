@@ -1,0 +1,51 @@
+#VideoURL: "E:\\Project\\Fire\\FireDet\\Data\\Video\\C0201-1.mp4"
+#VideoURL: "E:\\Project\\CNOOC\\EP\\Data\\Video\\field7.mp4"
+VideoURL: "rtsp://admin:fireAi1A@192.168.6.68:554/Streaming/Channels/101?transportmode=unicast&profile=Profile_1"
+
+
+MainUi:
+  Height: 1200
+  Width: 720
+
+RGBCam:
+  UserName: admin
+  Password: fireAi1A
+  NeedPrintDebugInfo: true
+  PreviewDetectedImg: true
+  NeedSaveOriImg: true
+
+ThermalCam:
+  OpenOnInit: false
+  Width: 160
+  Height: 120
+  FPS: 9
+
+VisionMea:
+  DetMode: TRT
+  DetModelName: v11s_d01_e300_im640_seg.onnx
+  DetBackend: ORT
+  RectConfidenceThreshold: 0.88
+  IouThreshold: 0.55
+
+Distance:
+  Mode: Trigger
+  Port: /dev/ttyTHS1
+  Baud: 9600
+
+WitImu:
+  Port: /dev/ttyCH341USB0
+  Baud: 9600
+
+TrtYolo:
+  EnginePath: v11s_B2_e500_im640_seg.engine
+
+Battery:
+  PortName: /dev/ttyACM0
+  Baud: 9600
+  SlaveId: 1
+
+Database:
+  DbDir: Data
+  DbFileName: Fire.db
+
+

@@ -63,7 +63,12 @@ void TF::DbManager::init() {
 
 void TF::DbManager::initParams() {
     auto db_file_dir = GET_STR_CONFIG("Database", "DbDir");
+#ifdef _WIN32
     db_file_dir = TBase::joinPath({TFPathParam("AppConfigDir"), "TFConfigs", db_file_dir});
+#elif __linux__
+    db_file_dir = TBase::joinPath({TFPathParam("AppConfigDir"),db_file_dir});
+#endif
+
     auto db_file_name = GET_STR_CONFIG("Database", "DbFileName");
     auto db_file_path = TBase::joinPath(db_file_dir, db_file_name);
     mDBFile = db_file_path;
