@@ -44,3 +44,7 @@ include(${TRT_YOLO_LIB_PATH}/CMake/TrtYolo.cmake)
 # Sqlite
 set(SQLITE_LIB_PATH ${THIRD_PARTY_PATH}/Sqlite)
 include(${SQLITE_LIB_PATH}/CMake/Sqlite.cmake)
+
+# Zmq
+set(ZMQ_THIRD_LIB_PATH ${THIRD_PARTY_PATH}/Zmq)
+include(${ZMQ_THIRD_LIB_PATH}/CMake/Zmq.cmake)
