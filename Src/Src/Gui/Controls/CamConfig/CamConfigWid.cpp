@@ -11,11 +11,13 @@
 #include "CamConfigWid.h"
 #include "FuVideoButtons.h"
 #include "HKCamTypes.h"
+#include <QDialog>
 #include <QDebug>
 #include <QFrame>
 #include <QGraphicsDropShadowEffect>
 #include <QHBoxLayout>
 #include <QGridLayout>
+#include <QMessageBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPoint>
@@ -27,6 +29,15 @@
 #include <QVBoxLayout>
 #include <QTimer>
 #include <optional>
+#include <QtConcurrent/QtConcurrent>
+
+
+namespace {
+    constexpr const char *kHKCamEndpoint = "tcp://127.0.0.1:5555";
+    constexpr int kHKCamTimeoutMs = 3000;
+    constexpr int kHKCamRetries = 3;
+    constexpr int kHKCamConnectUiTimeoutMs = 8000;
+}
 
 
 TF::CamConfigWid::CamConfigWid(QWidget *parent)
@@ -76,6 +87,8 @@ TF::CamConfigWid::CamConfigWid(QWidget *parent)
     setGraphicsEffect(shadow);
     setupUi();
     updateInfoDisplay();
+    updateConnectionStatus();
+    updateControlsEnabled();
 }
 
 void TF::CamConfigWid::setupUi() {
@@ -177,17 +190,17 @@ QWidget *TF::CamConfigWid::createButtonPanel() {
 
     mFocusIncBtn = createActionButton(tr("焦距 +"));
     mFocusDecBtn = createActionButton(tr("焦距 -"));
-    auto *focusResetBtn = createActionButton(tr("默认焦距"));
+    mFocusResetBtn = createActionButton(tr("默认焦距"));
     mExposureIncBtn = createActionButton(tr("曝光 +"));
     mExposureDecBtn = createActionButton(tr("曝光 -"));
-    auto *exposureAutoBtn = createActionButton(tr("自动曝光"));
+    mExposureAutoBtn = createActionButton(tr("自动曝光"));
 
     layout->addWidget(mFocusIncBtn, 0, 0);
     layout->addWidget(mFocusDecBtn, 0, 1);
-    layout->addWidget(focusResetBtn, 0, 2);
+    layout->addWidget(mFocusResetBtn, 0, 2);
     layout->addWidget(mExposureIncBtn, 1, 0);
     layout->addWidget(mExposureDecBtn, 1, 1);
-    layout->addWidget(exposureAutoBtn, 1, 2);
+    layout->addWidget(mExposureAutoBtn, 1, 2);
 
     layout->setColumnStretch(0, 1);
     layout->setColumnStretch(1, 1);
@@ -197,13 +210,13 @@ QWidget *TF::CamConfigWid::createButtonPanel() {
     connect(mFocusIncBtn, &QPushButton::released, this, &CamConfigWid::stopContinuousAdjust);
     connect(mFocusDecBtn, &QPushButton::pressed, this, &CamConfigWid::onFocusDecrease);
     connect(mFocusDecBtn, &QPushButton::released, this, &CamConfigWid::stopContinuousAdjust);
-    connect(focusResetBtn, &QPushButton::clicked, this, &CamConfigWid::onFocusReset);
+    connect(mFocusResetBtn, &QPushButton::clicked, this, &CamConfigWid::onFocusReset);
 
     connect(mExposureIncBtn, &QPushButton::pressed, this, &CamConfigWid::onExposureIncrease);
     connect(mExposureIncBtn, &QPushButton::released, this, &CamConfigWid::stopContinuousAdjust);
     connect(mExposureDecBtn, &QPushButton::pressed, this, &CamConfigWid::onExposureDecrease);
     connect(mExposureDecBtn, &QPushButton::released, this, &CamConfigWid::stopContinuousAdjust);
-    connect(exposureAutoBtn, &QPushButton::clicked, this, &CamConfigWid::onExposureAuto);
+    connect(mExposureAutoBtn, &QPushButton::clicked, this, &CamConfigWid::onExposureAuto);
 
     return panel;
 }
@@ -257,9 +270,30 @@ void TF::CamConfigWid::updateConnectionStatus() {
     if (mConnected) {
         mConnectionStatusLabel->setText(tr("已连接"));
         mConnectionStatusLabel->setStyleSheet("color: #4caf50; font-weight: bold;");
+    } else if (mConnecting) {
+        mConnectionStatusLabel->setText(tr("连接中..."));
+        mConnectionStatusLabel->setStyleSheet("color: #ffc107; font-weight: bold;");
     } else {
         mConnectionStatusLabel->setText(tr("未连接"));
         mConnectionStatusLabel->setStyleSheet("color: #f44336; font-weight: bold;");
+    }
+}
+
+void TF::CamConfigWid::updateControlsEnabled() {
+    const bool enableControls = mConnected && !mConnecting;
+    const std::initializer_list<TechActionButton **> buttons = {
+        &mFocusIncBtn,
+        &mFocusDecBtn,
+        &mFocusResetBtn,
+        &mExposureIncBtn,
+        &mExposureDecBtn,
+        &mExposureAutoBtn
+    };
+
+    for (auto btnPtr : buttons) {
+        if (btnPtr && *btnPtr) {
+            (*btnPtr)->setEnabled(enableControls);
+        }
     }
 }
 
@@ -268,20 +302,127 @@ bool TF::CamConfigWid::ensureConnected() {
         return true;
     }
 
-    std::string error;
-    static constexpr const char *kEndpoint = "tcp://127.0.0.1:5555";
-    static constexpr int kTimeoutMs = 3000;
-    static constexpr int kRetries = 3;
-    mConnected = mClient.Connect(kEndpoint, kTimeoutMs, kRetries, error);
-    if (!mConnected) {
-        qWarning("HKCam connect failed: %s", error.c_str());
+    if (mConnecting) {
+        return false;
     }
+
+    startConnectionAttempt();
+    return mConnected;
+}
+
+void TF::CamConfigWid::startConnectionAttempt() {
+    mConnecting = true;
+    mConnectTimedOut = false;
     updateConnectionStatus();
+    updateControlsEnabled();
+
+    if (!mConnectDialog) {
+        mConnectDialog = new QDialog(this);
+        mConnectDialog->setModal(true);
+        mConnectDialog->setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+        auto *dialogLayout = new QVBoxLayout(mConnectDialog);
+        dialogLayout->setContentsMargins(20, 20, 20, 20);
+        dialogLayout->setSpacing(12);
+        mConnectDialogLabel = new QLabel(tr("正在连接..."), mConnectDialog);
+        mConnectDialogLabel->setAlignment(Qt::AlignCenter);
+        dialogLayout->addWidget(mConnectDialogLabel);
+    }
+
+    if (!mConnectDialogTimer) {
+        mConnectDialogTimer = new QTimer(this);
+        mConnectDialogTimer->setInterval(200);
+        connect(mConnectDialogTimer, &QTimer::timeout, this, &CamConfigWid::updateConnectionProgress);
+    }
+
+    if (mConnectWatcher) {
+        mConnectWatcher->deleteLater();
+        mConnectWatcher = nullptr;
+    }
+
+    mConnectElapsed.restart();
+    mConnectDialogTimer->start();
+    mConnectDialog->show();
+
+    auto future = QtConcurrent::run([this]() {
+        ConnectResult result;
+        std::string error;
+        result.success = mClient.Connect(kHKCamEndpoint, kHKCamTimeoutMs, kHKCamRetries, error);
+        result.error = error;
+        return result;
+    });
+
+    mConnectWatcher = new QFutureWatcher<ConnectResult>(this);
+    connect(mConnectWatcher, &QFutureWatcher<ConnectResult>::finished, this, &CamConfigWid::handleConnectFinished);
+    mConnectWatcher->setFuture(future);
+}
+
+void TF::CamConfigWid::updateConnectionProgress() {
+    const double seconds = static_cast<double>(mConnectElapsed.elapsed()) / 1000.0;
+    if (mConnectDialogLabel) {
+        mConnectDialogLabel->setText(tr("正在连接... %1s").arg(QString::number(seconds, 'f', 1)));
+    }
+
+    if (mConnecting && mConnectElapsed.elapsed() >= kHKCamConnectUiTimeoutMs) {
+        handleConnectTimeout();
+    }
+}
+
+void TF::CamConfigWid::handleConnectFinished() {
+    if (!mConnectWatcher) {
+        return;
+    }
+
+    const auto result = mConnectWatcher->result();
+    mConnectWatcher->deleteLater();
+    mConnectWatcher = nullptr;
+
+    if (mConnectTimedOut) {
+        cleanupConnectUi();
+        return;
+    }
+
+    mConnecting = false;
+    mConnected = result.success;
+    if (!mConnected) {
+        qWarning("HKCam connect failed: %s", result.error.c_str());
+    }
+
+    cleanupConnectUi();
+    updateConnectionStatus();
+    updateControlsEnabled();
     if (mConnected) {
         loadRanges();
         refreshCurrentValues();
+    } else {
+        QMessageBox::warning(this, tr("连接失败"), tr("未连接上，请检查相机服务是否开启。"));
     }
-    return mConnected;
+}
+
+void TF::CamConfigWid::handleConnectTimeout() {
+    if (!mConnecting || mConnectTimedOut) {
+        return;
+    }
+
+    mConnectTimedOut = true;
+    mConnecting = false;
+    mConnected = false;
+    if (mConnectWatcher && mConnectWatcher->isRunning()) {
+        mConnectWatcher->cancel();
+    }
+
+    cleanupConnectUi();
+    updateConnectionStatus();
+    updateControlsEnabled();
+    QMessageBox::warning(this, tr("连接超时"), tr("未连接上，请检查相机服务是否开启。"));
+}
+
+void TF::CamConfigWid::cleanupConnectUi() {
+    if (mConnectDialogTimer) {
+        mConnectDialogTimer->stop();
+    }
+    if (mConnectDialog) {
+        mConnectDialog->hide();
+    }
 }
 
 void TF::CamConfigWid::loadRanges() {
