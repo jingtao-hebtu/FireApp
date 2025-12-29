@@ -10,6 +10,7 @@ Copyright(C), tao.jing All rights reserved
 **************************************************************************/
 #include "FuMainWid_Ui.h"
 #include "FuMainMeaPage.h"
+#include "ExperimentDataViewPage.h"
 #include "FuSideTabBar.h"
 #include "TFMeaManager.h"
 
@@ -40,6 +41,10 @@ void TF::FuMainWid_Ui::setupUi(QWidget *wid) {
     mMainMeaPage->setObjectName("VideoPage");
     TFMeaManager::instance().setMeaPage(mMainMeaPage);
 
+    mExperimentViewPage = new ExperimentDataViewPage(mContentWidget);
+    mExperimentViewPage->setObjectName("ExperimentViewPage");
+    mExperimentViewPage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     auto createPage = [](const QString &title, const QString &desc) {
         auto *page = new QWidget();
         auto *layout = new QVBoxLayout(page);
@@ -59,7 +64,7 @@ void TF::FuMainWid_Ui::setupUi(QWidget *wid) {
     };
 
     mPages.append(mMainMeaPage);
-    mPages.append(createPage(QObject::tr("采集"), QObject::tr("双光火焰采集控制")));
+    mPages.append(mExperimentViewPage);
     mPages.append(createPage(QObject::tr("记录"), QObject::tr("历史记录与回放")));
     mPages.append(createPage(QObject::tr("状态"), QObject::tr("当前运行状态详情")));
 

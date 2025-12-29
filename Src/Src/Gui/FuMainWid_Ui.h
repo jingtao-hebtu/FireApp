@@ -20,6 +20,7 @@ namespace TF {
     class FuSideTabBar;
     class FuMainMeaPage;
     class FuCamPage;
+    class ExperimentDataViewPage;
 
     class FuMainWid_Ui {
 
@@ -43,6 +44,7 @@ namespace TF {
 
         FuMainMeaPage *mMainMeaPage {nullptr};
         FuCamPage *mCamPage {nullptr};
+        ExperimentDataViewPage *mExperimentViewPage {nullptr};
     };
 
 };
