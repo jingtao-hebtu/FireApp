@@ -47,12 +47,14 @@ void TF::FuMainMeaPage_Ui::initVideoArea() {
     mVideoWid = new VideoWidget(mVideoArea);
     mVideoWid->setObjectName("VideoWid");
     mVideoWid->resize(780, 440);
-    QSizePolicy mainVideoPolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    QSizePolicy mainVideoPolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
     mainVideoPolicy.setHorizontalStretch(mMainVideoStretch);
     mVideoWid->setSizePolicy(mainVideoPolicy);
+    mVideoWid->setMinimumSize(QSize(0, 0));
 
     mVideoSideWid = new QWidget(mVideoArea);
     mVideoSideWid->setObjectName("VideoSideWid");
+    mVideoSideWid->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding));
     mVideoSideVLayout = new QVBoxLayout(mVideoSideWid);
     mVideoSideVLayout->setSpacing(6);
     mVideoSideVLayout->setContentsMargins(0, 0, 0, 0);
@@ -90,7 +92,8 @@ void TF::FuMainMeaPage_Ui::initThermalCamera() {
 
     mThermalCamera = new ThermalCamera(thermalFrame);
     mThermalWidget = new ThermalWidget(mThermalCamera, thermalFrame);
-    mThermalWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    mThermalWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
+    mThermalWidget->setMinimumSize(QSize(0, 0));
     ThermalManager::instance().setThermalCamera(mThermalCamera);
 
     thermalFrameLayout->addWidget(mThermalWidget);
@@ -197,8 +200,8 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
 
     mMetricsPanel = new QFrame(mWid);
     mMetricsPanel->setObjectName("MetricsPanel");
-    mMetricsPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    mMetricsPanel->setMinimumWidth(140);
+    mMetricsPanel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    mMetricsPanel->setMinimumWidth(120);
     mMetricsPanel->setFixedHeight(66);
 
     auto *metricsLayout = new QHBoxLayout(mMetricsPanel);
@@ -246,9 +249,9 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
 void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     mBatteryPanel = new QFrame(mWid);
     mBatteryPanel->setObjectName("BatteryPanel");
-    mBatteryPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mBatteryPanel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
     mBatteryPanel->setFixedHeight(66);
-    mBatteryPanel->setMinimumWidth(200);
+    mBatteryPanel->setMinimumWidth(160);
     mBatteryPanel->setMaximumWidth(320);
 
     auto *batteryLayout = new QHBoxLayout(mBatteryPanel);
@@ -266,7 +269,7 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     mBatteryLevelBar->setFormat("%p%");
     mBatteryLevelBar->setAlignment(Qt::AlignCenter);
     mBatteryLevelBar->setTextVisible(true);
-    mBatteryLevelBar->setFixedSize(130, 22);
+    mBatteryLevelBar->setFixedSize(110, 22);
 
     mBatteryStatusLabel = new QLabel(QCoreApplication::translate("Page", "电量 --% · 未连接"), mBatteryPanel);
     mBatteryStatusLabel->setObjectName("BatteryStatusLabel");
