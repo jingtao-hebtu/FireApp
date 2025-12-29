@@ -162,7 +162,7 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     mMainVLayout->addWidget(mCtrlWid);
 
     mCtrlHLayout = new QHBoxLayout(mCtrlWid);
-    mCtrlHLayout->setSpacing(6);
+    mCtrlHLayout->setSpacing(3);
     mCtrlHLayout->setObjectName("CtrlHLayout");
     mCtrlHLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -181,34 +181,29 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     mSaveToggleBtn = new TechToggleButton("保存", mWid);
     mSaveToggleBtn->setObjectName("StartStopSave");
 
-    mCamConfigBtn = new TechActionButton("配置", mWid);
-    mCamConfigBtn->setObjectName("CamConfig");
-
     const int controlButtonHeight = 66;
     mMainCamToggleBtn->setFixedHeight(controlButtonHeight);
     mThermalCamToggleBtn->setFixedHeight(controlButtonHeight);
     mAiToggleBtn->setFixedHeight(controlButtonHeight);
     //mAiSaveToggleBtn->setFixedHeight(controlButtonHeight);
     mSaveToggleBtn->setFixedHeight(controlButtonHeight);
-    mCamConfigBtn->setFixedHeight(controlButtonHeight);
 
     mCtrlHLayout->addWidget(mMainCamToggleBtn);
     mCtrlHLayout->addWidget(mThermalCamToggleBtn);
     mCtrlHLayout->addWidget(mAiToggleBtn);
     //mCtrlHLayout->addWidget(mAiSaveToggleBtn);
     mCtrlHLayout->addWidget(mSaveToggleBtn);
-    mCtrlHLayout->addWidget(mCamConfigBtn);
     mCtrlHLayout->addItem(new QSpacerItem(10, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
     mExperimentPanel = new QFrame(mWid);
     mExperimentPanel->setObjectName("ExperimentPanel");
     mExperimentPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    mExperimentPanel->setMinimumWidth(180);
+    mExperimentPanel->setMinimumWidth(80);
     mExperimentPanel->setFixedHeight(66);
 
     auto *experimentLayout = new QVBoxLayout(mExperimentPanel);
-    experimentLayout->setContentsMargins(12, 8, 12, 8);
-    experimentLayout->setSpacing(4);
+    experimentLayout->setContentsMargins(4, 8, 4, 8);
+    experimentLayout->setSpacing(3);
 
     mExperimentNameLabel = new QLabel(QCoreApplication::translate("Page", "实验名称：----"), mExperimentPanel);
     mExperimentNameLabel->setObjectName("ExperimentNameLabel");
@@ -246,17 +241,17 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
 
     mCtrlHLayout->addWidget(mExperimentPanel);
     mCtrlHLayout->setAlignment(mExperimentPanel, Qt::AlignVCenter);
-    mCtrlHLayout->addSpacing(6);
+    mCtrlHLayout->addSpacing(3);
 
     mMetricsPanel = new QFrame(mWid);
     mMetricsPanel->setObjectName("MetricsPanel");
     mMetricsPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    mMetricsPanel->setMinimumWidth(120);
+    mMetricsPanel->setMinimumWidth(80);
     mMetricsPanel->setFixedHeight(66);
 
     auto *metricsLayout = new QHBoxLayout(mMetricsPanel);
-    metricsLayout->setContentsMargins(12, 6, 12, 6);
-    metricsLayout->setSpacing(10);
+    metricsLayout->setContentsMargins(4, 6, 4, 6);
+    metricsLayout->setSpacing(3);
 
     auto createMetricWidget = [&](const QString& title, QLabel** valueLabel) {
         auto *item = new QWidget(mMetricsPanel);
@@ -292,7 +287,7 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
 
     mCtrlHLayout->addWidget(mMetricsPanel);
     mCtrlHLayout->setAlignment(mMetricsPanel, Qt::AlignVCenter);
-    mCtrlHLayout->addSpacing(6);
+    mCtrlHLayout->addSpacing(3);
 
     initBatteryInfoArea();
 }
@@ -308,11 +303,11 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     auto *batteryLayout = new QHBoxLayout(mBatteryPanel);
     batteryLayout->setObjectName("BatteryLayout");
     batteryLayout->setContentsMargins(10, 6, 10, 6);
-    batteryLayout->setSpacing(10);
+    batteryLayout->setSpacing(4);
 
     auto *batteryColumn = new QVBoxLayout();
     batteryColumn->setContentsMargins(0, 0, 0, 0);
-    batteryColumn->setSpacing(4);
+    batteryColumn->setSpacing(2);
 
     mBatteryLevelBar = new QProgressBar(mBatteryPanel);
     mBatteryLevelBar->setObjectName("BatteryBar");
@@ -320,7 +315,7 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     mBatteryLevelBar->setFormat("%p%");
     mBatteryLevelBar->setAlignment(Qt::AlignCenter);
     mBatteryLevelBar->setTextVisible(true);
-    mBatteryLevelBar->setFixedSize(110, 22);
+    mBatteryLevelBar->setFixedSize(80, 22);
 
     mBatteryStatusLabel = new QLabel(QCoreApplication::translate("Page", "电量 --% · 未连接"), mBatteryPanel);
     mBatteryStatusLabel->setObjectName("BatteryStatusLabel");

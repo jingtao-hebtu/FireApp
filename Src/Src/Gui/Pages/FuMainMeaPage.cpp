@@ -60,8 +60,6 @@ void TF::FuMainMeaPage::initActions() {
     connect(mUi->mSaveToggleBtn, &QPushButton::toggled,
             this, &FuMainMeaPage::onSaveBtnToggled);
 
-    //connect(mUi->mAiSaveToggleBtn, &QPushButton::toggled,
-
     connect(mUi->mAiToggleBtn, &QPushButton::toggled,
             this, &FuMainMeaPage::onAiBtnToggled);
 
@@ -70,9 +68,6 @@ void TF::FuMainMeaPage::initActions() {
 
     connect(this, &FuMainMeaPage::updateWitImuData,
             this, &FuMainMeaPage::onUpdateWitImuData);
-
-    connect(mUi->mCamConfigBtn, &QPushButton::pressed,
-        this, &FuMainMeaPage::onCamConfigBtnPressed);
 
     connect(mUi->mRecordingToggleButton, &QPushButton::toggled,
             this, [this](bool checked) {
