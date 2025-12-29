@@ -108,7 +108,7 @@ bool TF::BmsWorker::openPortSafely() {
     bool exists = false;
     const auto ports = QSerialPortInfo::availablePorts();
     for (const auto& pi : ports) {
-        if (pi.portName() == mPortName) {
+        if (pi.portName() == mPortName || mPortName.contains(pi.portName())) {
             exists = true;
             break;
         }
