@@ -87,6 +87,184 @@ void TF::DbManager::initDb() {
     mInitialized = true;
 }
 
+void TF::DbManager::initChannelCache() {
+    try {
+        // 建议：带 OPEN_CREATE，避免文件不存在时 OPEN_READWRITE 直接失败
+        mDB = new SQLite::Database(mDBFile, SQLite::OPEN_READWRITE | SQLite::OPEN_CREATE);
+
+        // 可选：写入吞吐友好的一些 PRAGMA（你如果已经在别处设了可忽略）
+        mDB->exec("PRAGMA foreign_keys = ON;");
+        mDB->exec("PRAGMA journal_mode = WAL;");
+        mDB->exec("PRAGMA synchronous = NORMAL;");
+        mDB->exec("PRAGMA busy_timeout = 5000;"); // 避免偶发锁冲突直接失败
+    }
+    catch (std::exception &e) {
+        LOG_F(ERROR, "SQLite open exception: %s.", e.what());
+        return;
+    }
+
+    LOG_F(INFO, "Load database file path %s.", mDBFile.c_str());
+
+    // 关键：连接完成后加载 Channel 映射缓存
+    try {
+        refreshChannelCache();
+    } catch (const std::exception& e) {
+        // 缓存加载失败不一定要阻止数据库初始化，但要明确记录
+        LOG_F(WARNING, "Load Channel cache failed: %s.", e.what());
+    }
+}
+
+bool TF::DbManager::channelTableExistsUnsafe() const {
+    // 这个函数在调用处已经保证 mDB != nullptr 且已加锁（或单线程调用）
+    SQLite::Statement q(*mDB,
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='Channel' LIMIT 1;"
+    );
+    return q.executeStep();
+}
+
+void TF::DbManager::refreshChannelCache() {
+    if (!mDB) {
+        return;
+    }
+
+    std::unique_lock lk(mChannelCacheMtx);
+    loadChannelCacheUnsafe();
+}
+
+void TF::DbManager::loadChannelCacheUnsafe() {
+    mNameToId.clear();
+    mIdToName.clear();
+    mChannelCacheLoaded = false;
+
+    if (!channelTableExistsUnsafe()) {
+        LOG_F(INFO, "Channel table not found, channel cache left empty.");
+        return;
+    }
+
+    SQLite::Statement q(*mDB, "SELECT channel_id, name FROM Channel;");
+
+    std::size_t count = 0;
+    while (q.executeStep()) {
+        const int id = q.getColumn(0).getInt();
+        const std::string name = q.getColumn(1).getString();
+
+        // 处理潜在重复：数据库里 name UNIQUE / id PRIMARY KEY 正常情况下不会重复
+        auto [it1, ok1] = mNameToId.emplace(name, id);
+        auto [it2, ok2] = mIdToName.emplace(id, name);
+
+        if (!ok1) {
+            LOG_F(WARNING, "Duplicate channel name in cache load: name=%s old_id=%d new_id=%d",
+                  name.c_str(), it1->second, id);
+            it1->second = id; // 以最新读到的为准（可按你偏好改为保留旧值）
+        }
+        if (!ok2) {
+            LOG_F(WARNING, "Duplicate channel id in cache load: id=%d old_name=%s new_name=%s",
+                  id, it2->second.c_str(), name.c_str());
+            it2->second = name;
+        }
+
+        ++count;
+    }
+
+    mChannelCacheLoaded = true;
+    LOG_F(INFO, "Channel cache loaded: %zu channels.", count);
+}
+
+std::optional<int> TF::DbManager::getChannelIdByName(std::string_view name) const {
+    if (name.empty()) {
+        return std::nullopt;
+    }
+    std::shared_lock lk(mChannelCacheMtx);
+    auto it = mNameToId.find(std::string{name});
+    if (it == mNameToId.end()) {
+        return std::nullopt;
+    }
+    return it->second;
+}
+
+std::optional<std::string> TF::DbManager::getChannelNameById(int channel_id) const {
+    if (channel_id < 0) {
+        return std::nullopt;
+    }
+    std::shared_lock lk(mChannelCacheMtx);
+    auto it = mIdToName.find(channel_id);
+    if (it == mIdToName.end()) {
+        return std::nullopt;
+    }
+    return it->second;
+}
+
+
+
+std::optional<std::string> TF::DbManager::GetDetectImagePath(int exp_id, int sample_id) const {
+    if (!mDB || !mInitialized) {
+        return std::nullopt;
+    }
+    if (exp_id < 0 || sample_id < 0) {
+        return std::nullopt;
+    }
+
+    std::scoped_lock lk(mMtx);
+
+    if (!mStmtGetDetectImagePath) {
+        mStmtGetDetectImagePath = std::make_unique<SQLite::Statement>(
+            *mDB,
+            "SELECT image_path "
+            "FROM DetectImage "
+            "WHERE exp_id=? AND sample_id=? "
+            "LIMIT 1;"
+        );
+    }
+
+    auto& q = *mStmtGetDetectImagePath;
+    q.bind(1, exp_id);
+    q.bind(2, sample_id);
+
+    std::optional<std::string> out;
+    if (q.executeStep()) {
+        out = q.getColumn(0).getString();
+    } else {
+        out = std::nullopt;
+    }
+
+    q.reset();
+    q.clearBindings();
+    return out;
+}
+
+bool TF::DbManager::UpsertDetectImage(int exp_id, int sample_id, std::string_view image_path) {
+    if (!mDB || !mInitialized) {
+        return false;
+    }
+    if (exp_id < 0 || sample_id < 0 || image_path.empty()) {
+        return false;
+    }
+
+    std::scoped_lock lk(mMtx);
+
+    if (!mStmtUpsertDetectImage) {
+        // UPSERT：若 (exp_id, sample_id) 已存在则更新路径
+        mStmtUpsertDetectImage = std::make_unique<SQLite::Statement>(
+            *mDB,
+            "INSERT INTO DetectImage(exp_id, sample_id, image_path) "
+            "VALUES(?,?,?) "
+            "ON CONFLICT(exp_id, sample_id) DO UPDATE SET "
+            "  image_path=excluded.image_path;"
+        );
+    }
+
+    auto& st = *mStmtUpsertDetectImage;
+    st.bind(1, exp_id);
+    st.bind(2, sample_id);
+    st.bind(3, std::string{image_path}); // SQLiteCpp 对 string_view 不一定有重载，转 string 更稳
+
+    const int changed = st.exec(); // 受影响行数（插入/更新一般为1）
+    st.reset();
+    st.clearBindings();
+
+    return changed > 0;
+}
+
 void TF::DbManager::EnsureSchema() {
     std::scoped_lock lk(mMtx);
     auto& d = db();
