@@ -48,6 +48,7 @@ target_link_libraries(${PROJECT_NAME}
         ${SQLTIE_LIBS}
         CUDA::cudart
         CUDA::cublas
+        SQLiteCpp
 )
 
 

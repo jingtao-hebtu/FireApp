@@ -9,7 +9,7 @@
    Brief  :
 **************************************************************************/
 #include "DbManager.h"
-#include "SQLiteCpp.h"
+#include "SQLiteCpp/SQLiteCpp.h"
 #include "TConfig.h"
 #include "TSysUtils.h"
 #include "PathConfig.h"
@@ -150,7 +150,7 @@ std::size_t TF::DbManager::InsertBatch(std::span<const DataRow> rows, ConflictPo
         stmt.bind(1, r.exp_id);
         stmt.bind(2, r.channel_id);
         stmt.bind(3, r.sample_id);
-        stmt.bind(4, static_cast<long long>(r.datetime));
+        stmt.bind(4, static_cast<std::int64_t>(r.datetime));
         stmt.bind(5, r.value);
 
         changed += static_cast<std::size_t>(stmt.exec());
@@ -190,7 +190,7 @@ std::size_t TF::DbManager::Writer::Add(std::span<const DataRow> rows) {
         mStmt.bind(1, r.exp_id);
         mStmt.bind(2, r.channel_id);
         mStmt.bind(3, r.sample_id);
-        mStmt.bind(4, static_cast<long long>(r.datetime));
+        mStmt.bind(4, static_cast<std::int64_t>(r.datetime));
         mStmt.bind(5, r.value);
 
         changed += static_cast<std::size_t>(mStmt.exec());
@@ -380,8 +380,8 @@ std::vector<TF::DbManager::ChannelPoint> TF::DbManager::QueryChannelByTimeRange(
     );
     q.bind(1, exp_id);
     q.bind(2, channel_id);
-    q.bind(3, static_cast<long long>(t_begin));
-    q.bind(4, static_cast<long long>(t_end_exclusive));
+    q.bind(3, static_cast<std::int64_t>(t_begin));
+    q.bind(4, static_cast<std::int64_t>(t_end_exclusive));
 
     std::vector<ChannelPoint> out;
     while (q.executeStep()) {

@@ -26,7 +26,17 @@ if (WIN32)
   link_directories(${THIRD_PARTY_SQLITE_LIB_PATH})
   set(SQLTIE_LIBS "sqlite3;SQLiteCpp;")
 else()
+  set(SQLITE_CPP_BASE_DIR "/home/fire/project/library/sqlitecpp/install/3_3")
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(SQLiteCpp_DIR "${SQLITE_CPP_BASE_DIR}/debug")
+  else()
+    set(SQLiteCpp_DIR "${SQLITE_CPP_BASE_DIR}/release")
+  endif()
 
+  find_package(SQLiteCpp REQUIRED PATHS ${SQLiteCpp_DIR})
+
+  include_directories(${SQLiteCpp_DIR}/include)
+  include_directories(${SQLiteCpp_DIR}/include/SQLiteCpp)
 endif()
 
 

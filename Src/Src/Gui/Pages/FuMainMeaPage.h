@@ -63,7 +63,7 @@ namespace TF {
 
         void batteryStatusChanged(int level, float current, float voltage, float temp);
 
-    private slots:
+    public slots:
         void onMainCamBtnPressed();
         void onThermalCamBtnPressed();
         void onSaveBtnToggled(bool checked);
