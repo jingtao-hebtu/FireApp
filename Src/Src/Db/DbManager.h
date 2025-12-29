@@ -69,6 +69,8 @@ namespace TF {
     public:
         void init();
 
+        [[nodiscard]] std::string databaseFile() const;
+
         // ---------- Schema / PRAGMA ----------
         void EnsureSchema(); // Create Data table and index
         void ConfigureForIngest(); // PRAGMA (WAL/timeout/synchronous)

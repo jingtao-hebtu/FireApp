@@ -61,6 +61,10 @@ void TF::DbManager::init() {
     initChannelCache();
 }
 
+std::string TF::DbManager::databaseFile() const {
+    return mDBFile;
+}
+
 void TF::DbManager::initParams() {
     auto db_file_dir = GET_STR_CONFIG("Database", "DbDir");
 #ifdef _WIN32
