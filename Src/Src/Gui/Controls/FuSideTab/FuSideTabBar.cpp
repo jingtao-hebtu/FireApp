@@ -11,6 +11,8 @@ Copyright(C), tao.jing All rights reserved
 #include "FuSideTabBar.h"
 #include "FuSideTabBar_Ui.h"
 
+#include <QMessageBox>
+#include <QProcess>
 #include <QToolButton>
 
 namespace TF {
@@ -58,5 +60,19 @@ namespace TF {
         }
 
         connect(mButtonGroup, &QButtonGroup::idClicked, this, &FuSideTabBar::tabSelected);
+        connect(mUi->mShutdownButton, &QToolButton::clicked, this, &FuSideTabBar::confirmShutdown);
+    }
+
+    void FuSideTabBar::confirmShutdown() {
+        const auto result = QMessageBox::question(this,
+                                                  tr("确认关机"),
+                                                  tr("是否确认关机？"),
+                                                  QMessageBox::Yes | QMessageBox::No,
+                                                  QMessageBox::No);
+        if (result != QMessageBox::Yes) {
+            return;
+        }
+
+        QProcess::startDetached(QStringLiteral("shutdown"), {QStringLiteral("-h"), QStringLiteral("now")});
     }
 }

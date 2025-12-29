@@ -46,10 +46,10 @@ namespace TF {
             QToolButton *mButton;
         };
 
-        QToolButton* createTabButton(QWidget *parent, const QIcon &icon, const QString &tooltip) {
+        QToolButton* createTabButton(QWidget *parent, const QIcon &icon, const QString &tooltip, bool checkable = true) {
             auto *button = new QToolButton(parent);
-            button->setCheckable(true);
-            button->setAutoExclusive(true);
+            button->setCheckable(checkable);
+            button->setAutoExclusive(checkable);
             button->setIcon(icon);
             button->setToolTip(tooltip);
             button->setText(tooltip);
@@ -106,5 +106,9 @@ namespace TF {
         }
 
         mLayout->addStretch();
+
+        mShutdownButton = createTabButton(mWid, QIcon(QStringLiteral(":/icons/nav-shutdown.svg")), QObject::tr("关机"), false);
+        mShutdownButton->setObjectName("ShutdownButton");
+        mLayout->addWidget(mShutdownButton, 0, Qt::AlignHCenter);
     }
 }
