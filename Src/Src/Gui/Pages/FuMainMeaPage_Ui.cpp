@@ -196,11 +196,11 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     //mCtrlHLayout->addWidget(mAiSaveToggleBtn);
     mCtrlHLayout->addWidget(mSaveToggleBtn);
     mCtrlHLayout->addWidget(mCamConfigBtn);
-    mCtrlHLayout->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
+    mCtrlHLayout->addItem(new QSpacerItem(10, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
     mMetricsPanel = new QFrame(mWid);
     mMetricsPanel->setObjectName("MetricsPanel");
-    mMetricsPanel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    mMetricsPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mMetricsPanel->setMinimumWidth(120);
     mMetricsPanel->setFixedHeight(66);
 
@@ -242,6 +242,7 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
 
     mCtrlHLayout->addWidget(mMetricsPanel);
     mCtrlHLayout->setAlignment(mMetricsPanel, Qt::AlignVCenter);
+    mCtrlHLayout->addSpacing(6);
 
     initBatteryInfoArea();
 }
@@ -249,7 +250,7 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
 void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     mBatteryPanel = new QFrame(mWid);
     mBatteryPanel->setObjectName("BatteryPanel");
-    mBatteryPanel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+    mBatteryPanel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mBatteryPanel->setFixedHeight(66);
     mBatteryPanel->setMinimumWidth(160);
     mBatteryPanel->setMaximumWidth(320);
