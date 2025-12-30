@@ -69,8 +69,8 @@ TF::CamConfigWid::CamConfigWid(QWidget *parent)
             color: #e8ecf5;
             border: 1px solid #3b4357;
             border-radius: 10px;
-            padding: 8px 14px;
-            font-size: 14px;
+            padding: 2px 2px;
+            font-size: 11px;
         }
         QWidget#CamConfigWid QPushButton:hover {
             background: #36405a;
@@ -93,8 +93,8 @@ TF::CamConfigWid::CamConfigWid(QWidget *parent)
 
 void TF::CamConfigWid::setupUi() {
     auto *mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(14, 14, 14, 14);
-    mainLayout->setSpacing(12);
+    mainLayout->setContentsMargins(2, 2, 2, 2);
+    mainLayout->setSpacing(2);
 
     mainLayout->addWidget(createConnectionPanel());
     mainLayout->addWidget(createInfoPanel());
@@ -183,7 +183,7 @@ QWidget *TF::CamConfigWid::createButtonPanel() {
 
     auto createActionButton = [panel](const QString &text) {
         auto *btn = new TF::TechActionButton(text, panel);
-        btn->setMinimumSize(32, 25);
+        btn->setMinimumSize(50, 30);
         btn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
         return btn;
     };
@@ -240,11 +240,11 @@ void TF::CamConfigWid::updateInfoDisplay() {
 }
 
 void TF::CamConfigWid::showAt(const QRect &targetRect) {
-    const int desiredWidth = qMin(targetRect.width(), 300);
+    const int desiredWidth = qMin(targetRect.width(), 360);
     const int desiredHeight = sizeHint().height();
     resize(desiredWidth, desiredHeight);
 
-    const int x = targetRect.right() - desiredWidth - 40;
+    const int x = targetRect.right() - desiredWidth - 60;
     move(QPoint(x, targetRect.top()));
     show();
     raise();
