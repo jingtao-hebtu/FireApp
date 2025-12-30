@@ -69,17 +69,17 @@ namespace TF {
 
     void ExperimentDataViewPage::setupUi() {
         auto *mainLayout = new QVBoxLayout(this);
-        mainLayout->setContentsMargins(10, 10, 10, 10);
-        mainLayout->setSpacing(8);
+        mainLayout->setContentsMargins(2, 2, 2, 2);
+        mainLayout->setSpacing(2);
 
         // Query bar
         auto *queryCard = createCard(this);
         auto *queryLayout = new QHBoxLayout(queryCard);
-        queryLayout->setContentsMargins(10, 8, 10, 8);
-        queryLayout->setSpacing(8);
+        queryLayout->setContentsMargins(2, 2, 2, 2);
+        queryLayout->setSpacing(2);
 
         mExperimentCombo = new QComboBox(queryCard);
-        mExperimentCombo->setMinimumWidth(220);
+        mExperimentCombo->setMinimumWidth(160);
         mExperimentCombo->setObjectName(QStringLiteral("ExperimentCombo"));
 
         mFromEdit = new QDateTimeEdit(queryCard);
@@ -114,9 +114,9 @@ namespace TF {
         // Timeline
         auto *timelineCard = createCard(this);
         auto *timelineLayout = new QGridLayout(timelineCard);
-        timelineLayout->setContentsMargins(10, 8, 10, 8);
-        timelineLayout->setVerticalSpacing(6);
-        timelineLayout->setHorizontalSpacing(8);
+        timelineLayout->setContentsMargins(2, 2, 2, 2);
+        timelineLayout->setVerticalSpacing(2);
+        timelineLayout->setHorizontalSpacing(2);
         timelineLayout->setColumnStretch(1, 1);
         timelineLayout->setColumnStretch(4, 1);
 
@@ -144,17 +144,18 @@ namespace TF {
 
         auto *sliderLayout = new QHBoxLayout();
         sliderLayout->setContentsMargins(0, 0, 0, 0);
-        sliderLayout->setSpacing(8);
+        sliderLayout->setSpacing(2);
         sliderLayout->addWidget(mPrevButton);
         sliderLayout->addWidget(mSampleSlider, 1);
         sliderLayout->addWidget(mNextButton);
 
         auto *controlBar = new QHBoxLayout();
         controlBar->setContentsMargins(0, 0, 0, 0);
-        controlBar->setSpacing(8);
+        controlBar->setSpacing(2);
         controlBar->addLayout(sliderLayout, 1);
         controlBar->addWidget(createCaptionLabel(tr("时间点"), timelineCard));
-        mPointEdit->setMinimumWidth(180);
+        mPointEdit->setMinimumWidth(120);
+        mPointEdit->setMaximumWidth(180);
         controlBar->addWidget(mPointEdit);
         controlBar->addWidget(mViewButton);
 
@@ -167,21 +168,21 @@ namespace TF {
         // Content area
         auto *contentWidget = new QWidget(this);
         auto *contentLayout = new QHBoxLayout(contentWidget);
-        contentLayout->setSpacing(8);
+        contentLayout->setSpacing(2);
         contentLayout->setContentsMargins(0, 0, 0, 0);
 
         auto *imageCard = createCard(contentWidget);
         auto *imageLayout = new QVBoxLayout(imageCard);
-        imageLayout->setContentsMargins(10, 8, 10, 8);
-        imageLayout->setSpacing(6);
+        imageLayout->setContentsMargins(2, 2, 2, 2);
+        imageLayout->setSpacing(2);
 
-        imageLayout->addWidget(createCaptionLabel(tr("检测图像"), imageCard));
+        //imageLayout->addWidget(createCaptionLabel(tr("检测图像"), imageCard));
 
         mImageLabel = new QLabel(imageCard);
         mImageLabel->setObjectName(QStringLiteral("DetectImageLabel"));
         mImageLabel->setAlignment(Qt::AlignCenter);
-        mImageLabel->setMinimumSize(260, 200);
-        mImageLabel->setMaximumHeight(320);
+        mImageLabel->setMinimumSize(220, 200);
+        mImageLabel->setMaximumHeight(260);
         mImageLabel->setText(tr("暂无图像"));
         mImageLabel->setStyleSheet(QStringLiteral("background-color: rgba(14,26,48,120); border: 1px solid #1f2c46;"));
         mImageLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -189,9 +190,9 @@ namespace TF {
 
         auto *tableCard = createCard(contentWidget);
         auto *tableLayout = new QVBoxLayout(tableCard);
-        tableLayout->setContentsMargins(10, 8, 10, 8);
-        tableLayout->setSpacing(6);
-        tableLayout->addWidget(createCaptionLabel(tr("通道数据"), tableCard));
+        tableLayout->setContentsMargins(2, 2, 2, 2);
+        tableLayout->setSpacing(2);
+        //tableLayout->addWidget(createCaptionLabel(tr("通道数据"), tableCard));
 
         mTable = new QTableWidget(tableCard);
         mTable->setObjectName(QStringLiteral("ChannelTable"));
@@ -201,7 +202,7 @@ namespace TF {
         mTable->verticalHeader()->setVisible(false);
         mTable->setSelectionBehavior(QAbstractItemView::SelectRows);
         mTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        mTable->setMaximumHeight(320);
+        mTable->setMaximumHeight(300);
         tableLayout->addWidget(mTable, 1);
 
         contentLayout->addWidget(imageCard, 1);
