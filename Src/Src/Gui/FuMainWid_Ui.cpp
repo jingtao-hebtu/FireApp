@@ -17,6 +17,7 @@ Copyright(C), tao.jing All rights reserved
 #include <QLabel>
 #include <QObject>
 #include <QSizePolicy>
+#include <QStackedLayout>
 
 
 void TF::FuMainWid_Ui::setupUi(QWidget *wid) {
@@ -33,9 +34,9 @@ void TF::FuMainWid_Ui::setupUi(QWidget *wid) {
     mSideTabBar->setFixedWidth(80);
 
     mContentWidget = new QWidget(mWid);
-    mContentLayout = new QVBoxLayout(mContentWidget);
+    mContentLayout = new QStackedLayout(mContentWidget);
     mContentLayout->setContentsMargins(0, 0, 0, 0);
-    mContentLayout->setSpacing(0);
+    mContentLayout->setStackingMode(QStackedLayout::StackOne);
 
     mMainMeaPage = new FuMainMeaPage(mContentWidget);
     mMainMeaPage->setObjectName("VideoPage");
@@ -72,8 +73,8 @@ void TF::FuMainWid_Ui::setupUi(QWidget *wid) {
         auto *page = mPages.at(i);
         page->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         mContentLayout->addWidget(page);
-        page->setVisible(i == 0);
     }
+    mContentLayout->setCurrentIndex(0);
 
     mLayout->addWidget(mSideTabBar);
     mLayout->addWidget(mContentWidget);

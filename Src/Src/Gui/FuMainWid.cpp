@@ -164,14 +164,7 @@ void TF::FuMainWid::setupConnections() {
             return;
         }
 
-        for (int i = 0; i < mUi->mPages.size(); ++i) {
-            auto *page = mUi->mPages.at(i);
-            const bool visible = i == index;
-            page->setVisible(visible);
-            if (visible) {
-                page->raise();
-            }
-        }
+        mUi->mContentLayout->setCurrentIndex(index);
     });
 
     connect(mUi->mSideTabBar, &FuSideTabBar::cameraConfigRequested,

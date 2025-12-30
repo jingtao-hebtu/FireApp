@@ -13,6 +13,7 @@ Copyright(C), tao.jing All rights reserved
 
 #include <QHBoxLayout>
 #include <QVector>
+#include <QStackedLayout>
 
 
 namespace TF {
@@ -36,7 +37,7 @@ namespace TF {
         QHBoxLayout *mLayout {nullptr};
 
         QWidget *mContentWidget {nullptr};
-        QVBoxLayout *mContentLayout {nullptr};
+        QStackedLayout *mContentLayout {nullptr};
 
         FuSideTabBar *mSideTabBar {nullptr};
 
