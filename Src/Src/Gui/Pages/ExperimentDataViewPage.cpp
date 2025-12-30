@@ -112,20 +112,33 @@ namespace TF {
         mStartLabel = new QLabel(tr("--"), timelineCard);
         mEndLabel = new QLabel(tr("--"), timelineCard);
         mSampleSlider = new QSlider(Qt::Horizontal, timelineCard);
+        mSampleSlider->setObjectName(QStringLiteral("SampleSlider"));
         mSampleSlider->setMinimum(0);
         mSampleSlider->setMaximum(0);
         mSampleSlider->setEnabled(false);
+
+        mPrevButton = new QPushButton(QStringLiteral("◀"), timelineCard);
+        mPrevButton->setObjectName(QStringLiteral("TimelineNavButton"));
+        mNextButton = new QPushButton(QStringLiteral("▶"), timelineCard);
+        mNextButton->setObjectName(QStringLiteral("TimelineNavButton"));
 
         mPointEdit = new QDateTimeEdit(timelineCard);
         mPointEdit->setCalendarPopup(true);
         mPointEdit->setDisplayFormat(QStringLiteral("yyyy-MM-dd HH:mm:ss"));
         mViewButton = new QPushButton(tr("查看"), timelineCard);
 
+        auto *sliderLayout = new QHBoxLayout();
+        sliderLayout->setContentsMargins(0, 0, 0, 0);
+        sliderLayout->setSpacing(10);
+        sliderLayout->addWidget(mPrevButton);
+        sliderLayout->addWidget(mSampleSlider, 1);
+        sliderLayout->addWidget(mNextButton);
+
         timelineLayout->addWidget(createCaptionLabel(tr("起始"), timelineCard), 0, 0);
         timelineLayout->addWidget(mStartLabel, 0, 1);
         timelineLayout->addWidget(createCaptionLabel(tr("结束"), timelineCard), 0, 3);
         timelineLayout->addWidget(mEndLabel, 0, 4);
-        timelineLayout->addWidget(mSampleSlider, 1, 0, 1, 5);
+        timelineLayout->addLayout(sliderLayout, 1, 0, 1, 5);
         timelineLayout->addWidget(createCaptionLabel(tr("时间点"), timelineCard), 2, 0);
         timelineLayout->addWidget(mPointEdit, 2, 1, 1, 3);
         timelineLayout->addWidget(mViewButton, 2, 4);
@@ -179,6 +192,9 @@ namespace TF {
         connect(mQueryButton, &QPushButton::clicked, this, &ExperimentDataViewPage::onQueryExperiments);
         connect(mLoadButton, &QPushButton::clicked, this, &ExperimentDataViewPage::onLoadSamples);
         connect(mSampleSlider, &QSlider::valueChanged, this, &ExperimentDataViewPage::onSliderValueChanged);
+        connect(mSampleSlider, &QSlider::sliderReleased, this, &ExperimentDataViewPage::onViewSample);
+        connect(mPrevButton, &QPushButton::clicked, this, &ExperimentDataViewPage::onPrevSample);
+        connect(mNextButton, &QPushButton::clicked, this, &ExperimentDataViewPage::onNextSample);
         connect(mViewButton, &QPushButton::clicked, this, &ExperimentDataViewPage::onViewSample);
         connect(mPointEdit, &QDateTimeEdit::editingFinished, this, [this]() {
             mUserEditedTime = true;
@@ -237,6 +253,8 @@ namespace TF {
     void ExperimentDataViewPage::onExperimentsLoaded(const QVector<ExperimentBrief> &experiments) {
         setQueryButtonsEnabled(true);
         mExperimentCombo->clear();
+        mLoadingSample = false;
+        mPendingIndex = -1;
         setSampleControlsEnabled(false);
         mSampleSlider->setRange(0, 0);
         mCurrentExpId = -1;
@@ -264,6 +282,8 @@ namespace TF {
             return;
         }
         mCurrentExpId = expId;
+        mLoadingSample = false;
+        mPendingIndex = -1;
         mSamples.clear();
         mTable->setRowCount(0);
         mImageLabel->setPixmap(QPixmap());
@@ -339,6 +359,34 @@ namespace TF {
         updateTimeEditFromIndex(value);
     }
 
+    void ExperimentDataViewPage::onPrevSample() {
+        if (mSamples.isEmpty() || mCurrentExpId < 0) {
+            return;
+        }
+
+        const int current = mSampleSlider->value();
+        if (current <= 0) {
+            return;
+        }
+
+        mSampleSlider->setValue(current - 1);
+        onViewSample();
+    }
+
+    void ExperimentDataViewPage::onNextSample() {
+        if (mSamples.isEmpty() || mCurrentExpId < 0) {
+            return;
+        }
+
+        const int current = mSampleSlider->value();
+        if (current >= mSamples.size() - 1) {
+            return;
+        }
+
+        mSampleSlider->setValue(current + 1);
+        onViewSample();
+    }
+
     int ExperimentDataViewPage::findNearestSampleIndex(qint64 datetime) const {
         if (mSamples.isEmpty()) {
             return -1;
@@ -381,13 +429,22 @@ namespace TF {
             return;
         }
 
+        if (mLoadingSample) {
+            mPendingIndex = index;
+            return;
+        }
+
+        mPendingIndex = -1;
+        mLoadingSample = true;
+
         const auto &sample = mSamples.at(index);
         mPendingImagePath = sample.imagePath;
+        setSampleControlsEnabled(false, true);
         requestSampleData(mCurrentExpId, sample.sampleId);
     }
 
     void ExperimentDataViewPage::requestSampleData(int expId, int sampleId) {
-        setSampleControlsEnabled(false);
+        setSampleControlsEnabled(false, true);
         QMetaObject::invokeMethod(mWorker, &ExperimentViewWorker::loadSampleValues, Qt::QueuedConnection,
                                   expId, sampleId);
     }
@@ -397,14 +454,24 @@ namespace TF {
             return;
         }
         Q_UNUSED(sampleId);
+        mLoadingSample = false;
         setSampleControlsEnabled(true);
         updateTable(values);
         const QString resolved = !imagePath.isEmpty() ? imagePath : mPendingImagePath;
         showSampleImage(resolved);
+
+        if (mPendingIndex >= 0) {
+            const int pending = mPendingIndex;
+            mPendingIndex = -1;
+            mSampleSlider->setValue(pending);
+            onViewSample();
+        }
     }
 
     void ExperimentDataViewPage::onWorkerError(const QString &msg) {
         setQueryButtonsEnabled(true);
+        mLoadingSample = false;
+        mPendingIndex = -1;
         setSampleControlsEnabled(true);
         QMessageBox::warning(this, tr("提示"), msg);
     }
@@ -414,11 +481,20 @@ namespace TF {
         mLoadButton->setEnabled(enabled);
     }
 
-    void ExperimentDataViewPage::setSampleControlsEnabled(bool enabled) {
-        const bool available = enabled && !mSamples.isEmpty();
-        mSampleSlider->setEnabled(available);
-        mViewButton->setEnabled(available);
-        mPointEdit->setEnabled(available);
+    void ExperimentDataViewPage::setSampleControlsEnabled(bool enabled, bool keepNavigationEnabled) {
+        const bool hasSamples = !mSamples.isEmpty();
+        const bool allowNavigation = hasSamples && (enabled || keepNavigationEnabled);
+        const bool allowAction = hasSamples && enabled;
+
+        mSampleSlider->setEnabled(allowNavigation);
+        mPointEdit->setEnabled(allowNavigation);
+        mViewButton->setEnabled(allowAction);
+        if (mPrevButton) {
+            mPrevButton->setEnabled(allowAction);
+        }
+        if (mNextButton) {
+            mNextButton->setEnabled(allowAction);
+        }
     }
 
     void ExperimentDataViewPage::showSampleImage(const QString &imagePath) {

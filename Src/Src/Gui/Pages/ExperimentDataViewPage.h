@@ -50,6 +50,8 @@ namespace TF {
         void onLoadSamples();
         void onSamplesLoaded(int expId, const QVector<SampleIndexItem> &samples);
         void onSliderValueChanged(int value);
+        void onPrevSample();
+        void onNextSample();
         void onViewSample();
         void onSampleValuesLoaded(int expId, int sampleId, const QVector<QPair<QString, double>> &values, const QString &imagePath);
         void onWorkerError(const QString &msg);
@@ -60,7 +62,7 @@ namespace TF {
         void ensureWorker();
         void refreshExperiments();
         void setQueryButtonsEnabled(bool enabled);
-        void setSampleControlsEnabled(bool enabled);
+        void setSampleControlsEnabled(bool enabled, bool keepNavigationEnabled = false);
         void updateTimelineLabels();
         void updateTimeEditFromIndex(int index);
         int findNearestSampleIndex(qint64 datetime) const;
@@ -81,6 +83,8 @@ namespace TF {
         QLabel *mEndLabel{ nullptr };
         QDateTimeEdit *mPointEdit{ nullptr };
         QPushButton *mViewButton{ nullptr };
+        QPushButton *mPrevButton{ nullptr };
+        QPushButton *mNextButton{ nullptr };
 
         QLabel *mImageLabel{ nullptr };
         QTableWidget *mTable{ nullptr };
@@ -89,6 +93,8 @@ namespace TF {
         int mCurrentExpId{ -1 };
         bool mUserEditedTime{ false };
         bool mFirstShow{ true };
+        bool mLoadingSample{ false };
+        int mPendingIndex{ -1 };
         QString mPendingImagePath;
 
         QThread *mWorkerThread{ nullptr };
