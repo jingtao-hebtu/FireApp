@@ -80,17 +80,25 @@ namespace TF {
 
         mExperimentCombo = new QComboBox(queryCard);
         mExperimentCombo->setMinimumWidth(220);
+        mExperimentCombo->setObjectName(QStringLiteral("ExperimentCombo"));
 
         mFromEdit = new QDateTimeEdit(queryCard);
         mFromEdit->setCalendarPopup(true);
+        mFromEdit->setObjectName(QStringLiteral("ExperimentDateEdit"));
         mToEdit = new QDateTimeEdit(queryCard);
         mToEdit->setCalendarPopup(true);
+        mToEdit->setObjectName(QStringLiteral("ExperimentDateEdit"));
         const auto now = QDateTime::currentDateTime();
         mFromEdit->setDateTime(now.addDays(-kDefaultDayRange));
         mToEdit->setDateTime(now);
 
         mQueryButton = new QPushButton(tr("查询"), queryCard);
+        mQueryButton->setObjectName(QStringLiteral("PrimaryButton"));
         mLoadButton = new QPushButton(tr("加载实验"), queryCard);
+        mLoadButton->setObjectName(QStringLiteral("AccentButton"));
+
+        mSampleCountLabel = new QLabel(tr("采样点数：--"), queryCard);
+        mSampleCountLabel->setObjectName(QStringLiteral("SampleCountLabel"));
 
         queryLayout->addWidget(new QLabel(tr("实验"), queryCard));
         queryLayout->addWidget(mExperimentCombo);
@@ -101,6 +109,7 @@ namespace TF {
         queryLayout->addWidget(mQueryButton);
         queryLayout->addStretch();
         queryLayout->addWidget(mLoadButton);
+        queryLayout->addWidget(mSampleCountLabel);
 
         // Timeline
         auto *timelineCard = createCard(this);
@@ -110,7 +119,9 @@ namespace TF {
         timelineLayout->setHorizontalSpacing(10);
 
         mStartLabel = new QLabel(tr("--"), timelineCard);
+        mStartLabel->setObjectName(QStringLiteral("TimelineValueLabel"));
         mEndLabel = new QLabel(tr("--"), timelineCard);
+        mEndLabel->setObjectName(QStringLiteral("TimelineValueLabel"));
         mSampleSlider = new QSlider(Qt::Horizontal, timelineCard);
         mSampleSlider->setObjectName(QStringLiteral("SampleSlider"));
         mSampleSlider->setMinimum(0);
@@ -125,7 +136,9 @@ namespace TF {
         mPointEdit = new QDateTimeEdit(timelineCard);
         mPointEdit->setCalendarPopup(true);
         mPointEdit->setDisplayFormat(QStringLiteral("yyyy-MM-dd HH:mm:ss"));
+        mPointEdit->setObjectName(QStringLiteral("PointEdit"));
         mViewButton = new QPushButton(tr("查看"), timelineCard);
+        mViewButton->setObjectName(QStringLiteral("PrimaryButton"));
 
         auto *sliderLayout = new QHBoxLayout();
         sliderLayout->setContentsMargins(0, 0, 0, 0);
@@ -172,6 +185,7 @@ namespace TF {
         tableLayout->addWidget(createCaptionLabel(tr("通道数据"), tableCard));
 
         mTable = new QTableWidget(tableCard);
+        mTable->setObjectName(QStringLiteral("ChannelTable"));
         mTable->setColumnCount(2);
         mTable->setHorizontalHeaderLabels({tr("Channel"), tr("Value")});
         mTable->horizontalHeader()->setStretchLastSection(true);
@@ -186,6 +200,8 @@ namespace TF {
         mainLayout->addWidget(queryCard);
         mainLayout->addWidget(timelineCard);
         mainLayout->addWidget(contentWidget, 1);
+
+        updateSampleCountLabel(-1);
     }
 
     void ExperimentDataViewPage::setupConnections() {
@@ -264,6 +280,7 @@ namespace TF {
         mTable->setRowCount(0);
         mImageLabel->setPixmap(QPixmap());
         mImageLabel->setText(tr("暂无图像"));
+        updateSampleCountLabel(-1);
         for (const auto &exp : experiments) {
             const QString text = QStringLiteral("%1 - %2").arg(exp.expId).arg(exp.name);
             mExperimentCombo->addItem(text, exp.expId);
@@ -289,6 +306,7 @@ namespace TF {
         mImageLabel->setPixmap(QPixmap());
         mImageLabel->setText(tr("暂无图像"));
         setSampleControlsEnabled(false);
+        updateSampleCountLabel(-1);
         QMetaObject::invokeMethod(mWorker, &ExperimentViewWorker::loadExperimentSamples, Qt::QueuedConnection,
                                   expId);
     }
@@ -302,6 +320,7 @@ namespace TF {
             s.datetime = normalizeToMillis(s.datetime);
         }
         setSampleControlsEnabled(true);
+        updateSampleCountLabel(mSamples.size());
 
         if (mSamples.isEmpty()) {
             mSampleSlider->setEnabled(false);
@@ -343,6 +362,19 @@ namespace TF {
             return timestamp / 1000;
         }
         return timestamp;
+    }
+
+    void ExperimentDataViewPage::updateSampleCountLabel(int count) {
+        if (mSampleCountLabel == nullptr) {
+            return;
+        }
+
+        if (count < 0) {
+            mSampleCountLabel->setText(tr("采样点数：--"));
+            return;
+        }
+
+        mSampleCountLabel->setText(tr("采样点数：%1").arg(count));
     }
 
     void ExperimentDataViewPage::updateTimeEditFromIndex(int index) {

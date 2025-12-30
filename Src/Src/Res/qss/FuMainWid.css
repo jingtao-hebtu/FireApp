@@ -221,6 +221,121 @@ QPushButton#TimelineNavButton:disabled {
     background: #0f182a;
 }
 
+/* Experiment data view inputs */
+#ExperimentViewPage QLabel {
+    padding: 4px 6px 2px 6px;
+}
+
+QLabel#TimelineValueLabel {
+    color: #9ad8ff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding: 0 6px;
+}
+
+QLabel#SampleCountLabel {
+    color: #4be1ff;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 0 10px;
+    border-left: 1px solid #1f2c46;
+}
+
+QComboBox#ExperimentCombo,
+QDateTimeEdit#ExperimentDateEdit,
+QDateTimeEdit#PointEdit {
+    min-height: 32px;
+    color: #e5edff;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #10213a, stop:1 #0d172b);
+    border: 1px solid #22334f;
+    border-radius: 8px;
+    padding: 4px 10px;
+}
+
+QComboBox#ExperimentCombo:focus,
+QDateTimeEdit#ExperimentDateEdit:focus,
+QDateTimeEdit#PointEdit:focus {
+    border-color: #4ac7ff;
+    box-shadow: 0 0 0 1px rgba(74, 199, 255, 0.35);
+}
+
+QPushButton#PrimaryButton,
+QPushButton#AccentButton,
+QPushButton#ExperimentStatusToggle {
+    min-height: 32px;
+    padding: 6px 14px;
+    border-radius: 10px;
+    border: 1px solid #22334f;
+    color: #e7edf7;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #12233d, stop:1 #0f1c30);
+}
+
+QPushButton#PrimaryButton:hover,
+QPushButton#AccentButton:hover,
+QPushButton#ExperimentStatusToggle:hover {
+    border-color: #4ac7ff;
+    color: #f4fbff;
+}
+
+QPushButton#PrimaryButton:pressed,
+QPushButton#ExperimentStatusToggle:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #12344f, stop:1 #0f2a44);
+}
+
+QPushButton#AccentButton {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1c4c5d, stop:1 #0f2f3c);
+    border-color: #2aa7c7;
+}
+
+QPushButton#AccentButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1c5b71, stop:1 #0f3b4c);
+    border-color: #3dbdff;
+}
+
+QPushButton#PrimaryButton:disabled,
+QPushButton#AccentButton:disabled {
+    color: #6f7a8c;
+    background: #0f182a;
+    border-color: #1b263a;
+}
+
+QTableWidget#ChannelTable {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0f1b2f, stop:1 #0b1222);
+    border: 1px solid #1f2c46;
+    border-radius: 10px;
+    gridline-color: #1f2c46;
+    selection-background-color: rgba(74, 199, 255, 80);
+    selection-color: #e7edf7;
+    color: #e7edf7;
+}
+
+QTableWidget#ChannelTable QHeaderView::section {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #13233c, stop:1 #0f1c30);
+    color: #9ad8ff;
+    padding: 6px;
+    border: none;
+    border-right: 1px solid #1f2c46;
+    font-weight: 800;
+}
+
+QTableWidget#ChannelTable QHeaderView::section:last {
+    border-right: none;
+}
+
+QTableWidget#ChannelTable QTableCornerButton::section {
+    background: #13233c;
+    border: none;
+}
+
+QTableWidget#ChannelTable QTableWidgetItem {
+    padding: 6px;
+}
+
 QMessageBox {
     background-color: #0F1628;
 }

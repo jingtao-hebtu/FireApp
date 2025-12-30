@@ -70,6 +70,7 @@ namespace TF {
         void showSampleImage(const QString &imagePath);
         void updateTable(const QVector<QPair<QString, double>> &values);
         qint64 normalizeToMillis(qint64 timestamp) const;
+        void updateSampleCountLabel(int count);
 
     private:
         QComboBox *mExperimentCombo{ nullptr };
@@ -77,6 +78,7 @@ namespace TF {
         QDateTimeEdit *mToEdit{ nullptr };
         QPushButton *mQueryButton{ nullptr };
         QPushButton *mLoadButton{ nullptr };
+        QLabel *mSampleCountLabel{ nullptr };
 
         QSlider *mSampleSlider{ nullptr };
         QLabel *mStartLabel{ nullptr };
