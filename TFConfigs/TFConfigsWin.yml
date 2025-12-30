@@ -47,3 +47,7 @@ Battery:
 Database:
   DbDir: Data
   DbFileName: Fire.db
+
+Onvif:
+  pythonExe: "D:\\Software\\anaconda3\\envs\\fire_onvif\\python.exe"
+  scriptPath: "E:\\Project\\Fire\\FireSensors\\HKCam\\FireOnvif\\app.py"

@@ -44,8 +44,8 @@ namespace TF {
                                    "FROM Experiment "
                                    "WHERE start_time>=? AND start_time<=? "
                                    "ORDER BY start_time DESC;");
-            stmt.bind(1, static_cast<long long>(from));
-            stmt.bind(2, static_cast<long long>(to));
+            stmt.bind(1, static_cast<std::int64_t>(from));
+            stmt.bind(2, static_cast<std::int64_t>(to));
 
             QVector<ExperimentBrief> experiments;
             while (stmt.executeStep()) {

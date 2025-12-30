@@ -14,6 +14,7 @@ Copyright(C), tao.jing All rights reserved
 #include "FuMainMeaPage.h"
 #include "ExpInfoDialog.h"
 #include "ExperimentParamManager.h"
+#include "TConfig.h"
 #include <QApplication>
 #include <QFile>
 #include <QCoreApplication>
@@ -192,8 +193,8 @@ namespace {
     TF::HKCamServerConfig DefaultHKCamServerConfig()
     {
         TF::HKCamServerConfig cfg;
-        cfg.pythonExe = "D:\\Software\\anaconda3\\envs\\fire_onvif\\python.exe";
-        cfg.scriptPath = "E:\\Project\\Fire\\FireSensors\\HKCam\\FireOnvif\\app.py ";
+        cfg.pythonExe = GET_STR_CONFIG("Onvif", "pythonExe");
+        cfg.scriptPath = GET_STR_CONFIG("Onvif", "scriptPath");
         cfg.cameraIp = "192.168.6.66";
         cfg.cameraPort = 80;
         cfg.username = "admin";

@@ -142,7 +142,7 @@ namespace TF {
 
         // Display ranges for mapping normalized values to actual units
         double mFocusDisplayMin {5.8};
-        double mFocusDisplayMax {30.0};
+        double mFocusDisplayMax {60.0};
         double mExposureDisplayMin {0.0};
         double mExposureDisplayMax {1.0};
     };

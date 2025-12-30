@@ -1,6 +1,6 @@
-#VideoURL: "E:\\Project\\Fire\\FireDet\\Data\\Video\\C0201-1.mp4"
+VideoURL: "E:\\Project\\Fire\\FireDet\\Data\\Video\\Video\\C0201-1.mp4"
 #VideoURL: "E:\\Project\\CNOOC\\EP\\Data\\Video\\field7.mp4"
-VideoURL: "rtsp://admin:hebtu123@192.168.1.64:554/Streaming/Channels/101?transportmode=unicast&profile=Profile_1"
+#VideoURL: "rtsp://admin:fire123456@192.168.1.64:554/Streaming/Channels/101?transportmode=unicast&profile=Profile_1"
 
 
 MainUi:
@@ -9,7 +9,7 @@ MainUi:
 
 RGBCam:
   UserName: admin
-  Password: hebtu123
+  Password: fire123456
   NeedPrintDebugInfo: true
   PreviewDetectedImg: true
   NeedSaveOriImg: true
@@ -21,8 +21,29 @@ ThermalCam:
   FPS: 9
 
 VisionMea:
+  DetMode: TRT
   DetModelName: v11s_d01_e300_im640_seg.onnx
   DetBackend: ORT
   RectConfidenceThreshold: 0.88
   IouThreshold: 0.55
 
+Distance:
+  Mode: Trigger
+  Port: COM10
+  Baud: 9600
+  
+WitImu:
+  Port: COM9
+  Baud: 9600
+  
+TrtYolo:
+  EnginePath: v11s_B2_e500_im640_seg.engine
+  
+Battery:
+  PortName: COM11
+  Baud: 9600
+  SlaveId: 1
+
+Database:
+  DbDir: Data
+  DbFileName: Fire.db
