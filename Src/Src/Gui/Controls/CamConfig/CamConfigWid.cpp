@@ -137,14 +137,14 @@ QWidget *TF::CamConfigWid::createInfoPanel() {
     auto *panel = new QWidget(this);
     auto *grid = new QGridLayout(panel);
     grid->setContentsMargins(0, 0, 0, 0);
-    grid->setHorizontalSpacing(12);
+    grid->setHorizontalSpacing(3);
     grid->setVerticalSpacing(8);
 
     auto addRow = [this, grid](int row, const QString &title,
                                QLabel **minLabel, QLabel **currentLabel, QLabel **maxLabel) {
         auto *titleLabel = new QLabel(title, this);
         titleLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        titleLabel->setMinimumWidth(52);
+        titleLabel->setMinimumWidth(32);
 
         auto createValueLabel = [this]() {
             auto *lbl = new QLabel("-", this);
@@ -178,13 +178,13 @@ QWidget *TF::CamConfigWid::createButtonPanel() {
     auto *panel = new QWidget(this);
     auto *layout = new QGridLayout(panel);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->setHorizontalSpacing(10);
-    layout->setVerticalSpacing(10);
+    layout->setHorizontalSpacing(2);
+    layout->setVerticalSpacing(2);
 
     auto createActionButton = [panel](const QString &text) {
         auto *btn = new TF::TechActionButton(text, panel);
-        btn->setMinimumSize(90, 44);
-        btn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        btn->setMinimumSize(32, 25);
+        btn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
         return btn;
     };
 
@@ -240,11 +240,11 @@ void TF::CamConfigWid::updateInfoDisplay() {
 }
 
 void TF::CamConfigWid::showAt(const QRect &targetRect) {
-    const int desiredWidth = qMin(targetRect.width(), 360);
+    const int desiredWidth = qMin(targetRect.width(), 300);
     const int desiredHeight = sizeHint().height();
     resize(desiredWidth, desiredHeight);
 
-    const int x = targetRect.right() - desiredWidth;
+    const int x = targetRect.right() - desiredWidth - 40;
     move(QPoint(x, targetRect.top()));
     show();
     raise();
