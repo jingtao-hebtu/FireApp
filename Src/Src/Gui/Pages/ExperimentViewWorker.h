@@ -1,14 +1,12 @@
 #pragma once
 
+#include "SQLiteCpp/SQLiteCpp.h"
 #include <QObject>
 #include <QVector>
 #include <QPair>
 #include <QString>
 #include <memory>
 
-namespace SQLite {
-    class Database;
-}
 
 namespace TF {
 

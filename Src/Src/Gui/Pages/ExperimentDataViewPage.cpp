@@ -227,7 +227,7 @@ namespace TF {
         const auto from = mFromEdit->dateTime().toMSecsSinceEpoch();
         const auto to = mToEdit->dateTime().toMSecsSinceEpoch();
         QMetaObject::invokeMethod(mWorker, &ExperimentViewWorker::queryExperiments, Qt::QueuedConnection,
-                                  Q_ARG(qint64, from), Q_ARG(qint64, to));
+                                  from, to);
     }
 
     void ExperimentDataViewPage::onQueryExperiments() {
@@ -270,7 +270,7 @@ namespace TF {
         mImageLabel->setText(tr("暂无图像"));
         setSampleControlsEnabled(false);
         QMetaObject::invokeMethod(mWorker, &ExperimentViewWorker::loadExperimentSamples, Qt::QueuedConnection,
-                                  Q_ARG(int, expId));
+                                  expId);
     }
 
     void ExperimentDataViewPage::onSamplesLoaded(int expId, const QVector<SampleIndexItem> &samples) {
@@ -389,7 +389,7 @@ namespace TF {
     void ExperimentDataViewPage::requestSampleData(int expId, int sampleId) {
         setSampleControlsEnabled(false);
         QMetaObject::invokeMethod(mWorker, &ExperimentViewWorker::loadSampleValues, Qt::QueuedConnection,
-                                  Q_ARG(int, expId), Q_ARG(int, sampleId));
+                                  expId, sampleId);
     }
 
     void ExperimentDataViewPage::onSampleValuesLoaded(int expId, int sampleId, const QVector<QPair<QString, double>> &values, const QString &imagePath) {

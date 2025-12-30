@@ -129,13 +129,13 @@ bool HKCamPythonServer::StartBlocking(const HKCamServerConfig &cfg, std::string 
     }
 
     m_running.store(true);
-
+/*
     if (!WaitForReady(outError))
     {
         Stop();
         return false;
     }
-
+*/
     return true;
 }
 

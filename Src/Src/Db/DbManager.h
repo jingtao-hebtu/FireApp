@@ -25,11 +25,6 @@
 #include <shared_mutex>
 
 
-namespace SQLite {
-    class Database;
-};
-
-
 namespace TF {
     class DbManager : public TBase::TSingleton<DbManager>
     {
