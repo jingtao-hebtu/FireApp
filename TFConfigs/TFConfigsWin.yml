@@ -1,6 +1,7 @@
-#VideoURL: "E:\\Project\\Fire\\FireDet\\Data\\Video\\Video\\C0201-1.mp4"
+VideoURL: "E:\\Project\\Fire\\FireDet\\Data\\Video\\Video\\C0201-1.mp4"
+#VideoURL: "rtsp://127.0.0.1:8554/mystream"
 #VideoURL: "E:\\Project\\CNOOC\\EP\\Data\\Video\\field7.mp4"
-VideoURL: "rtsp://admin:fireAi1A@192.168.6.68:554/Streaming/Channels/101?transportmode=unicast&profile=Profile_1"
+#VideoURL: "rtsp://admin:fireAi1A@192.168.6.68:554/Streaming/Channels/101?transportmode=unicast&profile=Profile_1"
 
 
 MainUi:

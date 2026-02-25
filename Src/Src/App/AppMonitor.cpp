@@ -18,6 +18,7 @@ Copyright(C), tao.jing All rights reserved
 #include "ThermalManager.h"
 #include "DbManager.h"
 #include "TLog.h"
+#include "loguru.hpp"
 #include <iostream>
 
 
@@ -59,7 +60,9 @@ void TF::AppMonitor::promptError(const char* msg) {
 
 void TF::AppMonitor::initAppLog(int argc, char* argv[]) {
     try {
-        TBase::initDateLog(argc, argv);
+        loguru::g_colorlogtostderr  = false;
+
+        TBase::initDateLog(argc, argv, "Fire");
     } catch (TBase::TBaseException&) {
         throw TFRuntimeException("Init app log failed. (AppMonitor::initAppLog)");
     }

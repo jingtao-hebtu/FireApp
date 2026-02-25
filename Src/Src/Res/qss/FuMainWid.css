@@ -258,7 +258,6 @@ QComboBox#ExperimentCombo:focus,
 QDateTimeEdit#ExperimentDateEdit:focus,
 QDateTimeEdit#PointEdit:focus {
     border-color: #4ac7ff;
-    box-shadow: 0 0 0 1px rgba(74, 199, 255, 0.35);
 }
 
 QPushButton#PrimaryButton,

@@ -25,7 +25,7 @@
 
 namespace TBase {
 
-    void TAO_UTIL_API initDateLog(int argc, char *argv[]);
+    void TAO_UTIL_API initDateLog(int argc, char *argv[], const char *app_name=nullptr);
 
 };
 
