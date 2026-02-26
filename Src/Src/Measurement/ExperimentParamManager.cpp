@@ -67,7 +67,8 @@ namespace TF {
             DbManager::instance().InsertBatch(rows, DbManager::ConflictPolicy::Replace);
             if (!record.imagePath.isEmpty()) {
                 DbManager::instance().UpsertDetectImage(record.expId, record.sampleId,
-                                                        record.imagePath.toStdString());
+                                                        record.imagePath.toStdString(),
+                                                        record.oriImagePath.toStdString());
             }
         }
         catch (...) {
@@ -147,7 +148,8 @@ namespace TF {
         record.tilt = TFMeaManager::instance().currentTiltAngle();
         record.fireHeight = fireHeight;
         record.fireArea = fireArea;
-        record.imagePath = buildImagePath(record.sampleId);
+        record.imagePath = buildDetImagePath(record.sampleId);
+        record.oriImagePath = buildOriImagePath(record.sampleId);
 
         if (mWorker) {
             mWorker->enqueue(record);
@@ -197,14 +199,23 @@ namespace TF {
         mWorkerThread->wait();
     }
 
-    QString ExperimentParamManager::buildImagePath(int sampleId) const {
+    QString ExperimentParamManager::buildImageDir() const {
         QDir dir(QDir::currentPath());
         auto base = dir.filePath(QStringLiteral("ai_results"));
         if (mExperimentId >= 0) {
             base = QDir(base).filePath(QStringLiteral("exp_%1").arg(mExperimentId));
         }
-        const QString fileName = QStringLiteral("sample_%1.png").arg(sampleId, 6, 10, QLatin1Char('0'));
-        return QDir(base).filePath(fileName);
+        return base;
+    }
+
+    QString ExperimentParamManager::buildDetImagePath(int sampleId) const {
+        const QString fileName = QStringLiteral("sample_det_%1.png").arg(sampleId, 6, 10, QLatin1Char('0'));
+        return QDir(buildImageDir()).filePath(fileName);
+    }
+
+    QString ExperimentParamManager::buildOriImagePath(int sampleId) const {
+        const QString fileName = QStringLiteral("sample_ori_%1.png").arg(sampleId, 6, 10, QLatin1Char('0'));
+        return QDir(buildImageDir()).filePath(fileName);
     }
 
     qint64 ExperimentParamManager::currentTimestampMs() const {

@@ -32,6 +32,7 @@ namespace TF {
         double fireHeight{};
         double fireArea{};
         QString imagePath;
+        QString oriImagePath;
     };
 
     class ExperimentDbWorker : public QObject {
@@ -78,7 +79,9 @@ namespace TF {
         int nextSampleId();
         void ensureWorker();
         void shutdownWorker();
-        QString buildImagePath(int sampleId) const;
+        QString buildDetImagePath(int sampleId) const;
+        QString buildOriImagePath(int sampleId) const;
+        QString buildImageDir() const;
         qint64 currentTimestampMs() const;
 
     private:

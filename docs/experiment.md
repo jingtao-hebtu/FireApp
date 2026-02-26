@@ -133,20 +133,24 @@ INSERT INTO Experiment(name, start_time) VALUES(?, ?)
 
 ```
 DetectorWorker::processDetect(task)
+    → q_ori = mat2Image(cv_im)           // 在推理前保存原始图像
     → TFDetectManager::runDetectWithPreview(frame, detect_num, detections)
     → 计算 max_height 和 max_area（从检测框中提取最大火焰高度和面积）
     → TFMeaManager::receiveStatistics(max_height, max_area)  // 更新实时曲线
-    → AiResultSaveManager::submitResult(image, sourceFlag, timeCost,
+    → q_im = mat2Image(cv_im)            // 推理后的检测结果图像
+    → AiResultSaveManager::submitResult(q_im, q_ori, sourceFlag, timeCost,
                                          detectionId, detect_num,
                                          max_height, max_area)
 ```
+
+其中 `q_ori` 是检测前的原始图像，`q_im` 是检测后带有标注的结果图像，两者同时传入保存流程。
 
 ### 3.3 AiResultSaveManager::submitResult 详解
 
 该方法是数据保存的调度中心，执行以下过滤和调度逻辑：
 
 ```
-submitResult(image, sourceFlag, timeCost, detectionId, detectedCount, fireHeight, fireArea)
+submitResult(detImage, oriImage, sourceFlag, timeCost, detectionId, detectedCount, fireHeight, fireArea)
 │
 ├── 检查 1：mEnabled 是否为 true（录制是否已开启）
 │   → false 则直接返回
@@ -160,13 +164,16 @@ submitResult(image, sourceFlag, timeCost, detectionId, detectedCount, fireHeight
 │
 ├── 调用 ExperimentParamManager::prepareSample(fireHeight, fireArea)
 │   → 准备采样记录并异步入库（详见 3.4）
-│   → 返回包含图片路径的 ExperimentRecord
+│   → 返回包含两个图片路径（imagePath + oriImagePath）的 ExperimentRecord
 │
-├── 将图片保存任务提交给 AiResultSaveWorker
-│   → mWorker->enqueue(image, filePath, description)
+├── 将检测后图片保存任务提交给 AiResultSaveWorker
+│   → mWorker->enqueue(detImage, record->imagePath, description)
+│
+├── 将检测前原始图片保存任务提交给 AiResultSaveWorker
+│   → mWorker->enqueue(oriImage, record->oriImagePath, description)
 │
 └── 记录元数据到内存（最近 50 条）
-    → recordMeta(filePath, description)
+    → recordMeta(detFilePath, description)
 ```
 
 ### 3.4 ExperimentParamManager::prepareSample 详解
@@ -186,7 +193,8 @@ std::optional<ExperimentRecord> prepareSample(float fireHeight, float fireArea) 
     record.tilt        = TFMeaManager::currentTiltAngle();  // IMU 倾斜角度
     record.fireHeight  = fireHeight;               // 火焰高度（像素）
     record.fireArea    = fireArea;                 // 火焰面积（像素²）
-    record.imagePath   = buildImagePath(sampleId); // 图片保存路径
+    record.imagePath    = buildDetImagePath(sampleId); // 检测后图片路径
+    record.oriImagePath = buildOriImagePath(sampleId); // 检测前原始图片路径
 
     // 3. 将记录入队到异步工作线程
     mWorker->enqueue(record);
@@ -202,11 +210,16 @@ std::optional<ExperimentRecord> prepareSample(float fireHeight, float fireArea) 
 
 **图片路径生成规则：**
 
+每个采样生成两张图片，保存在同一目录下：
+
 ```
-{当前工作目录}/ai_results/exp_{expId}/sample_{sampleId:06d}.png
+检测后图像：{当前工作目录}/ai_results/exp_{expId}/sample_det_{sampleId:06d}.png
+检测前图像：{当前工作目录}/ai_results/exp_{expId}/sample_ori_{sampleId:06d}.png
 ```
 
-例如：`ai_results/exp_3/sample_000001.png`
+例如：
+- `ai_results/exp_3/sample_det_000001.png`（检测后，带标注框）
+- `ai_results/exp_3/sample_ori_000001.png`（检测前，原始图像）
 
 ### 3.5 异步数据库写入（ExperimentDbWorker）
 
@@ -251,8 +264,8 @@ void process(const ExperimentRecord &record) {
     // 1. 批量插入 4 条数据行（使用 INSERT OR REPLACE）
     DbManager::instance().InsertBatch(rows, ConflictPolicy::Replace);
 
-    // 2. 如果有图片路径，插入/更新检测图片记录
-    DbManager::instance().UpsertDetectImage(expId, sampleId, imagePath);
+    // 2. 如果有图片路径，插入/更新检测图片记录（包含检测后和检测前两个路径）
+    DbManager::instance().UpsertDetectImage(expId, sampleId, imagePath, oriImagePath);
 }
 ```
 
@@ -263,10 +276,12 @@ void process(const ExperimentRecord &record) {
 INSERT OR REPLACE INTO Data(exp_id, channel_id, sample_id, DateTime, value)
 VALUES(?, ?, ?, ?, ?)
 
--- DetectImage 表写入
-INSERT INTO DetectImage(exp_id, sample_id, image_path)
-VALUES(?, ?, ?)
-ON CONFLICT(exp_id, sample_id) DO UPDATE SET image_path=excluded.image_path
+-- DetectImage 表写入（同时存储检测后和检测前图片路径）
+INSERT INTO DetectImage(exp_id, sample_id, image_path, ori_image_path)
+VALUES(?, ?, ?, ?)
+ON CONFLICT(exp_id, sample_id) DO UPDATE SET
+  image_path=excluded.image_path,
+  ori_image_path=excluded.ori_image_path
 ```
 
 ### 3.6 异步图片保存（AiResultSaveWorker）
@@ -281,7 +296,9 @@ ON CONFLICT(exp_id, sample_id) DO UPDATE SET image_path=excluded.image_path
 取出任务 → 确保目录存在 → image.save(filePath)
 ```
 
-图片以 PNG 格式保存到路径 `ai_results/exp_{expId}/sample_{sampleId:06d}.png`。
+每个采样会产生两个图片保存任务，均以 PNG 格式写入磁盘：
+- 检测后图像：`ai_results/exp_{expId}/sample_det_{sampleId:06d}.png`
+- 检测前原始图像：`ai_results/exp_{expId}/sample_ori_{sampleId:06d}.png`
 
 ---
 
@@ -347,15 +364,18 @@ FuMainMeaPage::onRecordingToggled(false)
 
 ### 5.3 DetectImage 表
 
-存储检测图片路径。
+存储检测图片路径（检测后图像和检测前原始图像）。
 
 | 列名 | 类型 | 说明 |
 |------|------|------|
-| exp_id | INTEGER | 实验 ID |
-| sample_id | INTEGER | 采样序号 |
-| image_path | TEXT | 图片文件路径 |
+| exp_id | INTEGER NOT NULL | 实验 ID |
+| sample_id | INTEGER NOT NULL | 采样序号 |
+| image_path | TEXT | 检测后图片文件路径（`sample_det_*.png`） |
+| ori_image_path | TEXT | 检测前原始图片文件路径（`sample_ori_*.png`） |
 
-唯一约束：`(exp_id, sample_id)`
+主键：`(exp_id, sample_id)`
+
+> **注意：** 显示实验结果时，仅使用 `image_path`（检测后图像），不显示检测前图像。
 
 ---
 
@@ -382,7 +402,7 @@ FuMainMeaPage::onRecordingToggled(false)
 | `ExperimentParamManager` | `Measurement/ExperimentParamManager.cpp` | 实验参数管理，采样数据组装与异步入库调度 |
 | `ExperimentDbWorker` | `Measurement/ExperimentParamManager.cpp` | 后台线程，将采样记录写入 SQLite |
 | `AiResultSaveManager` | `Detector/AiResultSaveManager.cpp` | AI 结果保存管理，频率控制与图片保存调度 |
-| `AiResultSaveWorker` | `Detector/AiResultSaveManager.cpp` | 后台线程，将检测结果图片写入磁盘 |
+| `AiResultSaveWorker` | `Detector/AiResultSaveManager.cpp` | 后台线程，将检测前/后图片写入磁盘 |
 | `DetectorWorker` | `Detector/DetectorWorker.cpp` | AI 推理工作线程，推理完成后触发数据保存 |
 | `DbManager` | `Db/DbManager.cpp` | SQLite 数据库访问层，提供实验/数据的 CRUD 操作 |
 | `TFMeaManager` | `Measurement/TFMeaManager.cpp` | 测量管理器，提供实时距离和倾斜角数据 |
