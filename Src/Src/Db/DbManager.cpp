@@ -67,8 +67,9 @@ std::string TF::DbManager::databaseFile() const {
 
 void TF::DbManager::initParams() {
     auto db_file_dir = GET_STR_CONFIG("Database", "DbDir");
+    auto app_config_dir = TFPathParam("AppConfigDir");
 #ifdef _WIN32
-    db_file_dir = TBase::joinPath({TFPathParam("AppConfigDir"), "TFConfigs", db_file_dir});
+    db_file_dir = TBase::joinPath({TFPathParam("AppConfigDir"), db_file_dir});
 #elif __linux__
     db_file_dir = TBase::joinPath({TFPathParam("AppConfigDir"),db_file_dir});
 #endif
