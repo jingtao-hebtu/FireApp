@@ -161,7 +161,8 @@ namespace TF {
         return mRecentRecords;
     }
 
-    void AiResultSaveManager::submitResult(const QImage &image,
+    void AiResultSaveManager::submitResult(const QImage &detImage,
+                                           const QImage &oriImage,
                                            const QString &sourceFlag,
                                            int timeCost,
                                            int detectionId,
@@ -194,8 +195,8 @@ namespace TF {
             return;
         }
 
-        const QString filePath = record->imagePath.isEmpty()
-            ? QDir(QDir::currentPath()).filePath("ai_results/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_zzz") + ".png")
+        const QString detFilePath = record->imagePath.isEmpty()
+            ? QDir(QDir::currentPath()).filePath("ai_results/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_zzz") + "_det.png")
             : record->imagePath;
 
         const QString description = QString("flag:%1 detectId:%2 count:%3 cost:%4ms")
@@ -204,8 +205,14 @@ namespace TF {
                                         .arg(detectedCount)
                                         .arg(timeCost);
 
-        mWorker->enqueue(image, filePath, description);
-        recordMeta(filePath, description);
+        mWorker->enqueue(detImage, detFilePath, description);
+
+        if (!oriImage.isNull() && !record->oriImagePath.isEmpty()) {
+            mWorker->enqueue(oriImage, record->oriImagePath,
+                             QStringLiteral("ori | ") + description);
+        }
+
+        recordMeta(detFilePath, description);
     }
 }
 

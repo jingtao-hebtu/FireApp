@@ -71,6 +71,7 @@ namespace TF {
             }
 
             cv::Mat cv_im = task.image;
+            QImage q_ori = QtOcv::mat2Image(cv_im);
 
             size_t detect_num = 0;
             std::vector<Detection> detections;
@@ -107,7 +108,7 @@ namespace TF {
 
             QImage q_im = QtOcv::mat2Image(cv_im);
             if (detectionId >= 0) {
-                AiResultSaveManager::instance().submitResult(q_im, task.sourceFlag, task.timeCost, detectionId, detect_num,
+                AiResultSaveManager::instance().submitResult(q_im, q_ori, task.sourceFlag, task.timeCost, detectionId, detect_num,
                                                             max_height, max_area);
             }
             emit frameProcessed(task.sourceFlag, q_im, max_height, task.timeCost);

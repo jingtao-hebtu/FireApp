@@ -246,7 +246,8 @@ std::optional<std::string> TF::DbManager::GetDetectImagePath(int exp_id, int sam
     return out;
 }
 
-bool TF::DbManager::UpsertDetectImage(int exp_id, int sample_id, std::string_view image_path) {
+bool TF::DbManager::UpsertDetectImage(int exp_id, int sample_id, std::string_view image_path,
+                                       std::string_view ori_image_path) {
     if (!mDB || !mInitialized) {
         return false;
     }
@@ -256,23 +257,29 @@ bool TF::DbManager::UpsertDetectImage(int exp_id, int sample_id, std::string_vie
 
     std::scoped_lock lk(mMtx);
 
-    if (!mStmtUpsertDetectImage) {
-        // UPSERT：若 (exp_id, sample_id) 已存在则更新路径
-        mStmtUpsertDetectImage = std::make_unique<SQLite::Statement>(
-            *mDB,
-            "INSERT INTO DetectImage(exp_id, sample_id, image_path) "
-            "VALUES(?,?,?) "
-            "ON CONFLICT(exp_id, sample_id) DO UPDATE SET "
-            "  image_path=excluded.image_path;"
-        );
-    }
+    // 每次都新建 Statement，因为现在 SQL 固定包含 ori_image_path
+    // prepared statement 缓存已不再适用于旧 SQL
+    mStmtUpsertDetectImage.reset();
+    mStmtUpsertDetectImage = std::make_unique<SQLite::Statement>(
+        *mDB,
+        "INSERT INTO DetectImage(exp_id, sample_id, image_path, ori_image_path) "
+        "VALUES(?,?,?,?) "
+        "ON CONFLICT(exp_id, sample_id) DO UPDATE SET "
+        "  image_path=excluded.image_path,"
+        "  ori_image_path=excluded.ori_image_path;"
+    );
 
     auto& st = *mStmtUpsertDetectImage;
     st.bind(1, exp_id);
     st.bind(2, sample_id);
-    st.bind(3, std::string{image_path}); // SQLiteCpp 对 string_view 不一定有重载，转 string 更稳
+    st.bind(3, std::string{image_path});
+    if (ori_image_path.empty()) {
+        st.bind(4); // bind NULL
+    } else {
+        st.bind(4, std::string{ori_image_path});
+    }
 
-    const int changed = st.exec(); // 受影响行数（插入/更新一般为1）
+    const int changed = st.exec();
     st.reset();
     st.clearBindings();
 
@@ -318,6 +325,24 @@ void TF::DbManager::EnsureSchema() {
     );
     d.exec("CREATE INDEX IF NOT EXISTS idx_Experiment_start_time ON Experiment(start_time);");
     d.exec("CREATE INDEX IF NOT EXISTS idx_Experiment_name ON Experiment(name);");
+
+    // DetectImage
+    d.exec(
+        "CREATE TABLE IF NOT EXISTS DetectImage ("
+        "  exp_id         INTEGER NOT NULL,"
+        "  sample_id      INTEGER NOT NULL,"
+        "  image_path     TEXT,"
+        "  ori_image_path TEXT,"
+        "  PRIMARY KEY (exp_id, sample_id)"
+        ") WITHOUT ROWID;"
+    );
+
+    // 为已有的 DetectImage 表添加 ori_image_path 列（如果尚不存在）
+    try {
+        d.exec("ALTER TABLE DetectImage ADD COLUMN ori_image_path TEXT;");
+    } catch (...) {
+        // 列已存在时 ALTER TABLE 会抛出异常，忽略即可
+    }
 }
 
 void TF::DbManager::ConfigureForIngest() {

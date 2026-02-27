@@ -54,7 +54,8 @@ namespace TF {
 
         [[nodiscard]] int saveFrequency() const { return mSaveFrequency.load(); }
 
-        void submitResult(const QImage &image,
+        void submitResult(const QImage &detImage,
+                          const QImage &oriImage,
                           const QString &sourceFlag,
                           int timeCost,
                           int detectionId,
