@@ -96,8 +96,6 @@ namespace TF {
         QString mCurrentUrl;
         QString mExperimentName;
 
-        bool mCamConfigShownAfterFirstConnect{false};
-
         // Measurement
         TFDistClient *mDistClient{nullptr};
         QTimer *mDistTimeoutTimer{nullptr};

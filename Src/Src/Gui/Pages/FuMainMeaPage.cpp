@@ -209,11 +209,6 @@ void TF::FuMainMeaPage::onMainCamBtnPressed() {
             if (mVideoWid->open(video_url.c_str())) {
                 mMainCamPlaying.store(true);
                 mCurrentUrl = video_url.c_str();
-
-                if (!mCamConfigShownAfterFirstConnect) {
-                    mCamConfigShownAfterFirstConnect = true;
-                    onCamConfigBtnPressed();
-                }
             }
             else {
                 mUi->mMainCamToggleBtn->setChecked(false);
@@ -370,6 +365,11 @@ void TF::FuMainMeaPage::onCamConfigBtnPressed() {
 
     if (!mCamConfigWid) {
         mCamConfigWid = new CamConfigWid(this);
+    }
+
+    if (mCamConfigWid->isVisible()) {
+        mCamConfigWid->hide();
+        return;
     }
 
     const QRect targetRect(mUi->mVideoSideWid->mapToGlobal(QPoint(0, 0)), mUi->mVideoSideWid->size());
