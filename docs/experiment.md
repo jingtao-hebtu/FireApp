@@ -124,7 +124,7 @@ INSERT INTO Experiment(name, start_time) VALUES(?, ?)
               (异步写入数据库)                  (异步保存图片文件)
                         ↓                               ↓
                  SQLite 数据库                    磁盘图片文件
-              (Data + DetectImage 表)         (ai_results/exp_X/)
+              (Data + DetectImage 表)   (ai_results/yyyy_MM_dd/exp_HH_mm_ss/)
 ```
 
 ### 3.2 检测结果触发保存
@@ -213,13 +213,13 @@ std::optional<ExperimentRecord> prepareSample(float fireHeight, float fireArea) 
 每个采样生成两张图片，保存在同一目录下：
 
 ```
-检测后图像：{当前工作目录}/ai_results/exp_{expId}/sample_det_{sampleId:06d}.png
-检测前图像：{当前工作目录}/ai_results/exp_{expId}/sample_ori_{sampleId:06d}.png
+检测后图像：{当前工作目录}/ai_results/{yyyy_MM_dd}/exp_{HH_mm_ss}/sample_det_{sampleId:06d}.png
+检测前图像：{当前工作目录}/ai_results/{yyyy_MM_dd}/exp_{HH_mm_ss}/sample_ori_{sampleId:06d}.png
 ```
 
-例如：
-- `ai_results/exp_3/sample_det_000001.png`（检测后，带标注框）
-- `ai_results/exp_3/sample_ori_000001.png`（检测前，原始图像）
+例如（假设在 2026-02-28 17:01:10 开启实验记录）：
+- `ai_results/2026_02_28/exp_17_01_10/sample_det_000001.png`（检测后，带标注框）
+- `ai_results/2026_02_28/exp_17_01_10/sample_ori_000001.png`（检测前，原始图像）
 
 ### 3.5 异步数据库写入（ExperimentDbWorker）
 
@@ -297,8 +297,8 @@ ON CONFLICT(exp_id, sample_id) DO UPDATE SET
 ```
 
 每个采样会产生两个图片保存任务，均以 PNG 格式写入磁盘：
-- 检测后图像：`ai_results/exp_{expId}/sample_det_{sampleId:06d}.png`
-- 检测前原始图像：`ai_results/exp_{expId}/sample_ori_{sampleId:06d}.png`
+- 检测后图像：`ai_results/{yyyy_MM_dd}/exp_{HH_mm_ss}/sample_det_{sampleId:06d}.png`
+- 检测前原始图像：`ai_results/{yyyy_MM_dd}/exp_{HH_mm_ss}/sample_ori_{sampleId:06d}.png`
 
 ---
 
