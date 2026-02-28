@@ -306,6 +306,17 @@ void TF::FuMainMeaPage::onRecordingToggled(bool checked) {
             return;
         }
 
+        if (!TFDetectManager::instance().isDetecting()) {
+            auto *msgBox = new QMessageBox(QMessageBox::Warning, tr("提示"),
+                                           tr("需开启AI检测才能记录实验数据"),
+                                           QMessageBox::Ok, this);
+            msgBox->setAttribute(Qt::WA_DeleteOnClose);
+            msgBox->setModal(false);
+            msgBox->show();
+            resetToggle();
+            return;
+        }
+
         auto &mgr = ExperimentParamManager::instance();
         if (mgr.experimentNameExists(mExperimentName)) {
             QMessageBox::warning(this, tr("提示"), tr("实验已存在，请重新输入"));
