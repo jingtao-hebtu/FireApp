@@ -367,6 +367,11 @@ void TF::FuMainMeaPage::onCamConfigBtnPressed() {
         mCamConfigWid = new CamConfigWid(this);
     }
 
+    if (mCamConfigWid->isVisible()) {
+        mCamConfigWid->hide();
+        return;
+    }
+
     const QRect targetRect(mUi->mVideoSideWid->mapToGlobal(QPoint(0, 0)), mUi->mVideoSideWid->size());
     mCamConfigWid->showAt(targetRect);
 }

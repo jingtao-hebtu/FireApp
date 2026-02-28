@@ -43,7 +43,7 @@ namespace {
 TF::CamConfigWid::CamConfigWid(QWidget *parent)
     : QWidget(parent) {
     setObjectName("CamConfigWid");
-    setWindowFlags(Qt::Popup | Qt::FramelessWindowHint);
+    setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     setAttribute(Qt::WA_StyledBackground, true);
 
     setStyleSheet(R"(
