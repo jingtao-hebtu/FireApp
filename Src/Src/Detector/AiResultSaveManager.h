@@ -70,8 +70,6 @@ namespace TF {
                           float fireHeight,
                           float fireArea);
 
-        void submitRawFrame(const QImage &image);
-
         [[nodiscard]] std::vector<AiResultMetaInfo> recentRecords() const;
 
     signals:

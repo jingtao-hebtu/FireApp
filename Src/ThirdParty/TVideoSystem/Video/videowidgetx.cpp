@@ -7,7 +7,6 @@
 #include "DetectionQueueManager.h"
 #include "DetectorWorkerManager.h"
 #include "TFMeaManager.h"
-#include "AiResultSaveManager.h"
 
 
 VideoWidget::VideoWidget(QWidget *parent) : AbstractVideoWidget(parent) {
@@ -438,8 +437,6 @@ void VideoWidget::receiveImage(const QImage &image, int time) {
         TF::DetectionQueueManager::instance().enqueue(detectionFlag, image, time);
         return;
     }
-
-    TF::AiResultSaveManager::instance().submitRawFrame(image);
 
     AbstractVideoWidget::receiveImage(image, time);
 }
