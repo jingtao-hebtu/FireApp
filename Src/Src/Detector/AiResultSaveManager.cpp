@@ -273,5 +273,62 @@ namespace TF {
 
         recordMeta(detFilePath, description);
     }
+
+    void AiResultSaveManager::submitRawFrame(const QImage &image) {
+        if (!mEnabled.load()) {
+            return;
+        }
+
+        if (TFDetectManager::instance().isDetecting()) {
+            return;
+        }
+
+        if (image.isNull()) {
+            return;
+        }
+
+        if (!shouldSaveNow()) {
+            return;
+        }
+
+        auto record = ExperimentParamManager::instance().prepareSample(0.0f, 0.0f);
+        if (!record.has_value()) {
+            return;
+        }
+
+        ensureWorker();
+        if (mThread && !mThread->isRunning()) {
+            mThread->start();
+        }
+
+        if (!mWorker) {
+            return;
+        }
+
+        const QString filePath = record->imagePath.isEmpty()
+            ? QDir(QDir::currentPath()).filePath("ai_results/" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss_zzz") + "_raw.png")
+            : record->imagePath;
+
+        const QString description = QStringLiteral("raw_frame");
+
+        QImage irImage;
+        QByteArray irRawData;
+        auto* thermalCam = ThermalManager::instance().getThermalCamera();
+        if (thermalCam && thermalCam->isRunning()) {
+            irImage = thermalCam->latestImage();
+            irRawData = thermalCam->latestRawData();
+        }
+
+        mWorker->enqueue(image, filePath, description,
+                         irImage, record->irImgPath,
+                         irRawData, record->irDatPath);
+
+        if (!record->oriImagePath.isEmpty()) {
+            mWorker->enqueue(image, record->oriImagePath,
+                             QStringLiteral("ori | ") + description);
+        }
+
+        recordMeta(filePath, description);
+    }
 }
 
