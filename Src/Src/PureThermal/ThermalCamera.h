@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QImage>
 #include <QMutex>
+#include <QByteArray>
 
 
 struct uvc_context;
@@ -27,6 +28,15 @@ namespace TF {
 
         bool isRunning() const { return m_running; }
 
+        // 保存原始温度数据（uint16 Y16）到二进制文件
+        void saveRawFrame(const QString& filename, const uvc_frame* frame);
+
+        // 获取最新的伪彩色图像快照
+        QImage latestImage() const;
+
+        // 获取最新原始帧数据快照（含 width/height 头 + uint16 数据）
+        QByteArray latestRawData() const;
+
     signals:
         void frameReady(const QImage& image,
                         double minTempC,
@@ -44,6 +54,10 @@ namespace TF {
         bool m_running = false;
 
         mutable QMutex m_mutex;
+
+        // 缓存最新帧数据，供实验保存时使用
+        QImage m_lastImage;
+        QByteArray m_lastRawData;   // width(int32) + height(int32) + uint16[]
     };
 };
 

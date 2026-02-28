@@ -68,7 +68,8 @@ namespace TF {
             if (!record.imagePath.isEmpty()) {
                 DbManager::instance().UpsertDetectImage(record.expId, record.sampleId,
                                                         record.imagePath.toStdString(),
-                                                        record.oriImagePath.toStdString());
+                                                        record.irImgPath.toStdString(),
+                                                        record.irDatPath.toStdString());
             }
         }
         catch (...) {
@@ -148,8 +149,9 @@ namespace TF {
         record.tilt = TFMeaManager::instance().currentTiltAngle();
         record.fireHeight = fireHeight;
         record.fireArea = fireArea;
-        record.imagePath = buildDetImagePath(record.sampleId);
-        record.oriImagePath = buildOriImagePath(record.sampleId);
+        record.imagePath = buildImagePath(record.sampleId);
+        record.irImgPath = buildIrImagePath(record.sampleId);
+        record.irDatPath = buildIrDataPath(record.sampleId);
 
         if (mWorker) {
             mWorker->enqueue(record);
@@ -216,6 +218,26 @@ namespace TF {
     QString ExperimentParamManager::buildOriImagePath(int sampleId) const {
         const QString fileName = QStringLiteral("sample_ori_%1.png").arg(sampleId, 6, 10, QLatin1Char('0'));
         return QDir(buildImageDir()).filePath(fileName);
+    }
+
+    QString ExperimentParamManager::buildIrImagePath(int sampleId) const {
+        QDir dir(QDir::currentPath());
+        auto base = dir.filePath(QStringLiteral("ai_results"));
+        if (mExperimentId >= 0) {
+            base = QDir(base).filePath(QStringLiteral("exp_%1").arg(mExperimentId));
+        }
+        const QString fileName = QStringLiteral("sample_ir_img_%1.png").arg(sampleId, 6, 10, QLatin1Char('0'));
+        return QDir(base).filePath(fileName);
+    }
+
+    QString ExperimentParamManager::buildIrDataPath(int sampleId) const {
+        QDir dir(QDir::currentPath());
+        auto base = dir.filePath(QStringLiteral("ai_results"));
+        if (mExperimentId >= 0) {
+            base = QDir(base).filePath(QStringLiteral("exp_%1").arg(mExperimentId));
+        }
+        const QString fileName = QStringLiteral("sample_ir_data_%1.dat").arg(sampleId, 6, 10, QLatin1Char('0'));
+        return QDir(base).filePath(fileName);
     }
 
     qint64 ExperimentParamManager::currentTimestampMs() const {

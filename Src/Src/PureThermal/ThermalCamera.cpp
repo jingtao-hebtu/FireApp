@@ -4,6 +4,9 @@
 #include <limits>
 #include <algorithm>
 #include <cmath>
+#include <QFile>
+#include <QDir>
+#include <QFileInfo>
 
 
 static constexpr uint16_t PT_VID = 0x1e4e; // PureThermal / GroupGets
@@ -202,6 +205,60 @@ namespace TF {
                 centerTempC = tempC;
         }
 
+        // 缓存最新帧数据（伪彩色图像 + 原始 uint16 数据）
+        {
+            QMutexLocker lk(&m_mutex);
+            m_lastImage = image.copy();
+
+            // 序列化格式: width(int32) + height(int32) + raw uint16 data
+            const qsizetype headerSize = static_cast<qsizetype>(sizeof(int) * 2);
+            const qsizetype dataSize = static_cast<qsizetype>(expectedBytes);
+            m_lastRawData.resize(headerSize + dataSize);
+            char* p = m_lastRawData.data();
+            std::memcpy(p, &w, sizeof(int));
+            std::memcpy(p + sizeof(int), &h, sizeof(int));
+            std::memcpy(p + headerSize, src, expectedBytes);
+        }
+
         emit frameReady(image, minTempC, maxTempC, centerTempC);
+    }
+
+    void ThermalCamera::saveRawFrame(const QString& filename, const uvc_frame* frame) {
+        if (!frame || !frame->data)
+            return;
+
+        const int w = static_cast<int>(frame->width);
+        const int h = static_cast<int>(frame->height);
+        const size_t expectedBytes = static_cast<size_t>(w * h) * 2;
+        if (frame->data_bytes < expectedBytes)
+            return;
+
+        QDir dir(QFileInfo(filename).absolutePath());
+        if (!dir.exists())
+            dir.mkpath(".");
+
+        QFile file(filename);
+        if (!file.open(QIODevice::WriteOnly)) {
+            LOG_F(ERROR, "Failed to open raw frame file: %s", filename.toStdString().c_str());
+            return;
+        }
+
+        // 写入头: width(int32) + height(int32)
+        file.write(reinterpret_cast<const char*>(&w), sizeof(int));
+        file.write(reinterpret_cast<const char*>(&h), sizeof(int));
+        // 写入原始 uint16 温度数据
+        file.write(static_cast<const char*>(frame->data),
+                   static_cast<qint64>(expectedBytes));
+        file.close();
+    }
+
+    QImage ThermalCamera::latestImage() const {
+        QMutexLocker lk(&m_mutex);
+        return m_lastImage;
+    }
+
+    QByteArray ThermalCamera::latestRawData() const {
+        QMutexLocker lk(&m_mutex);
+        return m_lastRawData;
     }
 }

@@ -11,7 +11,7 @@ MainUi:
 RGBCam:
   UserName: admin
   Password: fireAi1A
-  NeedPrintDebugInfo: true
+  NeedPrintDebugInfo: false
   PreviewDetectedImg: true
   NeedSaveOriImg: true
 

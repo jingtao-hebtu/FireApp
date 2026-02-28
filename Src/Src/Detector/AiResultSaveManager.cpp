@@ -2,22 +2,39 @@
 
 #include <algorithm>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QMutexLocker>
 
 #include "DetectManager.h"
 #include "TLog.h"
 #include "ExperimentParamManager.h"
+#include "ThermalManager.h"
 
 namespace TF {
 
-    void AiResultSaveWorker::enqueue(const QImage &image, const QString &filePath, const QString &description) {
+    void AiResultSaveWorker::enqueue(const QImage &image, const QString &filePath, const QString &description,
+                                     const QImage &irImage, const QString &irImgPath,
+                                     const QByteArray &irRawData, const QString &irDatPath) {
         if (image.isNull()) {
             return;
         }
 
+        Task task;
+        task.image = image.copy();
+        task.filePath = filePath;
+        task.description = description;
+        if (!irImage.isNull() && !irImgPath.isEmpty()) {
+            task.irImage = irImage.copy();
+            task.irImgPath = irImgPath;
+        }
+        if (!irRawData.isEmpty() && !irDatPath.isEmpty()) {
+            task.irRawData = irRawData;
+            task.irDatPath = irDatPath;
+        }
+
         QMutexLocker locker(&mMutex);
-        mTasks.enqueue({image.copy(), filePath, description});
+        mTasks.enqueue(std::move(task));
         mCond.wakeOne();
     }
 
@@ -59,6 +76,35 @@ namespace TF {
 
             LOG_F(INFO, "Saved AI result image: %s | %s", task.filePath.toStdString().c_str(),
                   task.description.toStdString().c_str());
+
+            // 保存红外伪彩色图像
+            if (!task.irImage.isNull() && !task.irImgPath.isEmpty()) {
+                QDir irImgDir(QFileInfo(task.irImgPath).absolutePath());
+                if (!irImgDir.exists())
+                    irImgDir.mkpath(".");
+
+                if (task.irImage.save(task.irImgPath)) {
+                    LOG_F(INFO, "Saved IR image: %s", task.irImgPath.toStdString().c_str());
+                } else {
+                    LOG_F(ERROR, "Failed to save IR image to %s", task.irImgPath.toStdString().c_str());
+                }
+            }
+
+            // 保存红外原始温度数据
+            if (!task.irRawData.isEmpty() && !task.irDatPath.isEmpty()) {
+                QDir irDatDir(QFileInfo(task.irDatPath).absolutePath());
+                if (!irDatDir.exists())
+                    irDatDir.mkpath(".");
+
+                QFile datFile(task.irDatPath);
+                if (datFile.open(QIODevice::WriteOnly)) {
+                    datFile.write(task.irRawData);
+                    datFile.close();
+                    LOG_F(INFO, "Saved IR raw data: %s", task.irDatPath.toStdString().c_str());
+                } else {
+                    LOG_F(ERROR, "Failed to save IR raw data to %s", task.irDatPath.toStdString().c_str());
+                }
+            }
         }
 
         QMutexLocker locker(&mMutex);
@@ -205,14 +251,19 @@ namespace TF {
                                         .arg(detectedCount)
                                         .arg(timeCost);
 
-        mWorker->enqueue(detImage, detFilePath, description);
-
-        if (!oriImage.isNull() && !record->oriImagePath.isEmpty()) {
-            mWorker->enqueue(oriImage, record->oriImagePath,
-                             QStringLiteral("ori | ") + description);
+        // 获取红外相机当前帧快照
+        QImage irImage;
+        QByteArray irRawData;
+        auto* thermalCam = ThermalManager::instance().getThermalCamera();
+        if (thermalCam && thermalCam->isRunning()) {
+            irImage = thermalCam->latestImage();
+            irRawData = thermalCam->latestRawData();
         }
 
-        recordMeta(detFilePath, description);
+        mWorker->enqueue(image, filePath, description,
+                         irImage, record->irImgPath,
+                         irRawData, record->irDatPath);
+        recordMeta(filePath, description);
     }
 }
 

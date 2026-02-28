@@ -110,7 +110,7 @@ void TF::FuMainWid::dumpLayoutDiagnostics() const {
         return lhs.first > rhs.first;
     });
 
-    const int limit = std::min<int>(20, contributions.size());
+    const int limit = std::min<int>(20, static_cast<int>(contributions.size()));
     qInfo() << "[Widgets] Top" << limit << "by minimum width contribution:";
     for (int i = 0; i < limit; ++i) {
         const auto contrib = contributions.at(i).first;

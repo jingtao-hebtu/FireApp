@@ -24,7 +24,9 @@ namespace TF {
     class AiResultSaveWorker : public QObject {
     Q_OBJECT
     public:
-        void enqueue(const QImage &image, const QString &filePath, const QString &description);
+        void enqueue(const QImage &image, const QString &filePath, const QString &description,
+                     const QImage &irImage = {}, const QString &irImgPath = {},
+                     const QByteArray &irRawData = {}, const QString &irDatPath = {});
 
     public slots:
         void startWork();
@@ -35,6 +37,11 @@ namespace TF {
             QImage image;
             QString filePath;
             QString description;
+            // 红外数据
+            QImage irImage;
+            QString irImgPath;
+            QByteArray irRawData;
+            QString irDatPath;
         };
 
         QMutex mMutex;
