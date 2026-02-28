@@ -74,8 +74,10 @@ namespace TF {
                 continue;
             }
 
-            LOG_F(INFO, "Saved AI result image: %s | %s", task.filePath.toStdString().c_str(),
-                  task.description.toStdString().c_str());
+            if (TFDetectManager::instance().needPrintDebugInfo()) {
+                LOG_F(INFO, "Saved AI result image: %s | %s", task.filePath.toStdString().c_str(),
+                      task.description.toStdString().c_str());
+            }
 
             // 保存红外伪彩色图像
             if (!task.irImage.isNull() && !task.irImgPath.isEmpty()) {
