@@ -112,6 +112,7 @@ namespace TF {
         mExperimentName = trimmed;
         mExperimentId = expId;
         mNextSampleId = -1;
+        mRecordingStartTime = QDateTime::currentDateTime();
         mRecording.store(true);
         ensureWorker();
         if (mWorkerThread && !mWorkerThread->isRunning()) {
@@ -135,6 +136,7 @@ namespace TF {
         mExperimentId = -1;
         mNextSampleId = -1;
         mExperimentName.clear();
+        mRecordingStartTime = QDateTime();
     }
 
     std::optional<ExperimentRecord> ExperimentParamManager::prepareSample(float fireHeight, float fireArea) {
@@ -206,8 +208,10 @@ namespace TF {
     QString ExperimentParamManager::buildImageDir() const {
         QDir dir(QDir::currentPath());
         auto base = dir.filePath(QStringLiteral("ai_results"));
-        if (mExperimentId >= 0) {
-            base = QDir(base).filePath(QStringLiteral("exp_%1").arg(mExperimentId));
+        if (mExperimentId >= 0 && mRecordingStartTime.isValid()) {
+            const QString dateDir = mRecordingStartTime.toString(QStringLiteral("yyyy_MM_dd"));
+            const QString timeDir = QStringLiteral("exp_") + mRecordingStartTime.toString(QStringLiteral("HH_mm_ss"));
+            base = QDir(QDir(base).filePath(dateDir)).filePath(timeDir);
         }
         return base;
     }

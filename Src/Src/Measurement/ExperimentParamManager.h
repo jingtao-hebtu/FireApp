@@ -12,6 +12,7 @@
 
 #include <atomic>
 #include <optional>
+#include <QDateTime>
 #include <QMutex>
 #include <QObject>
 #include <QQueue>
@@ -93,6 +94,7 @@ namespace TF {
         std::atomic<bool> mRecording{false};
         int mExperimentId{-1};
         int mNextSampleId{-1};
+        QDateTime mRecordingStartTime;
 
         QThread *mWorkerThread{nullptr};
         ExperimentDbWorker *mWorker{nullptr};
