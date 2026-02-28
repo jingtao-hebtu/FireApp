@@ -5,11 +5,13 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QMutexLocker>
+#include <QTransform>
 
 #include "DetectManager.h"
 #include "TLog.h"
 #include "ExperimentParamManager.h"
 #include "ThermalManager.h"
+
 
 namespace TF {
 
@@ -79,13 +81,15 @@ namespace TF {
                       task.description.toStdString().c_str());
             }
 
-            // 保存红外伪彩色图像
+            // 保存红外伪彩色图像（与显示一致，旋转 90°）
             if (!task.irImage.isNull() && !task.irImgPath.isEmpty()) {
                 QDir irImgDir(QFileInfo(task.irImgPath).absolutePath());
                 if (!irImgDir.exists())
                     irImgDir.mkpath(".");
 
-                if (task.irImage.save(task.irImgPath)) {
+                // 旋转90°
+                const QImage rotatedIr = task.irImage.transformed(QTransform().rotate(90));
+                if (rotatedIr.save(task.irImgPath)) {
                     LOG_F(INFO, "Saved IR image: %s", task.irImgPath.toStdString().c_str());
                 } else {
                     LOG_F(ERROR, "Failed to save IR image to %s", task.irImgPath.toStdString().c_str());
