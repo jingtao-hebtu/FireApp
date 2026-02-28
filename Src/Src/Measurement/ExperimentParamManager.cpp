@@ -201,14 +201,23 @@ namespace TF {
         mWorkerThread->wait();
     }
 
-    QString ExperimentParamManager::buildImagePath(int sampleId) const {
+    QString ExperimentParamManager::buildImageDir() const {
         QDir dir(QDir::currentPath());
         auto base = dir.filePath(QStringLiteral("ai_results"));
         if (mExperimentId >= 0) {
             base = QDir(base).filePath(QStringLiteral("exp_%1").arg(mExperimentId));
         }
-        const QString fileName = QStringLiteral("sample_%1.png").arg(sampleId, 6, 10, QLatin1Char('0'));
-        return QDir(base).filePath(fileName);
+        return base;
+    }
+
+    QString ExperimentParamManager::buildDetImagePath(int sampleId) const {
+        const QString fileName = QStringLiteral("sample_det_%1.png").arg(sampleId, 6, 10, QLatin1Char('0'));
+        return QDir(buildImageDir()).filePath(fileName);
+    }
+
+    QString ExperimentParamManager::buildOriImagePath(int sampleId) const {
+        const QString fileName = QStringLiteral("sample_ori_%1.png").arg(sampleId, 6, 10, QLatin1Char('0'));
+        return QDir(buildImageDir()).filePath(fileName);
     }
 
     QString ExperimentParamManager::buildIrImagePath(int sampleId) const {
