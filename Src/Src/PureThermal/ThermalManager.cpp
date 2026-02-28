@@ -49,7 +49,7 @@ void TF::ThermalManager::start() {
     } catch (std::exception &e) {
         TF_LOG_THROW_PROMPT("红外模组初始化失败, 请检查模块连接. %s", e.what());
     } catch (...) {
-        TF_LOG_THROW_PROMPT("红外模组初始化失败, 请检查模块连接. %s");
+        TF_LOG_THROW_PROMPT("红外模组初始化失败, 请检查模块连接.");
     }
     mStarted.store(true);
 }
