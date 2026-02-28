@@ -32,6 +32,7 @@ namespace TF {
         double fireHeight{};
         double fireArea{};
         QString imagePath;
+        QString oriImagePath;
         QString irImgPath;    // 红外伪彩色图像路径
         QString irDatPath;    // 红外原始温度数据路径
     };
@@ -80,7 +81,9 @@ namespace TF {
         int nextSampleId();
         void ensureWorker();
         void shutdownWorker();
-        QString buildImagePath(int sampleId) const;
+        QString buildImageDir() const;
+        QString buildDetImagePath(int sampleId) const;
+        QString buildOriImagePath(int sampleId) const;
         QString buildIrImagePath(int sampleId) const;
         QString buildIrDataPath(int sampleId) const;
         qint64 currentTimestampMs() const;

@@ -247,6 +247,7 @@ std::optional<std::string> TF::DbManager::GetDetectImagePath(int exp_id, int sam
 }
 
 bool TF::DbManager::UpsertDetectImage(int exp_id, int sample_id, std::string_view image_path,
+                                       std::string_view ori_image_path,
                                        std::string_view ir_img_path, std::string_view ir_dat_path) {
     if (!mDB || !mInitialized) {
         return false;
@@ -258,13 +259,13 @@ bool TF::DbManager::UpsertDetectImage(int exp_id, int sample_id, std::string_vie
     std::scoped_lock lk(mMtx);
 
     if (!mStmtUpsertDetectImage) {
-        // UPSERT：若 (exp_id, sample_id) 已存在则更新路径
         mStmtUpsertDetectImage = std::make_unique<SQLite::Statement>(
             *mDB,
-            "INSERT INTO DetectImage(exp_id, sample_id, image_path, ir_img_path, ir_dat_path) "
-            "VALUES(?,?,?,?,?) "
+            "INSERT INTO DetectImage(exp_id, sample_id, image_path, ori_image_path, ir_img_path, ir_dat_path) "
+            "VALUES(?,?,?,?,?,?) "
             "ON CONFLICT(exp_id, sample_id) DO UPDATE SET "
             "  image_path=excluded.image_path,"
+            "  ori_image_path=excluded.ori_image_path,"
             "  ir_img_path=excluded.ir_img_path,"
             "  ir_dat_path=excluded.ir_dat_path;"
         );
@@ -274,23 +275,23 @@ bool TF::DbManager::UpsertDetectImage(int exp_id, int sample_id, std::string_vie
     st.bind(1, exp_id);
     st.bind(2, sample_id);
     st.bind(3, std::string{image_path});
-    if (ori_image_path.empty()) {
-        st.bind(4); // bind NULL
-    } else {
+
+    if (ori_image_path.empty())
+        st.bind(4);
+    else
         st.bind(4, std::string{ori_image_path});
-    }
 
-    if (!ir_img_path.empty())
-        st.bind(4, std::string{ir_img_path});
+    if (ir_img_path.empty())
+        st.bind(5);
     else
-        st.bind(4); // NULL
+        st.bind(5, std::string{ir_img_path});
 
-    if (!ir_dat_path.empty())
-        st.bind(5, std::string{ir_dat_path});
+    if (ir_dat_path.empty())
+        st.bind(6);
     else
-        st.bind(5); // NULL
+        st.bind(6, std::string{ir_dat_path});
 
-    const int changed = st.exec(); // 受影响行数（插入/更新一般为1）
+    const int changed = st.exec();
     st.reset();
     st.clearBindings();
 
@@ -326,16 +327,18 @@ void TF::DbManager::EnsureSchema() {
     // DetectImage
     d.exec(
         "CREATE TABLE IF NOT EXISTS DetectImage ("
-        "  exp_id      INTEGER NOT NULL,"
-        "  sample_id   INTEGER NOT NULL,"
-        "  image_path  TEXT,"
-        "  ir_img_path TEXT,"
-        "  ir_dat_path TEXT,"
+        "  exp_id         INTEGER NOT NULL,"
+        "  sample_id      INTEGER NOT NULL,"
+        "  image_path     TEXT,"
+        "  ori_image_path TEXT,"
+        "  ir_img_path    TEXT,"
+        "  ir_dat_path    TEXT,"
         "  PRIMARY KEY (exp_id, sample_id)"
         ");"
     );
 
     // 为已有数据库添加新列（忽略 duplicate column 错误）
+    try { d.exec("ALTER TABLE DetectImage ADD COLUMN ori_image_path TEXT;"); } catch (...) {}
     try { d.exec("ALTER TABLE DetectImage ADD COLUMN ir_img_path TEXT;"); } catch (...) {}
     try { d.exec("ALTER TABLE DetectImage ADD COLUMN ir_dat_path TEXT;"); } catch (...) {}
 
@@ -352,24 +355,6 @@ void TF::DbManager::EnsureSchema() {
     );
     d.exec("CREATE INDEX IF NOT EXISTS idx_Experiment_start_time ON Experiment(start_time);");
     d.exec("CREATE INDEX IF NOT EXISTS idx_Experiment_name ON Experiment(name);");
-
-    // DetectImage
-    d.exec(
-        "CREATE TABLE IF NOT EXISTS DetectImage ("
-        "  exp_id         INTEGER NOT NULL,"
-        "  sample_id      INTEGER NOT NULL,"
-        "  image_path     TEXT,"
-        "  ori_image_path TEXT,"
-        "  PRIMARY KEY (exp_id, sample_id)"
-        ") WITHOUT ROWID;"
-    );
-
-    // 为已有的 DetectImage 表添加 ori_image_path 列（如果尚不存在）
-    try {
-        d.exec("ALTER TABLE DetectImage ADD COLUMN ori_image_path TEXT;");
-    } catch (...) {
-        // 列已存在时 ALTER TABLE 会抛出异常，忽略即可
-    }
 }
 
 void TF::DbManager::ConfigureForIngest() {

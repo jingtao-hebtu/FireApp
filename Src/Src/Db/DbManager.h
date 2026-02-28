@@ -162,6 +162,7 @@ namespace TF {
         // 写入：插入或更新（exp_id, sample_id 唯一）
         // 返回：本次是否影响了行（一般为 true；若写入相同值且 SQLite 优化可能为 false）
         bool UpsertDetectImage(int exp_id, int sample_id, std::string_view image_path,
+                               std::string_view ori_image_path = {},
                                std::string_view ir_img_path = {},
                                std::string_view ir_dat_path = {});
 

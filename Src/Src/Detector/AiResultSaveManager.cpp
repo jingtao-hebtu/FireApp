@@ -260,10 +260,16 @@ namespace TF {
             irRawData = thermalCam->latestRawData();
         }
 
-        mWorker->enqueue(image, filePath, description,
+        mWorker->enqueue(detImage, detFilePath, description,
                          irImage, record->irImgPath,
                          irRawData, record->irDatPath);
-        recordMeta(filePath, description);
+
+        if (!oriImage.isNull() && !record->oriImagePath.isEmpty()) {
+            mWorker->enqueue(oriImage, record->oriImagePath,
+                             QStringLiteral("ori | ") + description);
+        }
+
+        recordMeta(detFilePath, description);
     }
 }
 
