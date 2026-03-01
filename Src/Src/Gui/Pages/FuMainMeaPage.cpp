@@ -318,12 +318,6 @@ void TF::FuMainMeaPage::onRecordingToggled(bool checked) {
         }
 
         auto &mgr = ExperimentParamManager::instance();
-        if (mgr.experimentNameExists(mExperimentName)) {
-            QMessageBox::warning(this, tr("提示"), tr("实验已存在，请重新输入"));
-            resetToggle();
-            return;
-        }
-
         QString error;
         if (!mgr.startRecording(mExperimentName, &error)) {
             QMessageBox::warning(this, tr("提示"), error.isEmpty() ? tr("启动实验记录失败") : error);

@@ -104,16 +104,18 @@ namespace TF {
             return false;
         }
 
-        if (experimentNameExists(trimmed)) {
-            if (error) *error = tr("该实验名称已存在，请重新输入");
-            return false;
-        }
-
-        const auto now = currentTimestampMs();
-        const int expId = DbManager::instance().CreateExperiment(trimmed.toStdString(), now);
-        if (expId < 0) {
-            if (error) *error = tr("创建实验失败");
-            return false;
+        int expId = DbManager::instance().FindExperimentIdByName(trimmed.toStdString());
+        if (expId >= 0) {
+            // 实验已存在，恢复记录
+            DbManager::instance().ReopenExperiment(expId);
+        } else {
+            // 新建实验
+            const auto now = currentTimestampMs();
+            expId = DbManager::instance().CreateExperiment(trimmed.toStdString(), now);
+            if (expId < 0) {
+                if (error) *error = tr("创建实验失败");
+                return false;
+            }
         }
 
         mExperimentName = trimmed;
@@ -225,7 +227,7 @@ namespace TF {
         auto base = dir.filePath(QStringLiteral("ai_results"));
         if (mExperimentId >= 0 && mRecordingStartTime.isValid()) {
             const QString dateDir = mRecordingStartTime.toString(QStringLiteral("yyyy_MM_dd"));
-            const QString timeDir = QStringLiteral("exp_") + mRecordingStartTime.toString(QStringLiteral("HH_mm_ss"));
+            const QString timeDir = QStringLiteral("exp_") + mExperimentName;
             base = QDir(QDir(base).filePath(dateDir)).filePath(timeDir);
         }
         return base;
