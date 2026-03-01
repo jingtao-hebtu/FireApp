@@ -2,6 +2,7 @@
 #include "libuvc/libuvc.h"
 #include "TConfig.h"
 #include "PathConfig.h"
+#include "TFMeaManager.h"
 #include "TSysUtils.h"
 #include "TLog.h"
 #include <limits>
@@ -226,6 +227,11 @@ namespace TF {
         double centerTempC = 0.0;
         const int centerIndex = (h / 2) * w + (w / 2);
 
+        auto dist = TFMeaManager::instance().currentDist();
+        if (dist < 0.1f) {
+            dist = 12.0f;
+        }
+
         for (int i = 0; i < pixelCount; ++i) {
             const uint16_t raw = src[i];
 
@@ -244,7 +250,11 @@ namespace TF {
             dst[i] = color.rgb();
 
             // 3. 温度计算（保持之前的逻辑）
-            const double tempC = raw / 100.0 - 273.15; // T(°C) = raw/100 - 273.15
+            double tempC = raw / 100.0 - 273.15; // T(°C) = raw/100 - 273.15
+
+            if (dist > 3 && tempC > 49.0) {
+                tempC *= 1.5f;
+            }
 
             if (tempC < minTempC) minTempC = tempC;
             if (tempC > maxTempC) maxTempC = tempC;
