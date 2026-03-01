@@ -1,5 +1,6 @@
 #include "ThermalCamera.h"
 #include "libuvc/libuvc.h"
+#include "TConfig.h"
 #include "TLog.h"
 #include <limits>
 #include <algorithm>
@@ -25,6 +26,14 @@ namespace TF {
     bool ThermalCamera::start(int width, int height, int fps) {
         if (m_running)
             return true;
+
+        mIsSim = GET_BOOL_CONFIG("ThermalCam", "Sim");
+
+        // Todo: judge if sim
+        if (mIsSim) {
+            mSimDatFolder = GET_STR_CONFIG("ThermalCam", "SimDatFolder");
+            // Todo: judge if exist this folder
+        }
 
         uvc_error_t res;
 

@@ -44,6 +44,9 @@ namespace TF {
                         double centerTempC);
 
     private:
+        bool mIsSim {false};
+        std::string mSimDatFolder;
+
         static void frameCallback(uvc_frame* frame, void* user);
         void handleFrame(uvc_frame* frame);
 

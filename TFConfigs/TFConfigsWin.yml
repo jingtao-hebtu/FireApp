@@ -16,6 +16,8 @@ RGBCam:
   NeedSaveOriImg: true
 
 ThermalCam:
+  Sim: true
+  SimDatFolder: "/data"
   OpenOnInit: false
   Width: 160
   Height: 120
