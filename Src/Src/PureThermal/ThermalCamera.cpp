@@ -252,10 +252,12 @@ namespace TF {
                 centerTempC = tempC;
         }
 
-        // 缓存最新帧数据（伪彩色图像 + 原始 uint16 数据）
+        // 缓存最新帧数据（伪彩色图像 + 原始 uint16 数据 + 温度极值）
         {
             QMutexLocker lk(&m_mutex);
             m_lastImage = image.copy();
+            m_lastMinTempC = minTempC;
+            m_lastMaxTempC = maxTempC;
 
             // 序列化格式: width(int32) + height(int32) + raw uint16 data
             const qsizetype headerSize = static_cast<qsizetype>(sizeof(int) * 2);
@@ -351,5 +353,15 @@ namespace TF {
     QByteArray ThermalCamera::latestRawData() const {
         QMutexLocker lk(&m_mutex);
         return m_lastRawData;
+    }
+
+    double ThermalCamera::latestMinTemp() const {
+        QMutexLocker lk(&m_mutex);
+        return m_lastMinTempC;
+    }
+
+    double ThermalCamera::latestMaxTemp() const {
+        QMutexLocker lk(&m_mutex);
+        return m_lastMaxTempC;
     }
 }

@@ -7,12 +7,16 @@
 
 #include "DbManager.h"
 #include "TFMeaManager.h"
+#include "ThermalManager.h"
+#include "ThermalCamera.h"
 
 namespace {
     constexpr int kChannelDist = 1;
     constexpr int kChannelTilt = 2;
     constexpr int kChannelFireHeight = 3;
     constexpr int kChannelFireArea = 4;
+    constexpr int kChannelMaxTemp = 5;
+    constexpr int kChannelMinTemp = 6;
 }
 
 namespace TF {
@@ -61,6 +65,8 @@ namespace TF {
             {record.expId, kChannelTilt, record.sampleId, record.timestampMs, record.tilt},
             {record.expId, kChannelFireHeight, record.sampleId, record.timestampMs, record.fireHeight},
             {record.expId, kChannelFireArea, record.sampleId, record.timestampMs, record.fireArea},
+            {record.expId, kChannelMaxTemp, record.sampleId, record.timestampMs, record.maxTemp},
+            {record.expId, kChannelMinTemp, record.sampleId, record.timestampMs, record.minTemp},
         };
 
         try {
@@ -152,6 +158,13 @@ namespace TF {
         record.tilt = TFMeaManager::instance().currentTiltAngle();
         record.fireHeight = fireHeight;
         record.fireArea = fireArea;
+
+        auto* thermalCam = ThermalManager::instance().getThermalCamera();
+        if (thermalCam && thermalCam->isRunning()) {
+            record.maxTemp = thermalCam->latestMaxTemp();
+            record.minTemp = thermalCam->latestMinTemp();
+        }
+
         record.imagePath = buildDetImagePath(record.sampleId);
         record.oriImagePath = buildOriImagePath(record.sampleId);
         record.irImgPath = buildIrImagePath(record.sampleId);
