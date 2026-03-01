@@ -10,6 +10,8 @@
 #include "AiResultSaveManager.h"
 #include "ExperimentParamManager.h"
 #include "ThermalManager.h"
+#include "ThermalCamera.h"
+#include "TFMeaManager.h"
 #include "TFDistClient.h"
 #include "WitImuSerial.h"
 #include "TFException.h"
@@ -74,6 +76,9 @@ void TF::FuMainMeaPage::initActions() {
 
     connect(mUi->mRecordingToggleButton, &QPushButton::toggled,
             this, &FuMainMeaPage::onRecordingToggled);
+
+    connect(mUi->mThermalCamera, &ThermalCamera::frameReady,
+            this, &FuMainMeaPage::onThermalFrameReady, Qt::QueuedConnection);
 }
 
 void TF::FuMainMeaPage::initForm() {
@@ -355,6 +360,21 @@ void TF::FuMainMeaPage::onAiBtnToggled(bool checked) {
         //mDetectorThread->setPause(true);
         TFDetectManager::instance().stopDetect();
         mVideoWid->stopDetect();
+        TFMeaManager::instance().setFlameDetected(false);
+        mUi->mFlameTempLabel->setText("---");
+    }
+}
+
+void TF::FuMainMeaPage::onThermalFrameReady(const QImage& image, double minTempC,
+                                              double maxTempC, double centerTempC) {
+    Q_UNUSED(image);
+    Q_UNUSED(minTempC);
+    Q_UNUSED(centerTempC);
+
+    if (TFDetectManager::instance().isDetecting() && TFMeaManager::instance().isFlameDetected()) {
+        mUi->mFlameTempLabel->setText(QString::number(maxTempC, 'f', 1));
+    } else {
+        mUi->mFlameTempLabel->setText("---");
     }
 }
 

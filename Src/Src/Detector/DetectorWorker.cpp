@@ -102,6 +102,7 @@ namespace TF {
                 max_area = max_area > area ? max_area : area;
             }
 
+            TFMeaManager::instance().setFlameDetected(detect_num > 0);
             TFMeaManager::instance().receiveStatistics({
                 max_height, max_area,
             });

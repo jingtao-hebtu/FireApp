@@ -4,6 +4,7 @@
 #include "TSingleton.h"
 #include "TFMeaDef.h"
 #include "WitImuData.h"
+#include <atomic>
 
 
 namespace T_QtBase {
@@ -40,6 +41,10 @@ namespace TF {
         // WitImu
         void updateWitImuData(const WitImuData &data);
 
+        // Flame detection state (set by DetectorWorker)
+        void setFlameDetected(bool detected) { mFlameDetected.store(detected); }
+        [[nodiscard]] bool isFlameDetected() const { return mFlameDetected.load(); }
+
         [[nodiscard]] float currentDist() const { return mCurDist; }
         [[nodiscard]] float currentTiltAngle() const { return mCurWitImuData.angle.x; }
 
@@ -52,6 +57,8 @@ namespace TF {
         float mCurDist {};
 
         WitImuData mCurWitImuData {};
+
+        std::atomic<bool> mFlameDetected{false};
 
     };
 };
