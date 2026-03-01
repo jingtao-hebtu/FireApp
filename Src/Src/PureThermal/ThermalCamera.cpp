@@ -1,6 +1,8 @@
 #include "ThermalCamera.h"
 #include "libuvc/libuvc.h"
 #include "TConfig.h"
+#include "PathConfig.h"
+#include "TSysUtils.h"
 #include "TLog.h"
 #include <limits>
 #include <algorithm>
@@ -30,7 +32,13 @@ namespace TF {
         mIsSim = GET_BOOL_CONFIG("ThermalCam", "Sim");
 
         if (mIsSim) {
-            mSimDatFolder = GET_STR_CONFIG("ThermalCam", "SimDatFolder");
+            auto dat_dir = GET_STR_CONFIG("ThermalCam", "SimDatFolder");
+            auto app_config_dir = TFPathParam("AppConfigDir");
+#ifdef _WIN32
+            mSimDatFolder = TBase::joinPath({TFPathParam("AppConfigDir"), dat_dir});
+#elif __linux__
+            mSimDatFolder = TBase::joinPath({TFPathParam("AppConfigDir"), dat_dir});
+#endif
 
             QDir simDir(QString::fromStdString(mSimDatFolder));
             if (!simDir.exists()) {

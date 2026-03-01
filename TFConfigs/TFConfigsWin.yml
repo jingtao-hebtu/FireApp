@@ -17,7 +17,7 @@ RGBCam:
 
 ThermalCam:
   Sim: true
-  SimDatFolder: "/data"
+  SimDatFolder: PTSimData
   OpenOnInit: false
   Width: 160
   Height: 120
