@@ -5,6 +5,8 @@
 #include "TFMeaDef.h"
 #include "WitImuData.h"
 #include <atomic>
+#include <mutex>
+#include <opencv2/core.hpp>
 
 
 namespace T_QtBase {
@@ -45,6 +47,16 @@ namespace TF {
         void setFlameDetected(bool detected) { mFlameDetected.store(detected); }
         [[nodiscard]] bool isFlameDetected() const { return mFlameDetected.load(); }
 
+        // Flame bbox (set by DetectorWorker, read by ThermalWidget)
+        void setFlameBbox(const cv::Rect& bbox) {
+            std::lock_guard<std::mutex> lock(mFlameBboxMutex);
+            mFlameBbox = bbox;
+        }
+        cv::Rect flameBbox() const {
+            std::lock_guard<std::mutex> lock(mFlameBboxMutex);
+            return mFlameBbox;
+        }
+
         [[nodiscard]] float currentDist() const { return mCurDist; }
         [[nodiscard]] float currentTiltAngle() const { return mCurWitImuData.angle.x; }
 
@@ -59,6 +71,9 @@ namespace TF {
         WitImuData mCurWitImuData {};
 
         std::atomic<bool> mFlameDetected{false};
+
+        mutable std::mutex mFlameBboxMutex;
+        cv::Rect mFlameBbox;
 
     };
 };

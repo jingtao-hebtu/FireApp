@@ -1,5 +1,7 @@
 #include "ThermalWidget.h"
 #include "ThermalCamera.h"
+#include "DetectManager.h"
+#include "TFMeaManager.h"
 
 #include <QFile>
 #include <QPainter>
@@ -8,11 +10,22 @@
 
 
 namespace TF {
+
+    // H matrix calibrated for the rotated IR image coordinate system
+    static const double H_DEFAULT[9] = {
+         8.10858805e-02,  3.05423619e-03, -1.46287700e+01,
+         1.05866057e-03,  8.91527766e-02,  2.84689397e+01,
+        -1.35057002e-05,  8.91962303e-05,  1.00000000e+00
+    };
+
     ThermalWidget::ThermalWidget(ThermalCamera* camera, QWidget* parent)
         : QWidget(parent) {
         connect(camera, &ThermalCamera::frameReady,
                 this, &ThermalWidget::onFrameReady,
                 Qt::QueuedConnection);
+
+        // Initialize IR mapper: 120 wide x 160 tall (after 90-degree rotation of 160x120)
+        m_flameMapper.init(H_DEFAULT, 120, 160);
     }
 
     void ThermalWidget::onFrameReady(const QImage& image,
@@ -43,6 +56,31 @@ namespace TF {
             const QPoint topLeft((width() - scaled.width()) / 2,
                                  (height() - scaled.height()) / 2);
             p.drawImage(topLeft, scaled);
+
+            // Draw IR flame bbox when AI detection is active and flame is detected
+            if (m_flameMapper.isReady()
+                && TFDetectManager::instance().isDetecting()
+                && TFMeaManager::instance().isFlameDetected()) {
+
+                cv::Rect visBbox = TFMeaManager::instance().flameBbox();
+                cv::Rect irBbox;
+                if (visBbox.area() > 0 && m_flameMapper.mapBbox(visBbox, irBbox)) {
+                    // Scale IR bbox from rotated image coords (120x160) to widget display coords
+                    const double sx = static_cast<double>(scaled.width())  / m_image.width();
+                    const double sy = static_cast<double>(scaled.height()) / m_image.height();
+
+                    QRect displayRect(
+                        topLeft.x() + static_cast<int>(irBbox.x * sx),
+                        topLeft.y() + static_cast<int>(irBbox.y * sy),
+                        static_cast<int>(irBbox.width * sx),
+                        static_cast<int>(irBbox.height * sy)
+                    );
+
+                    p.setPen(QPen(QColor(255, 0, 0), 2));
+                    p.setBrush(Qt::NoBrush);
+                    p.drawRect(displayRect);
+                }
+            }
 
             p.setPen(QColor(95, 217, 126));
             const QString text = QStringLiteral("Min: %1 °C   Max: %2 °C   Center: %3 °C")
