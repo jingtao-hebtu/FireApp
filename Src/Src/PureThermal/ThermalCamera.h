@@ -5,6 +5,9 @@
 #include <QImage>
 #include <QMutex>
 #include <QByteArray>
+#include <QStringList>
+#include <atomic>
+#include <thread>
 
 
 struct uvc_context;
@@ -50,11 +53,19 @@ namespace TF {
         static void frameCallback(uvc_frame* frame, void* user);
         void handleFrame(uvc_frame* frame);
 
+        // 仿真线程循环
+        void simLoop();
+
         uvc_context* m_ctx = nullptr;
         uvc_device* m_dev = nullptr;
         uvc_device_handle* m_devh = nullptr;
         uvc_stream_ctrl* m_ctrl = nullptr;
         bool m_running = false;
+
+        // 仿真相关
+        std::atomic<bool> m_simRunning {false};
+        std::thread m_simThread;
+        QStringList m_simFileList;
 
         mutable QMutex m_mutex;
 
