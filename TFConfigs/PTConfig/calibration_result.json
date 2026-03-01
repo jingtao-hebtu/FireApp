@@ -1,19 +1,19 @@
 {
   "homography_vis_to_ir": [
     [
-      0.11519944022191056,
-      -0.004208973319578216,
-      -28.700159069361746
+      0.23767020564423047,
+      0.06223246893759422,
+      -114.59175831508495
     ],
     [
-      0.021945567277005182,
-      0.09652618649294144,
-      25.094834545314654
+      0.06819112186641359,
+      0.3043547680631208,
+      -36.190851703939884
     ],
     [
-      0.0002966444626014425,
-      -7.196649412477673e-05,
-      1.0
+      0.0008239922325141643,
+      0.0012789201875401288,
+      0.9999999999999999
     ]
   ],
   "vis_image_size": [
@@ -30,22 +30,46 @@
   ],
   "square_size_mm": 25.0,
   "stats": {
-    "n_pairs": 1,
-    "n_points": 88,
-    "inliers": 88,
+    "n_pairs": 4,
+    "n_points": 352,
+    "inliers": 352,
     "inlier_ratio": 1.0,
-    "global_mean_error_px": 0.023354955738894376,
-    "global_max_error_px": 0.06881055864983915,
+    "global_mean_error_px": 0.23534020017141621,
+    "global_max_error_px": 0.6256344483997505,
     "per_pair_errors": [
-      0.023354955738894376
+      0.32234658235378216,
+      0.2407580923727245,
+      0.20417006452746592,
+      0.1740860614316924
     ],
     "pairs": [
       {
         "index": 0,
         "position": "center",
         "n": 88,
-        "vis": "local_data/sample_det_000001.png",
-        "ir": "local_data/sample_ir_img_000001.png"
+        "vis": "local_data/7_8/sample_det_0000011.png",
+        "ir": "local_data/7_8/sample_ir_img_0000011.png"
+      },
+      {
+        "index": 2,
+        "position": "right",
+        "n": 88,
+        "vis": "local_data/7_8/sample_det_0000013.png",
+        "ir": "local_data/7_8/sample_ir_img_0000013.png"
+      },
+      {
+        "index": 3,
+        "position": "top",
+        "n": 88,
+        "vis": "local_data/7_8/sample_det_0000014.png",
+        "ir": "local_data/7_8/sample_ir_img_0000014.png"
+      },
+      {
+        "index": 4,
+        "position": "bottom",
+        "n": 88,
+        "vis": "local_data/7_8/sample_det_0000015.png",
+        "ir": "local_data/7_8/sample_ir_img_0000015.png"
       }
     ]
   }
