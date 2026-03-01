@@ -19,7 +19,9 @@ namespace TF {
     void AiResultSaveWorker::enqueue(const QImage &image, const QString &filePath, const QString &description,
                                      const QImage &irImage, const QString &irImgPath,
                                      const QByteArray &irRawData, const QString &irDatPath,
-                                     const QImage &fireMask, const QString &fireMaskPath) {
+                                     const QImage &fireMask, const QString &fireMaskPath,
+                                     bool publishZmq,
+                                     const InnerFlameDetectResult &zmqResult) {
         if (image.isNull()) {
             return;
         }
@@ -40,6 +42,8 @@ namespace TF {
             task.fireMask = fireMask.copy();
             task.fireMaskPath = fireMaskPath;
         }
+        task.publishZmq = publishZmq;
+        task.zmqResult = zmqResult;
 
         QMutexLocker locker(&mMutex);
         mTasks.enqueue(std::move(task));
@@ -129,6 +133,11 @@ namespace TF {
                 } else {
                     LOG_F(ERROR, "Failed to save fire mask to %s", task.fireMaskPath.toStdString().c_str());
                 }
+            }
+
+            // 所有文件保存完成后，再发布ZMQ结果（保证订阅端收到消息时文件已落盘）
+            if (task.publishZmq) {
+                DataPubZmqManager::instance().publishResult(task.zmqResult);
             }
         }
 
@@ -286,10 +295,21 @@ namespace TF {
             irRawData = thermalCam->latestRawData();
         }
 
+        // 构造ZMQ发布数据，随文件保存任务一起入队，确保文件落盘后再发布
+        InnerFlameDetectResult zmqResult;
+        zmqResult.detImagePath = detFilePath.toStdString();
+        zmqResult.oriImagePath = record->oriImagePath.toStdString();
+        zmqResult.irImagePath = record->irImgPath.toStdString();
+        zmqResult.fireHeight = fireHeight;
+        zmqResult.fireArea = fireArea;
+        zmqResult.maxTemp = thermalCam ? static_cast<float>(thermalCam->latestMaxTemp()) : 0.0f;
+        zmqResult.minTemp = thermalCam ? static_cast<float>(thermalCam->latestMinTemp()) : 0.0f;
+
         mWorker->enqueue(detImage, detFilePath, description,
                          irImage, record->irImgPath,
                          irRawData, record->irDatPath,
-                         fireMaskImage, record->fireMaskPath);
+                         fireMaskImage, record->fireMaskPath,
+                         true, zmqResult);
 
         if (!oriImage.isNull() && !record->oriImagePath.isEmpty()) {
             mWorker->enqueue(oriImage, record->oriImagePath,
@@ -297,17 +317,6 @@ namespace TF {
         }
 
         recordMeta(detFilePath, description);
-
-        // ZMQ发布火焰检测结果
-        InnerFlameDetectResult inner_result;
-        inner_result.detImagePath = detFilePath.toStdString();
-        inner_result.oriImagePath = record->oriImagePath.toStdString();
-        inner_result.irImagePath = record->irImgPath.toStdString();
-        inner_result.fireHeight = fireHeight;
-        inner_result.fireArea = fireArea;
-        inner_result.maxTemp = thermalCam ? static_cast<float>(thermalCam->latestMaxTemp()) : 0.0f;
-        inner_result.minTemp = thermalCam ? static_cast<float>(thermalCam->latestMinTemp()) : 0.0f;
-        DataPubZmqManager::instance().publishResult(inner_result);
     }
 }
 
