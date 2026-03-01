@@ -1,0 +1,52 @@
+{
+  "homography_vis_to_ir": [
+    [
+      0.11519944022191056,
+      -0.004208973319578216,
+      -28.700159069361746
+    ],
+    [
+      0.021945567277005182,
+      0.09652618649294144,
+      25.094834545314654
+    ],
+    [
+      0.0002966444626014425,
+      -7.196649412477673e-05,
+      1.0
+    ]
+  ],
+  "vis_image_size": [
+    1920,
+    1080
+  ],
+  "ir_image_size": [
+    120,
+    160
+  ],
+  "pattern_size": [
+    11,
+    8
+  ],
+  "square_size_mm": 25.0,
+  "stats": {
+    "n_pairs": 1,
+    "n_points": 88,
+    "inliers": 88,
+    "inlier_ratio": 1.0,
+    "global_mean_error_px": 0.023354955738894376,
+    "global_max_error_px": 0.06881055864983915,
+    "per_pair_errors": [
+      0.023354955738894376
+    ],
+    "pairs": [
+      {
+        "index": 0,
+        "position": "center",
+        "n": 88,
+        "vis": "local_data/sample_det_000001.png",
+        "ir": "local_data/sample_ir_img_000001.png"
+      }
+    ]
+  }
+}

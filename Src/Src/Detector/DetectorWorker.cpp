@@ -11,8 +11,7 @@
 
 
 namespace TF {
-
-    DetectorWorker::DetectorWorker(QObject *parent) : QObject(parent) {
+    DetectorWorker::DetectorWorker(QObject* parent) : QObject(parent) {
     }
 
     void DetectorWorker::startWork() {
@@ -34,7 +33,7 @@ namespace TF {
         DetectionQueueManager::instance().stop();
     }
 
-    void DetectorWorker::processFrame(const DetectionTask &task) {
+    void DetectorWorker::processFrame(const DetectionTask& task) {
         if (task.image.empty()) {
             return;
         }
@@ -54,7 +53,6 @@ namespace TF {
 
     void DetectorWorker::processDetect(const DetectionTask& task) {
         if (TFDetectManager::instance().isDetecting()) {
-
             if (task.image.empty()) {
                 return;
             }
@@ -78,11 +76,14 @@ namespace TF {
             int detectionId = -1;
             try {
                 detectionId = TFDetectManager::instance().runDetectWithPreview(cv_im, detect_num, detections);
-            } catch (const cv::Exception &e) {
+            }
+            catch (const cv::Exception& e) {
                 LOG_F(ERROR, "Object detect inference failed: %s.", e.what());
-            } catch (const std::exception &e) {
+            }
+            catch (const std::exception& e) {
                 LOG_F(ERROR, "Object detect inference failed: %s.", e.what());
-            } catch (...) {
+            }
+            catch (...) {
                 LOG_F(ERROR, "Object detect inference failed.");
             }
 
@@ -139,11 +140,11 @@ namespace TF {
 
             QImage q_im = QtOcv::mat2Image(cv_im);
             if (detectionId >= 0) {
-                AiResultSaveManager::instance().submitResult(q_im, q_ori, fireMaskImage, task.sourceFlag, task.timeCost, detectionId, detect_num,
-                                                            max_height, max_area);
+                AiResultSaveManager::instance().submitResult(q_im, q_ori, fireMaskImage, task.sourceFlag, task.timeCost,
+                                                             detectionId, detect_num,
+                                                             max_height, max_area);
             }
             emit frameProcessed(task.sourceFlag, q_im, max_height, task.timeCost);
         }
     }
 }
-

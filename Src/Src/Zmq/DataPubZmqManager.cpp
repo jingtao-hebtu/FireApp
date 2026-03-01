@@ -88,17 +88,15 @@ namespace TF {
         mCond.notify_one();
     }
 
-    void DataPubZmqManager::publishResult(const std::string &detImagePath,
-                                           const std::string &oriImagePath,
-                                           const std::string &irImagePath,
-                                           float fireHeight,
-                                           float fireArea) {
+    void DataPubZmqManager::publishResult(const InnerFlameDetectResult &inner_result) {
         FlameDetectResult result{};
-        safeStrCopy(result.detImagePath, sizeof(result.detImagePath), detImagePath);
-        safeStrCopy(result.oriImagePath, sizeof(result.oriImagePath), oriImagePath);
-        safeStrCopy(result.irImagePath,  sizeof(result.irImagePath),  irImagePath);
-        result.fireHeight  = fireHeight;
-        result.fireArea    = fireArea;
+        safeStrCopy(result.detImagePath, sizeof(result.detImagePath), inner_result.detImagePath);
+        safeStrCopy(result.oriImagePath, sizeof(result.oriImagePath), inner_result.oriImagePath);
+        safeStrCopy(result.irImagePath,  sizeof(result.irImagePath),  inner_result.irImagePath);
+        result.fireHeight  = inner_result.fireHeight;
+        result.fireArea    = inner_result.fireArea;
+        result.maxTemp    = inner_result.maxTemp;
+        result.minTemp    = inner_result.minTemp;
 
         auto now = std::chrono::system_clock::now();
         result.timestampMs = std::chrono::duration_cast<std::chrono::milliseconds>(

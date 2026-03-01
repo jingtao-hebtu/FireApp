@@ -37,9 +37,22 @@ namespace TF {
         char irImagePath[kFlameResultPathLen]{};      // 红外图像路径
         float fireHeight{0.0f};                       // 火焰高度(像素)
         float fireArea{0.0f};                         // 火焰面积(像素)
+        float maxTemp{0.0f};                         // 最高温度(°)
+        float minTemp{0.0f};                         // 最低温度(°)
         int64_t timestampMs{0};                       // 时间戳(毫秒)
     };
     #pragma pack(pop)
+
+    struct InnerFlameDetectResult
+    {
+        std::string detImagePath;
+        std::string oriImagePath;
+        std::string irImagePath;
+        float fireHeight;
+        float fireArea;
+        float maxTemp;
+        float minTemp;
+    };
 
     class DataPubZmqManager : public TBase::TSingleton<DataPubZmqManager>
     {
@@ -52,11 +65,7 @@ namespace TF {
 
         void publishResult(const FlameDetectResult &result);
 
-        void publishResult(const std::string &detImagePath,
-                           const std::string &oriImagePath,
-                           const std::string &irImagePath,
-                           float fireHeight,
-                           float fireArea);
+        void publishResult(const InnerFlameDetectResult &inner_result);
 
     private:
         friend class TBase::TSingleton<DataPubZmqManager>;

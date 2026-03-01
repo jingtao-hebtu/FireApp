@@ -299,12 +299,12 @@ namespace TF {
         recordMeta(detFilePath, description);
 
         // ZMQ发布火焰检测结果
-        DataPubZmqManager::instance().publishResult(
-            detFilePath.toStdString(),
-            record->oriImagePath.toStdString(),
-            record->irImgPath.toStdString(),
-            fireHeight,
-            fireArea);
+        InnerFlameDetectResult inner_result;
+        inner_result.detImagePath = detFilePath.toStdString();
+        inner_result.oriImagePath = record->oriImagePath.toStdString();
+        inner_result.irImagePath = record->irImgPath.toStdString();
+        inner_result.fireHeight = fireHeight;
+        inner_result.fireArea = fireArea;
     }
 }
 
