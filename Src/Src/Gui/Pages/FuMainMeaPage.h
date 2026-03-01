@@ -5,6 +5,7 @@
 #include "BmsData.h"
 #include <QWidget>
 #include <QString>
+#include <QImage>
 
 
 
@@ -78,6 +79,10 @@ namespace TF {
 
         // Cam
         void onCamConfigBtnPressed();
+
+        // Thermal + flame temp
+        void onThermalFrameReady(const QImage& image, double minTempC,
+                                 double maxTempC, double centerTempC);
 
         // Bms
         void onBmsStatusUpdated(const BmsStatus& status);
