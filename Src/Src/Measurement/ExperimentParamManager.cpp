@@ -70,7 +70,8 @@ namespace TF {
                                                         record.imagePath.toStdString(),
                                                         record.oriImagePath.toStdString(),
                                                         record.irImgPath.toStdString(),
-                                                        record.irDatPath.toStdString());
+                                                        record.irDatPath.toStdString(),
+                                                        record.fireMaskPath.toStdString());
             }
         }
         catch (...) {
@@ -156,6 +157,7 @@ namespace TF {
         record.oriImagePath = buildOriImagePath(record.sampleId);
         record.irImgPath = buildIrImagePath(record.sampleId);
         record.irDatPath = buildIrDataPath(record.sampleId);
+        record.fireMaskPath = buildFireMaskPath(record.sampleId);
 
         if (mWorker) {
             mWorker->enqueue(record);
@@ -233,6 +235,11 @@ namespace TF {
 
     QString ExperimentParamManager::buildIrDataPath(int sampleId) const {
         const QString fileName = QStringLiteral("sample_ir_data_%1.dat").arg(sampleId, 6, 10, QLatin1Char('0'));
+        return QDir(buildImageDir()).filePath(fileName);
+    }
+
+    QString ExperimentParamManager::buildFireMaskPath(int sampleId) const {
+        const QString fileName = QStringLiteral("sample_fire_mask_%1.png").arg(sampleId, 6, 10, QLatin1Char('0'));
         return QDir(buildImageDir()).filePath(fileName);
     }
 

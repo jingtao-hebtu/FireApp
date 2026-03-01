@@ -107,9 +107,34 @@ namespace TF {
                 max_height, max_area,
             });
 
+            // 合成火焰分割掩膜：将所有检测到的火焰mask合并为一张单通道1位图像
+            QImage fireMaskImage;
+            if (!detections.empty()) {
+                cv::Mat combinedMask = cv::Mat::zeros(task.image.rows, task.image.cols, CV_8UC1);
+                for (const auto& detection : detections) {
+                    if (!detection.mask.empty()) {
+                        cv::bitwise_or(combinedMask, detection.mask, combinedMask);
+                    }
+                }
+                // 255->1: 转为1位掩膜
+                combinedMask /= 255;
+
+                // 转为 QImage::Format_Mono (1-bit)
+                // 先构造 Indexed8，然后转为 Mono
+                QImage gray(combinedMask.data, combinedMask.cols, combinedMask.rows,
+                            static_cast<int>(combinedMask.step), QImage::Format_Indexed8);
+                // 设置调色板：索引0=黑(0), 索引1=白(255)
+                QVector<QRgb> colorTable(256);
+                colorTable[0] = qRgb(0, 0, 0);
+                for (int i = 1; i < 256; ++i)
+                    colorTable[i] = qRgb(255, 255, 255);
+                gray.setColorTable(colorTable);
+                fireMaskImage = gray.convertToFormat(QImage::Format_Mono);
+            }
+
             QImage q_im = QtOcv::mat2Image(cv_im);
             if (detectionId >= 0) {
-                AiResultSaveManager::instance().submitResult(q_im, q_ori, task.sourceFlag, task.timeCost, detectionId, detect_num,
+                AiResultSaveManager::instance().submitResult(q_im, q_ori, fireMaskImage, task.sourceFlag, task.timeCost, detectionId, detect_num,
                                                             max_height, max_area);
             }
             emit frameProcessed(task.sourceFlag, q_im, max_height, task.timeCost);

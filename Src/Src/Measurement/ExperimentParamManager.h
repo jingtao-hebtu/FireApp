@@ -36,6 +36,7 @@ namespace TF {
         QString oriImagePath;
         QString irImgPath;    // 红外伪彩色图像路径
         QString irDatPath;    // 红外原始温度数据路径
+        QString fireMaskPath; // 火焰分割掩膜图像路径
     };
 
     class ExperimentDbWorker : public QObject {
@@ -87,6 +88,7 @@ namespace TF {
         QString buildOriImagePath(int sampleId) const;
         QString buildIrImagePath(int sampleId) const;
         QString buildIrDataPath(int sampleId) const;
+        QString buildFireMaskPath(int sampleId) const;
         qint64 currentTimestampMs() const;
 
     private:

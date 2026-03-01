@@ -164,7 +164,8 @@ namespace TF {
         bool UpsertDetectImage(int exp_id, int sample_id, std::string_view image_path,
                                std::string_view ori_image_path = {},
                                std::string_view ir_img_path = {},
-                               std::string_view ir_dat_path = {});
+                               std::string_view ir_dat_path = {},
+                               std::string_view fire_mask_path = {});
 
     private:
         void initParams();

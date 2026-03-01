@@ -248,7 +248,8 @@ std::optional<std::string> TF::DbManager::GetDetectImagePath(int exp_id, int sam
 
 bool TF::DbManager::UpsertDetectImage(int exp_id, int sample_id, std::string_view image_path,
                                        std::string_view ori_image_path,
-                                       std::string_view ir_img_path, std::string_view ir_dat_path) {
+                                       std::string_view ir_img_path, std::string_view ir_dat_path,
+                                       std::string_view fire_mask_path) {
     if (!mDB || !mInitialized) {
         return false;
     }
@@ -261,13 +262,14 @@ bool TF::DbManager::UpsertDetectImage(int exp_id, int sample_id, std::string_vie
     if (!mStmtUpsertDetectImage) {
         mStmtUpsertDetectImage = std::make_unique<SQLite::Statement>(
             *mDB,
-            "INSERT INTO DetectImage(exp_id, sample_id, image_path, ori_image_path, ir_img_path, ir_dat_path) "
-            "VALUES(?,?,?,?,?,?) "
+            "INSERT INTO DetectImage(exp_id, sample_id, image_path, ori_image_path, ir_img_path, ir_dat_path, fire_mask_path) "
+            "VALUES(?,?,?,?,?,?,?) "
             "ON CONFLICT(exp_id, sample_id) DO UPDATE SET "
             "  image_path=excluded.image_path,"
             "  ori_image_path=excluded.ori_image_path,"
             "  ir_img_path=excluded.ir_img_path,"
-            "  ir_dat_path=excluded.ir_dat_path;"
+            "  ir_dat_path=excluded.ir_dat_path,"
+            "  fire_mask_path=excluded.fire_mask_path;"
         );
     }
 
@@ -290,6 +292,11 @@ bool TF::DbManager::UpsertDetectImage(int exp_id, int sample_id, std::string_vie
         st.bind(6);
     else
         st.bind(6, std::string{ir_dat_path});
+
+    if (fire_mask_path.empty())
+        st.bind(7);
+    else
+        st.bind(7, std::string{fire_mask_path});
 
     const int changed = st.exec();
     st.reset();
@@ -327,12 +334,13 @@ void TF::DbManager::EnsureSchema() {
     // DetectImage
     d.exec(
         "CREATE TABLE IF NOT EXISTS DetectImage ("
-        "  exp_id         INTEGER NOT NULL,"
-        "  sample_id      INTEGER NOT NULL,"
-        "  image_path     TEXT,"
-        "  ori_image_path TEXT,"
-        "  ir_img_path    TEXT,"
-        "  ir_dat_path    TEXT,"
+        "  exp_id          INTEGER NOT NULL,"
+        "  sample_id       INTEGER NOT NULL,"
+        "  image_path      TEXT,"
+        "  ori_image_path  TEXT,"
+        "  ir_img_path     TEXT,"
+        "  ir_dat_path     TEXT,"
+        "  fire_mask_path  TEXT,"
         "  PRIMARY KEY (exp_id, sample_id)"
         ");"
     );
@@ -341,6 +349,7 @@ void TF::DbManager::EnsureSchema() {
     try { d.exec("ALTER TABLE DetectImage ADD COLUMN ori_image_path TEXT;"); } catch (...) {}
     try { d.exec("ALTER TABLE DetectImage ADD COLUMN ir_img_path TEXT;"); } catch (...) {}
     try { d.exec("ALTER TABLE DetectImage ADD COLUMN ir_dat_path TEXT;"); } catch (...) {}
+    try { d.exec("ALTER TABLE DetectImage ADD COLUMN fire_mask_path TEXT;"); } catch (...) {}
 
     // Experiment
     d.exec(

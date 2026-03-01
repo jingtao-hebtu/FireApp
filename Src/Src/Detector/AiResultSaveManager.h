@@ -26,7 +26,8 @@ namespace TF {
     public:
         void enqueue(const QImage &image, const QString &filePath, const QString &description,
                      const QImage &irImage = {}, const QString &irImgPath = {},
-                     const QByteArray &irRawData = {}, const QString &irDatPath = {});
+                     const QByteArray &irRawData = {}, const QString &irDatPath = {},
+                     const QImage &fireMask = {}, const QString &fireMaskPath = {});
 
     public slots:
         void startWork();
@@ -42,6 +43,9 @@ namespace TF {
             QString irImgPath;
             QByteArray irRawData;
             QString irDatPath;
+            // 火焰分割掩膜
+            QImage fireMask;
+            QString fireMaskPath;
         };
 
         QMutex mMutex;
@@ -63,6 +67,7 @@ namespace TF {
 
         void submitResult(const QImage &detImage,
                           const QImage &oriImage,
+                          const QImage &fireMaskImage,
                           const QString &sourceFlag,
                           int timeCost,
                           int detectionId,

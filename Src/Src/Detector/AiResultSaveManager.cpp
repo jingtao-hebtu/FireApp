@@ -18,7 +18,8 @@ namespace TF {
 
     void AiResultSaveWorker::enqueue(const QImage &image, const QString &filePath, const QString &description,
                                      const QImage &irImage, const QString &irImgPath,
-                                     const QByteArray &irRawData, const QString &irDatPath) {
+                                     const QByteArray &irRawData, const QString &irDatPath,
+                                     const QImage &fireMask, const QString &fireMaskPath) {
         if (image.isNull()) {
             return;
         }
@@ -34,6 +35,10 @@ namespace TF {
         if (!irRawData.isEmpty() && !irDatPath.isEmpty()) {
             task.irRawData = irRawData;
             task.irDatPath = irDatPath;
+        }
+        if (!fireMask.isNull() && !fireMaskPath.isEmpty()) {
+            task.fireMask = fireMask.copy();
+            task.fireMaskPath = fireMaskPath;
         }
 
         QMutexLocker locker(&mMutex);
@@ -110,6 +115,19 @@ namespace TF {
                     LOG_F(INFO, "Saved IR raw data: %s", task.irDatPath.toStdString().c_str());
                 } else {
                     LOG_F(ERROR, "Failed to save IR raw data to %s", task.irDatPath.toStdString().c_str());
+                }
+            }
+
+            // 保存火焰分割掩膜图像（单通道1位PNG）
+            if (!task.fireMask.isNull() && !task.fireMaskPath.isEmpty()) {
+                QDir maskDir(QFileInfo(task.fireMaskPath).absolutePath());
+                if (!maskDir.exists())
+                    maskDir.mkpath(".");
+
+                if (task.fireMask.save(task.fireMaskPath)) {
+                    LOG_F(INFO, "Saved fire mask: %s", task.fireMaskPath.toStdString().c_str());
+                } else {
+                    LOG_F(ERROR, "Failed to save fire mask to %s", task.fireMaskPath.toStdString().c_str());
                 }
             }
         }
@@ -216,6 +234,7 @@ namespace TF {
 
     void AiResultSaveManager::submitResult(const QImage &detImage,
                                            const QImage &oriImage,
+                                           const QImage &fireMaskImage,
                                            const QString &sourceFlag,
                                            int timeCost,
                                            int detectionId,
@@ -269,7 +288,8 @@ namespace TF {
 
         mWorker->enqueue(detImage, detFilePath, description,
                          irImage, record->irImgPath,
-                         irRawData, record->irDatPath);
+                         irRawData, record->irDatPath,
+                         fireMaskImage, record->fireMaskPath);
 
         if (!oriImage.isNull() && !record->oriImagePath.isEmpty()) {
             mWorker->enqueue(oriImage, record->oriImagePath,
