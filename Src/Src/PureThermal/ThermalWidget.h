@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QImage>
+#include "FlameIRMapper.h"
 
 namespace TF {
     class ThermalCamera;
@@ -29,6 +30,8 @@ namespace TF {
         double m_minTempC = 0.0;
         double m_maxTempC = 0.0;
         double m_centerTempC = 0.0;
+
+        FlameIRMapper m_flameMapper;
     };
 };
 

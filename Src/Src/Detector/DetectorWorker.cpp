@@ -94,15 +94,20 @@ namespace TF {
 
             float max_height = 0.0f;
             float max_area = 0.0f;
+            cv::Rect largestBbox;
             for (const auto& detection : detections) {
                 auto box_height = static_cast<float>(detection.box.height);
                 max_height = max_height > box_height ? max_height : box_height;
 
                 auto area = static_cast<float>(detection.box.height * detection.box.width);
-                max_area = max_area > area ? max_area : area;
+                if (area > max_area) {
+                    max_area = area;
+                    largestBbox = detection.box;
+                }
             }
 
-            TFMeaManager::instance().setFlameDetected(detect_num > 0);
+            // Update flame state and bbox atomically under one lock
+            TFMeaManager::instance().updateFlameResult(detect_num > 0, largestBbox);
             TFMeaManager::instance().receiveStatistics({
                 max_height, max_area,
             });

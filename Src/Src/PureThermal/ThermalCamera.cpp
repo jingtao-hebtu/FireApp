@@ -310,7 +310,8 @@ namespace TF {
             index = (index + 1) % fileCount;
 
             // 1Hz: 休眠1秒，每100ms检测一次停止标志
-            for (int i = 0; i < 10 && m_simRunning; ++i) {
+            const int wait_100ms_cnt = 1;
+            for (int i = 0; i < wait_100ms_cnt && m_simRunning; ++i) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
         }
