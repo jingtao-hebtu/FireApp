@@ -81,11 +81,13 @@ namespace TF {
                         const double sx = static_cast<double>(scaled.width())  / rotated.width();
                         const double sy = static_cast<double>(scaled.height()) / rotated.height();
 
+                        const int bboxW = static_cast<int>(irBbox.width  * sx);
+                        const int bboxH = static_cast<int>(irBbox.height * sy);
                         QRect displayRect(
-                            topLeft.x() + static_cast<int>(irBbox.x * sx),
-                            topLeft.y() + static_cast<int>(irBbox.y * sy),
-                            static_cast<int>(irBbox.width * sx),
-                            static_cast<int>(irBbox.height * sy)
+                            topLeft.x() + static_cast<int>(irBbox.x * sx) + static_cast<int>(bboxW * mBBoxWOffset),
+                            topLeft.y() + static_cast<int>(irBbox.y * sy) + static_cast<int>(bboxH * mBBoxHOffset),
+                            bboxW,
+                            bboxH
                         );
 
                         p.setPen(QPen(QColor(255, 0, 0), 2));
