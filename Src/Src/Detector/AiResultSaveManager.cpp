@@ -100,7 +100,7 @@ namespace TF {
                 // 旋转90°
                 const QImage rotatedIr = task.irImage.transformed(QTransform().rotate(90));
                 if (rotatedIr.save(task.irImgPath)) {
-                    LOG_F(INFO, "Saved IR image: %s", task.irImgPath.toStdString().c_str());
+                    //LOG_F(INFO, "Saved IR image: %s", task.irImgPath.toStdString().c_str());
                 } else {
                     LOG_F(ERROR, "Failed to save IR image to %s", task.irImgPath.toStdString().c_str());
                 }
@@ -116,7 +116,7 @@ namespace TF {
                 if (datFile.open(QIODevice::WriteOnly)) {
                     datFile.write(task.irRawData);
                     datFile.close();
-                    LOG_F(INFO, "Saved IR raw data: %s", task.irDatPath.toStdString().c_str());
+                    //LOG_F(INFO, "Saved IR raw data: %s", task.irDatPath.toStdString().c_str());
                 } else {
                     LOG_F(ERROR, "Failed to save IR raw data to %s", task.irDatPath.toStdString().c_str());
                 }
@@ -129,7 +129,7 @@ namespace TF {
                     maskDir.mkpath(".");
 
                 if (task.fireMask.save(task.fireMaskPath)) {
-                    LOG_F(INFO, "Saved fire mask: %s", task.fireMaskPath.toStdString().c_str());
+                    //LOG_F(INFO, "Saved fire mask: %s", task.fireMaskPath.toStdString().c_str());
                 } else {
                     LOG_F(ERROR, "Failed to save fire mask to %s", task.fireMaskPath.toStdString().c_str());
                 }

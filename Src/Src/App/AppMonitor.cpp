@@ -17,6 +17,7 @@ Copyright(C), tao.jing All rights reserved
 #include "DetectManager.h"
 #include "ThermalManager.h"
 #include "TFMeaManager.h"
+#include "DataPubZmqManager.h"
 #include "DbManager.h"
 #include "TLog.h"
 #include "loguru.hpp"
@@ -44,6 +45,7 @@ int TF::AppMonitor::initApp(int argc, char* argv[]) {
         ThermalManager::instance().init();
         DbManager::instance().init();
         TFMeaManager::instance().init();
+        DataPubZmqManager::instance().init();
     } catch (std::exception &ex) {
         LOG_F(ERROR, "Init TFDetectManager failed %s.", ex.what());
     }
