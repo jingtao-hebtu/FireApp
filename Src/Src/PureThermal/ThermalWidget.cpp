@@ -27,7 +27,9 @@ namespace TF {
                 this, &ThermalWidget::onFrameReady,
                 Qt::QueuedConnection);
 
-        mEnablePlotBBox = GET_BOOL_CONFIG("ThermalCam", "EnablePlotBBox");
+        mEnablePlotBBox = GET_BOOL_CONFIG("ThermoalCam", "EnablePlotBBox");
+        mBBoxWOffset = GET_FLOAT_CONFIG("ThermalCam", "BBoxWOffset");
+        mBBoxHOffset = GET_FLOAT_CONFIG("ThermalCam", "BBoxHOffset");
 
         // Initialize IR mapper: 120 wide x 160 tall (after 90-degree rotation of 160x120)
         //m_flameMapper.init(H_DEFAULT, 120, 160);

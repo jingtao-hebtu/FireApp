@@ -34,6 +34,8 @@ namespace TF {
         FlameIRMapper m_flameMapper;
 
         bool mEnablePlotBBox {false};
+        float mBBoxWOffset {0.0f};
+        float mBBoxHOffset {0.0f};
     };
 };
 
