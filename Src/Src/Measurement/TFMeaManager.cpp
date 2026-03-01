@@ -1,11 +1,20 @@
 #include "TFMeaManager.h"
 #include "TSweepCurveViewer.h"
 #include "FuMainMeaPage.h"
+#include "TConfig.h"
 
 
 void TF::TFMeaManager::init() {
-
+    mFocalLengthW = GET_FLOAT_CONFIG("RGBCam", "FocalLengthW");
+    mFocalLengthH = GET_FLOAT_CONFIG("RGBCam", "FocalLengthH");
 }
+
+void TF::TFMeaManager::pixelToPhysical(double dist, double pixel_w, double pixel_h,
+                     double& phys_w, double& phys_h) {
+    phys_w = pixel_w * dist / mFocalLengthW;
+    phys_h = pixel_h * dist / mFocalLengthH;
+}
+
 
 void TF::TFMeaManager::receiveNewValue(float value) {
     receiveHeightValue(value);
@@ -40,7 +49,7 @@ void TF::TFMeaManager::updateCurDist(float dist) {
     }
 }
 
-void TF::TFMeaManager::updateWitImuData(const WitImuData &data) {
+void TF::TFMeaManager::updateWitImuData(const WitImuData& data) {
     mCurWitImuData = data;
     if (mMainMeaPage) {
         emit mMainMeaPage->updateWitImuData(data);

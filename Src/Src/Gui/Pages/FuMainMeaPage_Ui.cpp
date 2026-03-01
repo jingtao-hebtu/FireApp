@@ -126,8 +126,8 @@ void TF::FuMainMeaPage_Ui::initStatistics() {
     statisticsFrameLayout->setSpacing(6);
     statisticsFrameLayout->setContentsMargins(8, 8, 8, 8);
 
-    mFireHeightCurveViewer = createCurveViewer("火焰高度", 0, 100, 0, 1000);
-    mFireAreaCurveViewer = createCurveViewer("火焰面积", 0, 100, 0, 1E6);
+    mFireHeightCurveViewer = createCurveViewer("火焰高度", 0, 100, 0, 6);
+    mFireAreaCurveViewer = createCurveViewer("火焰面积", 0, 100, 0, 6);
 
     statisticsFrameLayout->addWidget(mFireHeightCurveViewer);
     statisticsFrameLayout->addWidget(mFireAreaCurveViewer);

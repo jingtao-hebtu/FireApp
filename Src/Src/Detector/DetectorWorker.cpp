@@ -94,11 +94,14 @@ namespace TF {
             }
 
             float max_height = 0.0f;
+            float max_width = 0.0f;
             float max_area = 0.0f;
             cv::Rect largestBbox;
             for (const auto& detection : detections) {
                 auto box_height = static_cast<float>(detection.box.height);
+                auto box_width = static_cast<float>(detection.box.width);
                 max_height = max_height > box_height ? max_height : box_height;
+                max_width = max_width > box_width ? max_width : box_width;
 
                 auto area = static_cast<float>(detection.box.height * detection.box.width);
                 if (area > max_area) {
@@ -107,10 +110,20 @@ namespace TF {
                 }
             }
 
+            auto dist = TFMeaManager::instance().currentDist();
+            if (dist < 0.1f) {
+                dist = 12.0f;
+            }
+            double phys_w, phys_h;
+            TFMeaManager::instance().pixelToPhysical(dist, max_width, max_height, phys_w, phys_h);
+            auto phys_w_f = static_cast<float>(phys_w);
+            auto phys_h_f = static_cast<float>(phys_h);
+            auto phys_area = phys_w_f * phys_h_f;
+
             // Update flame state and bbox atomically under one lock
             TFMeaManager::instance().updateFlameResult(detect_num > 0, largestBbox);
             TFMeaManager::instance().receiveStatistics({
-                max_height, max_area,
+                phys_h_f, phys_area,
             });
 
             // 合成火焰分割掩膜：将所有检测到的火焰mask合并为一张单通道1位图像
@@ -142,9 +155,9 @@ namespace TF {
             if (detectionId >= 0) {
                 AiResultSaveManager::instance().submitResult(q_im, q_ori, fireMaskImage, task.sourceFlag, task.timeCost,
                                                              detectionId, detect_num,
-                                                             max_height, max_area);
+                                                             phys_h_f, phys_area);
             }
-            emit frameProcessed(task.sourceFlag, q_im, max_height, task.timeCost);
+            emit frameProcessed(task.sourceFlag, q_im, phys_h_f, task.timeCost);
         }
     }
 }

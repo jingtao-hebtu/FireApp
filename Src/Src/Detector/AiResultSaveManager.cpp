@@ -305,6 +305,9 @@ namespace TF {
         inner_result.irImagePath = record->irImgPath.toStdString();
         inner_result.fireHeight = fireHeight;
         inner_result.fireArea = fireArea;
+        inner_result.maxTemp = thermalCam ? static_cast<float>(thermalCam->latestMaxTemp()) : 0.0f;
+        inner_result.minTemp = thermalCam ? static_cast<float>(thermalCam->latestMinTemp()) : 0.0f;
+        DataPubZmqManager::instance().publishResult(inner_result);
     }
 }
 

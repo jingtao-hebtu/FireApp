@@ -14,6 +14,8 @@ RGBCam:
   NeedPrintDebugInfo: false
   PreviewDetectedImg: true
   NeedSaveOriImg: true
+  FocalLengthW: 2048.0
+  FocalLengthH: 1773.0
 
 ThermalCam:
   Sim: true

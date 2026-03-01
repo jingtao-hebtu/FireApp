@@ -450,7 +450,7 @@ void VideoWidget::receiveDetectedImage(const QString& flag, const QImage& image,
         return;
     }
 
-    TF::TFMeaManager::instance().receiveNewValue(meanValue);
+    //TF::TFMeaManager::instance().receiveNewValue(meanValue);
 
     Q_UNUSED(meanValue);
     AbstractVideoWidget::receiveImage(image, time);

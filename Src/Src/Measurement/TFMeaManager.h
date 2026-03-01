@@ -24,6 +24,8 @@ namespace TF {
         void init();
 
     public:
+        void pixelToPhysical(double dist, double pixel_w, double pixel_h, double& phys_w, double& phys_h);
+
         // Widgets
         void setMeaPage(FuMainMeaPage *page) {mMainMeaPage = page;}
 
@@ -87,6 +89,9 @@ namespace TF {
 
         mutable std::mutex mFlameBboxMutex;
         cv::Rect mFlameBbox;
+
+        float mFocalLengthW {};
+        float mFocalLengthH {};
 
     };
 };
