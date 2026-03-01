@@ -197,7 +197,8 @@ namespace TF {
         mTable = new QTableWidget(tableCard);
         mTable->setObjectName(QStringLiteral("ChannelTable"));
         mTable->setColumnCount(2);
-        mTable->setHorizontalHeaderLabels({tr("Channel"), tr("Value")});
+        //mTable->setHorizontalHeaderLabels({tr("Channel"), tr("Value")});
+        mTable->setHorizontalHeaderLabels({tr("参数名"), tr("参数值")});
         mTable->horizontalHeader()->setStretchLastSection(true);
         mTable->verticalHeader()->setVisible(false);
         mTable->setSelectionBehavior(QAbstractItemView::SelectRows);
