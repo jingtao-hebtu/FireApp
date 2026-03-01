@@ -84,7 +84,6 @@ namespace TF {
 
         QFrame* mBatteryPanel {nullptr};
         QProgressBar* mBatteryLevelBar {nullptr};
-        //QLabel* mBatteryStatusLabel {nullptr};
         QWidget* mChargeInfoWidget {nullptr};
         QLabel* mBatteryChargeIcon {nullptr};
         QLabel* mBatteryChargeCurrent {nullptr};

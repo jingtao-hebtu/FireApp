@@ -10,11 +10,13 @@ MainUi:
 RGBCam:
   UserName: admin
   Password: fireAi1A
-  NeedPrintDebugInfo: true
+  NeedPrintDebugInfo: false
   PreviewDetectedImg: true
   NeedSaveOriImg: true
 
 ThermalCam:
+  Sim: false
+  SimDatFolder: PTSimData
   OpenOnInit: false
   Width: 160
   Height: 120

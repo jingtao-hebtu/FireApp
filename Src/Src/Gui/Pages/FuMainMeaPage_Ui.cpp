@@ -324,12 +324,7 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     mBatteryLevelBar->setAlignment(Qt::AlignCenter);
     mBatteryLevelBar->setTextVisible(true);
     mBatteryLevelBar->setFixedSize(70, 22);
-
-    //mBatteryStatusLabel = new QLabel(QCoreApplication::translate("Page", "电量 --% · 未连接"), mBatteryPanel);
-    //mBatteryStatusLabel->setObjectName("BatteryStatusLabel");
-    //mBatteryStatusLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     batteryColumn->addWidget(mBatteryLevelBar);
-    //batteryColumn->addWidget(mBatteryStatusLabel);
 
     mBatteryTempLabel = new QLabel(QCoreApplication::translate("Page", "36.5°C"), mBatteryPanel);
     mBatteryTempLabel->setObjectName("BatteryTempLabel");
@@ -357,22 +352,13 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
 
     batteryLayout->addWidget(mChargeInfoWidget);
 
-    /*
-    mBatteryTempLabel = new QLabel(QCoreApplication::translate("Page", "36.5°C"), mBatteryPanel);
-    mBatteryTempLabel->setObjectName("BatteryTempLabel");
-    mBatteryTempLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-
-    batteryLayout->addWidget(mBatteryTempLabel);
-    batteryLayout->setAlignment(mBatteryTempLabel, Qt::AlignVCenter);
-    */
-
     mCtrlHLayout->addWidget(mBatteryPanel);
     mCtrlHLayout->setAlignment(mBatteryPanel, Qt::AlignVCenter);
     showBatteryPlaceholders();
 }
 
 void TF::FuMainMeaPage_Ui::updateBatteryLevelVisuals(int level) {
-    if (!mBatteryLevelBar /* || !mBatteryStatusLabel */) {
+    if (!mBatteryLevelBar) {
         return;
     }
 
@@ -409,7 +395,7 @@ void TF::FuMainMeaPage_Ui::updateBatteryLevelVisuals(int level) {
 }
 
 void TF::FuMainMeaPage_Ui::showBatteryPlaceholders() {
-    if (!mBatteryLevelBar || !mBatteryChargeCurrent || !mBatteryTempLabel /* || !mBatteryStatusLabel */ ) {
+    if (!mBatteryLevelBar || !mBatteryChargeCurrent || !mBatteryTempLabel ) {
         return;
     }
 
@@ -420,7 +406,6 @@ void TF::FuMainMeaPage_Ui::showBatteryPlaceholders() {
     mBatteryLevelBar->setFormat("---");
 
     const auto placeholder = QCoreApplication::translate("Page", "---");
-    //mBatteryStatusLabel->setText(QCoreApplication::translate("Page", "电量 %1").arg(placeholder));
     mBatteryChargeCurrent->setText(placeholder);
     mBatteryTempLabel->setText(QCoreApplication::translate("Page", "%1").arg(placeholder));
 }
