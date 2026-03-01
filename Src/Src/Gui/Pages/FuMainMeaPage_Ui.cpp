@@ -317,12 +317,17 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
     mBatteryLevelBar->setTextVisible(true);
     mBatteryLevelBar->setFixedSize(70, 22);
 
-    mBatteryStatusLabel = new QLabel(QCoreApplication::translate("Page", "电量 --% · 未连接"), mBatteryPanel);
-    mBatteryStatusLabel->setObjectName("BatteryStatusLabel");
-    mBatteryStatusLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-
+    //mBatteryStatusLabel = new QLabel(QCoreApplication::translate("Page", "电量 --% · 未连接"), mBatteryPanel);
+    //mBatteryStatusLabel->setObjectName("BatteryStatusLabel");
+    //mBatteryStatusLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     batteryColumn->addWidget(mBatteryLevelBar);
-    batteryColumn->addWidget(mBatteryStatusLabel);
+    //batteryColumn->addWidget(mBatteryStatusLabel);
+
+    mBatteryTempLabel = new QLabel(QCoreApplication::translate("Page", "36.5°C"), mBatteryPanel);
+    mBatteryTempLabel->setObjectName("BatteryTempLabel");
+    mBatteryTempLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    mBatteryTempLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    batteryColumn->addWidget(mBatteryTempLabel);
 
     batteryLayout->addLayout(batteryColumn);
 
@@ -344,12 +349,14 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
 
     batteryLayout->addWidget(mChargeInfoWidget);
 
+    /*
     mBatteryTempLabel = new QLabel(QCoreApplication::translate("Page", "36.5°C"), mBatteryPanel);
     mBatteryTempLabel->setObjectName("BatteryTempLabel");
     mBatteryTempLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
     batteryLayout->addWidget(mBatteryTempLabel);
     batteryLayout->setAlignment(mBatteryTempLabel, Qt::AlignVCenter);
+    */
 
     mCtrlHLayout->addWidget(mBatteryPanel);
     mCtrlHLayout->setAlignment(mBatteryPanel, Qt::AlignVCenter);
@@ -357,7 +364,7 @@ void TF::FuMainMeaPage_Ui::initBatteryInfoArea() {
 }
 
 void TF::FuMainMeaPage_Ui::updateBatteryLevelVisuals(int level) {
-    if (!mBatteryLevelBar || !mBatteryStatusLabel) {
+    if (!mBatteryLevelBar /* || !mBatteryStatusLabel */) {
         return;
     }
 
@@ -390,11 +397,11 @@ void TF::FuMainMeaPage_Ui::updateBatteryLevelVisuals(int level) {
         statusText = QCoreApplication::translate("Page", "正常");
     }
 
-    mBatteryStatusLabel->setText(QCoreApplication::translate("Page", "电量 %1% · %2").arg(level).arg(statusText));
+    //mBatteryStatusLabel->setText(QCoreApplication::translate("Page", "电量 %1% · %2").arg(level).arg(statusText));
 }
 
 void TF::FuMainMeaPage_Ui::showBatteryPlaceholders() {
-    if (!mBatteryLevelBar || !mBatteryStatusLabel || !mBatteryChargeCurrent || !mBatteryTempLabel ) {
+    if (!mBatteryLevelBar || !mBatteryChargeCurrent || !mBatteryTempLabel /* || !mBatteryStatusLabel */ ) {
         return;
     }
 
@@ -405,7 +412,7 @@ void TF::FuMainMeaPage_Ui::showBatteryPlaceholders() {
     mBatteryLevelBar->setFormat("---");
 
     const auto placeholder = QCoreApplication::translate("Page", "---");
-    mBatteryStatusLabel->setText(QCoreApplication::translate("Page", "电量 %1").arg(placeholder));
+    //mBatteryStatusLabel->setText(QCoreApplication::translate("Page", "电量 %1").arg(placeholder));
     mBatteryChargeCurrent->setText(placeholder);
     mBatteryTempLabel->setText(QCoreApplication::translate("Page", "%1").arg(placeholder));
 }
