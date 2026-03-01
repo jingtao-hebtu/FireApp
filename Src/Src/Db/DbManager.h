@@ -145,6 +145,8 @@ namespace TF {
         void BeginExperiment(int exp_id, std::string_view name, std::int64_t start_time);
         void EndExperiment(int exp_id, std::int64_t end_time);
         bool ExperimentNameExists(std::string_view name) const;
+        int FindExperimentIdByName(std::string_view name) const;
+        void ReopenExperiment(int exp_id);
         int CreateExperiment(std::string_view name, std::int64_t start_time);
         std::optional<ExperimentInfo> GetExperiment(int exp_id) const;
         std::vector<ExperimentInfo> ListExperiments(int limit, int offset) const;

@@ -784,6 +784,33 @@ bool TF::DbManager::ExperimentNameExists(std::string_view name) const {
     return q.executeStep();
 }
 
+int TF::DbManager::FindExperimentIdByName(std::string_view name) const {
+    if (name.empty()) {
+        return -1;
+    }
+
+    std::scoped_lock lk(mMtx);
+    const auto& d = db();
+
+    SQLite::Statement q(d, "SELECT exp_id FROM Experiment WHERE name=? LIMIT 1;");
+    q.bind(1, std::string{name});
+    if (q.executeStep()) {
+        return q.getColumn(0).getInt();
+    }
+    return -1;
+}
+
+void TF::DbManager::ReopenExperiment(int exp_id) {
+    std::scoped_lock lk(mMtx);
+    auto& d = db();
+
+    SQLite::Transaction txn(d);
+    SQLite::Statement st(d, "UPDATE Experiment SET end_time=NULL WHERE exp_id=?;");
+    st.bind(1, exp_id);
+    st.exec();
+    txn.commit();
+}
+
 int TF::DbManager::CreateExperiment(std::string_view name, std::int64_t start_time) {
     if (name.empty()) {
         return -1;
