@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "TSingleton.h"
+#include "DataPubZmqManager.h"
 
 namespace TF {
 
@@ -27,7 +28,9 @@ namespace TF {
         void enqueue(const QImage &image, const QString &filePath, const QString &description,
                      const QImage &irImage = {}, const QString &irImgPath = {},
                      const QByteArray &irRawData = {}, const QString &irDatPath = {},
-                     const QImage &fireMask = {}, const QString &fireMaskPath = {});
+                     const QImage &fireMask = {}, const QString &fireMaskPath = {},
+                     bool publishZmq = false,
+                     const InnerFlameDetectResult &zmqResult = {});
 
     public slots:
         void startWork();
@@ -46,6 +49,9 @@ namespace TF {
             // 火焰分割掩膜
             QImage fireMask;
             QString fireMaskPath;
+            // 文件保存完成后发布ZMQ
+            bool publishZmq{false};
+            InnerFlameDetectResult zmqResult;
         };
 
         QMutex mMutex;
