@@ -2,6 +2,7 @@
 #include "ThermalCamera.h"
 #include "DetectManager.h"
 #include "TFMeaManager.h"
+#include "TConfig.h"
 
 #include <QFile>
 #include <QPainter>
@@ -23,6 +24,8 @@ namespace TF {
         connect(camera, &ThermalCamera::frameReady,
                 this, &ThermalWidget::onFrameReady,
                 Qt::QueuedConnection);
+
+        mEnablePlotBBox = GET_BOOL_CONFIG("ThermalCam", "EnablePlotBBox");
 
         // Initialize IR mapper: 120 wide x 160 tall (after 90-degree rotation of 160x120)
         m_flameMapper.init(H_DEFAULT, 120, 160);
@@ -59,27 +62,29 @@ namespace TF {
 
             // Poll bbox from TFMeaManager on each thermal frame.
             // Only draw when AI is active AND flame is currently detected.
-            if (m_flameMapper.isReady()
-                && TFDetectManager::instance().isDetecting()
-                && TFMeaManager::instance().isFlameDetected()) {
+            if (mEnablePlotBBox) {
+                if (m_flameMapper.isReady()
+               && TFDetectManager::instance().isDetecting()
+               && TFMeaManager::instance().isFlameDetected()) {
 
-                cv::Rect visBbox = TFMeaManager::instance().flameBbox();
-                cv::Rect irBbox;
-                if (visBbox.area() > 0 && m_flameMapper.mapBbox(visBbox, irBbox)) {
-                    const double sx = static_cast<double>(scaled.width())  / rotated.width();
-                    const double sy = static_cast<double>(scaled.height()) / rotated.height();
+                    cv::Rect visBbox = TFMeaManager::instance().flameBbox();
+                    cv::Rect irBbox;
+                    if (visBbox.area() > 0 && m_flameMapper.mapBbox(visBbox, irBbox)) {
+                        const double sx = static_cast<double>(scaled.width())  / rotated.width();
+                        const double sy = static_cast<double>(scaled.height()) / rotated.height();
 
-                    QRect displayRect(
-                        topLeft.x() + static_cast<int>(irBbox.x * sx),
-                        topLeft.y() + static_cast<int>(irBbox.y * sy),
-                        static_cast<int>(irBbox.width * sx),
-                        static_cast<int>(irBbox.height * sy)
-                    );
+                        QRect displayRect(
+                            topLeft.x() + static_cast<int>(irBbox.x * sx),
+                            topLeft.y() + static_cast<int>(irBbox.y * sy),
+                            static_cast<int>(irBbox.width * sx),
+                            static_cast<int>(irBbox.height * sy)
+                        );
 
-                    p.setPen(QPen(QColor(255, 0, 0), 2));
-                    p.setBrush(Qt::NoBrush);
-                    p.drawRect(displayRect);
-                }
+                        p.setPen(QPen(QColor(255, 0, 0), 2));
+                        p.setBrush(Qt::NoBrush);
+                        p.drawRect(displayRect);
+                    }
+               }
             }
 
             p.setPen(QColor(95, 217, 126));

@@ -19,6 +19,7 @@ ThermalCam:
   Sim: true
   SimDatFolder: PTSimData
   OpenOnInit: false
+  EnablePlotBBox: true
   Width: 160
   Height: 120
   FPS: 9

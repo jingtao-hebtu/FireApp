@@ -32,6 +32,8 @@ namespace TF {
         double m_centerTempC = 0.0;
 
         FlameIRMapper m_flameMapper;
+
+        bool mEnablePlotBBox {false};
     };
 };
 
