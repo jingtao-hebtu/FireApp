@@ -20,10 +20,12 @@ ThermalCam:
   Sim: false
   SimDatFolder: PTSimData
   OpenOnInit: false
-  EnablePlotBBox: true
   Width: 160
   Height: 120
   FPS: 9
+  EnablePlotBBox: true
+  BBoxWOffset: 0
+  BBoxHOffset: 0
 
 VisionMea:
   DetMode: TRT
