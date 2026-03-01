@@ -51,3 +51,7 @@ Database:
 Onvif:
   pythonExe: "/home/fire/software/miniconda3/envs/fire_onvif/bin/python"
   scriptPath: "/home/fire/project/FireOnvif/app.py"
+
+PubZmq:
+  PubPort: 25555
+  PubTopic: "FlameResult"

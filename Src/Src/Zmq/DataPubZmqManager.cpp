@@ -9,17 +9,10 @@
    Brief  : 火焰检测结果ZMQ发布管理
 **************************************************************************/
 #include "DataPubZmqManager.h"
-
 #include <chrono>
 #include <cstring>
-
+#include "TConfig.h"
 #include "TLog.h"
-
-
-namespace {
-    constexpr int  kPubPort  = 25555;
-    constexpr char kPubTopic[] = "FlameResult";
-}
 
 
 namespace TF {
@@ -35,13 +28,16 @@ namespace TF {
             return true;
         }
 
+        mPubPort = GET_INT_CONFIG("PubZmq", "PubPort");
+        mPubTopic = GET_STR_CONFIG("PubZmq", "PubTopic");
+
         try {
             mContext = std::make_unique<zmq::context_t>(1);
             mSocket = std::make_unique<zmq::socket_t>(*mContext, zmq::socket_type::pub);
             mSocket->set(zmq::sockopt::sndhwm, 10);
             mSocket->set(zmq::sockopt::linger, 0);
 
-            std::string endpoint = "tcp://*:" + std::to_string(kPubPort);
+            std::string endpoint = "tcp://*:" + std::to_string(mPubPort);
             mSocket->bind(endpoint);
 
             LOG_F(INFO, "DataPubZmqManager bound to %s", endpoint.c_str());
@@ -142,7 +138,7 @@ namespace TF {
 
             try {
                 // 发送topic帧
-                zmq::message_t topicMsg(kPubTopic, std::strlen(kPubTopic));
+                zmq::message_t topicMsg(mPubTopic.c_str(), mPubTopic.size());
                 mSocket->send(topicMsg, zmq::send_flags::sndmore);
 
                 // 发送数据帧

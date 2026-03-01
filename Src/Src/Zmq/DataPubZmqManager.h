@@ -70,6 +70,9 @@ namespace TF {
         std::unique_ptr<zmq::context_t> mContext;
         std::unique_ptr<zmq::socket_t>  mSocket;
 
+        int mPubPort {25555};
+        std::string mPubTopic {"FlameResult"};
+
         std::thread              mPubThread;
         std::mutex               mMutex;
         std::condition_variable  mCond;

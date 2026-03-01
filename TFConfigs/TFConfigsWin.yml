@@ -52,3 +52,7 @@ Database:
 Onvif:
   pythonExe: "D:\\Software\\anaconda3\\envs\\fire_onvif\\python.exe"
   scriptPath: "E:\\Project\\Fire\\FireSensors\\HKCam\\FireOnvif\\app.py"
+
+PubZmq:
+  PubPort: 25555
+  PubTopic: "FlameResult"
