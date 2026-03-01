@@ -40,6 +40,10 @@ namespace TF {
         // 获取最新原始帧数据快照（含 width/height 头 + uint16 数据）
         QByteArray latestRawData() const;
 
+        // 获取最新红外测量的最低/最高温度 (°C)
+        double latestMinTemp() const;
+        double latestMaxTemp() const;
+
     signals:
         void frameReady(const QImage& image,
                         double minTempC,
@@ -72,6 +76,8 @@ namespace TF {
         // 缓存最新帧数据，供实验保存时使用
         QImage m_lastImage;
         QByteArray m_lastRawData;   // width(int32) + height(int32) + uint16[]
+        double m_lastMinTempC = 0.0;
+        double m_lastMaxTempC = 0.0;
     };
 };
 

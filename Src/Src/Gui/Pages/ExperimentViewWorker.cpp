@@ -109,7 +109,7 @@ namespace TF {
         try {
             {
                 SQLite::Statement stmt(*mDb,
-                                       "SELECT c.name, d.value "
+                                       "SELECT COALESCE(NULLIF(c.remark,''), c.name), d.value "
                                        "FROM Data d "
                                        "JOIN Channel c ON c.channel_id=d.channel_id "
                                        "WHERE d.exp_id=? AND d.sample_id=? "

@@ -32,6 +32,8 @@ namespace TF {
         double tilt{};
         double fireHeight{};
         double fireArea{};
+        double maxTemp{};     // 红外最高温度 (°C)
+        double minTemp{};     // 红外最低温度 (°C)
         QString imagePath;
         QString oriImagePath;
         QString irImgPath;    // 红外伪彩色图像路径
