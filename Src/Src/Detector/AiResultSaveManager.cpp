@@ -11,6 +11,7 @@
 #include "TLog.h"
 #include "ExperimentParamManager.h"
 #include "ThermalManager.h"
+#include "DataPubZmqManager.h"
 
 
 namespace TF {
@@ -276,6 +277,14 @@ namespace TF {
         }
 
         recordMeta(detFilePath, description);
+
+        // ZMQ发布火焰检测结果
+        DataPubZmqManager::instance().publishResult(
+            detFilePath.toStdString(),
+            record->oriImagePath.toStdString(),
+            record->irImgPath.toStdString(),
+            fireHeight,
+            fireArea);
     }
 }
 
