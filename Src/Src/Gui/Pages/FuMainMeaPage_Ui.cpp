@@ -250,15 +250,15 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     mMetricsPanel->setFixedHeight(66);
 
     auto *metricsLayout = new QHBoxLayout(mMetricsPanel);
-    metricsLayout->setContentsMargins(4, 6, 4, 6);
-    metricsLayout->setSpacing(3);
+    metricsLayout->setContentsMargins(2, 6, 2, 6);
+    metricsLayout->setSpacing(2);
 
     auto createMetricWidget = [&](const QString& title, QLabel** valueLabel) {
         auto *item = new QWidget(mMetricsPanel);
         item->setObjectName("MetricItem");
         auto *itemLayout = new QVBoxLayout(item);
         itemLayout->setContentsMargins(0, 0, 0, 0);
-        itemLayout->setSpacing(2);
+        itemLayout->setSpacing(1);
 
         auto *titleLabel = new QLabel(title, item);
         titleLabel->setObjectName("MetricTitle");
@@ -284,6 +284,14 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     metricsLayout->addWidget(metricDivider);
 
     metricsLayout->addWidget(createMetricWidget(QCoreApplication::translate("Page", "倾角 (°)"), &mTiltAngleValueLabel));
+
+    auto *metricDivider2 = new QFrame(mMetricsPanel);
+    metricDivider2->setObjectName("MetricDivider2");
+    metricDivider2->setFrameShape(QFrame::VLine);
+    metricDivider2->setFrameShadow(QFrame::Plain);
+    metricsLayout->addWidget(metricDivider2);
+
+    metricsLayout->addWidget(createMetricWidget(QCoreApplication::translate("Page", "温度 (°)"), &mFlameTempLabel));
 
     mCtrlHLayout->addWidget(mMetricsPanel);
     mCtrlHLayout->setAlignment(mMetricsPanel, Qt::AlignVCenter);
