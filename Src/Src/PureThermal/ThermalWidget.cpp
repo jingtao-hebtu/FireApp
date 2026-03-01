@@ -2,7 +2,9 @@
 #include "ThermalCamera.h"
 #include "DetectManager.h"
 #include "TFMeaManager.h"
+#include "PathConfig.h"
 #include "TConfig.h"
+#include "TSysUtils.h"
 
 #include <QFile>
 #include <QPainter>
@@ -28,7 +30,11 @@ namespace TF {
         mEnablePlotBBox = GET_BOOL_CONFIG("ThermalCam", "EnablePlotBBox");
 
         // Initialize IR mapper: 120 wide x 160 tall (after 90-degree rotation of 160x120)
-        m_flameMapper.init(H_DEFAULT, 120, 160);
+        //m_flameMapper.init(H_DEFAULT, 120, 160);
+
+        auto app_config_dir = TFPathParam("AppConfigDir");
+        auto pt_config_path = TBase::joinPath({app_config_dir, "PTConfig", "calibration_result.json"});
+        m_flameMapper.loadFromJson(pt_config_path);
     }
 
     void ThermalWidget::onFrameReady(const QImage& image,

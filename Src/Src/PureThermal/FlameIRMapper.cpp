@@ -21,11 +21,10 @@ Copyright(C), tao.jing All rights reserved
 #include <QFile>
 
 namespace TF {
-
     void FlameIRMapper::init(const double H[9], int ir_width, int ir_height) {
         H_ = cv::Mat(3, 3, CV_64F);
         std::memcpy(H_.data, H, 9 * sizeof(double));
-        irWidth_  = ir_width;
+        irWidth_ = ir_width;
         irHeight_ = ir_height;
         initialized_ = true;
         LOG_F(INFO, "FlameIRMapper initialized: ir_size=%dx%d", irWidth_, irHeight_);
@@ -49,20 +48,32 @@ namespace TF {
         }
 
         QJsonObject root = doc.object();
-        QJsonArray hArray = root["H"].toArray();
-        if (hArray.size() != 9) {
-            LOG_F(ERROR, "FlameIRMapper: H array must have 9 elements, got %d",
-                  static_cast<int>(hArray.size()));
+
+        // ---- 解析H矩阵: 3×3嵌套数组 → 9个double ----
+        QJsonArray hRows = root["homography_vis_to_ir"].toArray();
+        if (hRows.size() != 3) {
+            LOG_F(ERROR, "FlameIRMapper: H matrix must be 3x3, got %d rows",
+                  static_cast<int>(hRows.size()));
             return false;
         }
 
         double H[9];
-        for (int i = 0; i < 9; ++i) {
-            H[i] = hArray[i].toDouble();
+        for (int i = 0; i < 3; ++i) {
+            QJsonArray row = hRows[i].toArray();
+            if (row.size() != 3) {
+                LOG_F(ERROR, "FlameIRMapper: H row %d must have 3 elements, got %d",
+                      i, static_cast<int>(row.size()));
+                return false;
+            }
+            for (int j = 0; j < 3; ++j) {
+                H[i * 3 + j] = row[j].toDouble();
+            }
         }
 
-        int w = root.value("ir_width").toInt(120);
-        int h = root.value("ir_height").toInt(160);
+        // ---- 解析红外尺寸: "ir_image_size": [width, height] ----
+        QJsonArray irSize = root["ir_image_size"].toArray();
+        int w = (irSize.size() >= 1) ? irSize[0].toInt(120) : 120;
+        int h = (irSize.size() >= 2) ? irSize[1].toInt(160) : 160;
 
         init(H, w, h);
         return true;
@@ -75,10 +86,11 @@ namespace TF {
 
         // Construct 4 corner points of the visible bbox
         std::vector<cv::Point2f> srcPts = {
-            {static_cast<float>(visRect.x),                    static_cast<float>(visRect.y)},                     // top-left
-            {static_cast<float>(visRect.x + visRect.width),    static_cast<float>(visRect.y)},                     // top-right
-            {static_cast<float>(visRect.x + visRect.width),    static_cast<float>(visRect.y + visRect.height)},    // bottom-right
-            {static_cast<float>(visRect.x),                    static_cast<float>(visRect.y + visRect.height)}     // bottom-left
+            {static_cast<float>(visRect.x), static_cast<float>(visRect.y)}, // top-left
+            {static_cast<float>(visRect.x + visRect.width), static_cast<float>(visRect.y)}, // top-right
+            {static_cast<float>(visRect.x + visRect.width), static_cast<float>(visRect.y + visRect.height)},
+            // bottom-right
+            {static_cast<float>(visRect.x), static_cast<float>(visRect.y + visRect.height)} // bottom-left
         };
 
         // Apply perspective transform
@@ -118,12 +130,11 @@ namespace TF {
     }
 
     void FlameIRMapper::drawOnIR(cv::Mat& irPseudo, const cv::Rect& irRect,
-                                  const cv::Scalar& color, int thickness) const {
+                                 const cv::Scalar& color, int thickness) const {
         if (irPseudo.empty() || irRect.area() <= 0) {
             return;
         }
 
         cv::rectangle(irPseudo, irRect, color, thickness);
     }
-
 } // namespace TF
