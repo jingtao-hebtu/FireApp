@@ -29,10 +29,29 @@ namespace TF {
 
         mIsSim = GET_BOOL_CONFIG("ThermalCam", "Sim");
 
-        // Todo: judge if sim
         if (mIsSim) {
             mSimDatFolder = GET_STR_CONFIG("ThermalCam", "SimDatFolder");
-            // Todo: judge if exist this folder
+
+            QDir simDir(QString::fromStdString(mSimDatFolder));
+            if (!simDir.exists()) {
+                LOG_F(ERROR, "Simulation folder does not exist: %s", mSimDatFolder.c_str());
+                return false;
+            }
+
+            m_simFileList = simDir.entryList(QStringList() << "*.dat", QDir::Files, QDir::Name);
+            if (m_simFileList.isEmpty()) {
+                LOG_F(ERROR, "No .dat files found in simulation folder: %s", mSimDatFolder.c_str());
+                return false;
+            }
+
+            LOG_F(INFO, "ThermalCamera simulation mode: %d dat files found.", m_simFileList.size());
+
+            m_running = true;
+            m_simRunning = true;
+            m_simThread = std::thread(&ThermalCamera::simLoop, this);
+
+            LOG_F(INFO, "ThermalCamera simulation started.");
+            return true;
         }
 
         uvc_error_t res;
@@ -118,9 +137,17 @@ namespace TF {
     }
 
     void ThermalCamera::stop() {
-        if (!m_ctx)
+        if (!m_running)
             return;
 
+        // 停止仿真线程
+        if (m_simRunning) {
+            m_simRunning = false;
+            if (m_simThread.joinable())
+                m_simThread.join();
+        }
+
+        // 停止硬件
         if (m_devh) {
             uvc_stop_streaming(m_devh);
             uvc_close(m_devh);
@@ -137,8 +164,11 @@ namespace TF {
             m_ctrl = nullptr;
         }
 
-        uvc_exit(m_ctx);
-        m_ctx = nullptr;
+        if (m_ctx) {
+            uvc_exit(m_ctx);
+            m_ctx = nullptr;
+        }
+
         m_running = false;
 
         LOG_F(INFO, "ThermalCamera stopped.");
@@ -230,6 +260,50 @@ namespace TF {
         }
 
         emit frameReady(image, minTempC, maxTempC, centerTempC);
+    }
+
+    void ThermalCamera::simLoop() {
+        int index = 0;
+        const int fileCount = m_simFileList.size();
+        const QDir simDir(QString::fromStdString(mSimDatFolder));
+
+        while (m_simRunning) {
+            const QString filePath = simDir.absoluteFilePath(m_simFileList[index]);
+
+            QFile file(filePath);
+            if (file.open(QIODevice::ReadOnly)) {
+                QByteArray data = file.readAll();
+                file.close();
+
+                constexpr qsizetype headerSize = sizeof(int) * 2;
+                if (data.size() >= headerSize) {
+                    int w, h;
+                    std::memcpy(&w, data.constData(), sizeof(int));
+                    std::memcpy(&h, data.constData() + sizeof(int), sizeof(int));
+
+                    const size_t expectedBytes = static_cast<size_t>(w * h) * 2;
+                    if (data.size() >= headerSize + static_cast<qsizetype>(expectedBytes)) {
+                        uvc_frame_t frame;
+                        std::memset(&frame, 0, sizeof(frame));
+                        frame.width = static_cast<uint32_t>(w);
+                        frame.height = static_cast<uint32_t>(h);
+                        frame.data = data.data() + headerSize;
+                        frame.data_bytes = expectedBytes;
+
+                        handleFrame(&frame);
+                    }
+                }
+            } else {
+                LOG_F(WARNING, "Failed to open simulation file: %s", filePath.toStdString().c_str());
+            }
+
+            index = (index + 1) % fileCount;
+
+            // 1Hz: 休眠1秒，每100ms检测一次停止标志
+            for (int i = 0; i < 10 && m_simRunning; ++i) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+        }
     }
 
     void ThermalCamera::saveRawFrame(const QString& filename, const uvc_frame* frame) {
