@@ -44,8 +44,14 @@ namespace TF {
         void updateWitImuData(const WitImuData &data);
 
         // Flame detection state (set by DetectorWorker)
-        void setFlameDetected(bool detected) { mFlameDetected.store(detected); }
-        [[nodiscard]] bool isFlameDetected() const { return mFlameDetected.load(); }
+        void setFlameDetected(bool detected) {
+            std::lock_guard<std::mutex> lock(mFlameBboxMutex);
+            mFlameDetected = detected;
+        }
+        [[nodiscard]] bool isFlameDetected() const {
+            std::lock_guard<std::mutex> lock(mFlameBboxMutex);
+            return mFlameDetected;
+        }
 
         // Flame bbox (set by DetectorWorker, read by ThermalWidget)
         void setFlameBbox(const cv::Rect& bbox) {
@@ -55,6 +61,13 @@ namespace TF {
         cv::Rect flameBbox() const {
             std::lock_guard<std::mutex> lock(mFlameBboxMutex);
             return mFlameBbox;
+        }
+
+        // Atomic combined update: flame state + bbox under one lock
+        void updateFlameResult(bool detected, const cv::Rect& bbox) {
+            std::lock_guard<std::mutex> lock(mFlameBboxMutex);
+            mFlameDetected = detected;
+            mFlameBbox = bbox;
         }
 
         [[nodiscard]] float currentDist() const { return mCurDist; }
@@ -70,7 +83,7 @@ namespace TF {
 
         WitImuData mCurWitImuData {};
 
-        std::atomic<bool> mFlameDetected{false};
+        bool mFlameDetected{false};
 
         mutable std::mutex mFlameBboxMutex;
         cv::Rect mFlameBbox;

@@ -106,8 +106,8 @@ namespace TF {
                 }
             }
 
-            TFMeaManager::instance().setFlameDetected(detect_num > 0);
-            TFMeaManager::instance().setFlameBbox(largestBbox);
+            // Update flame state and bbox atomically under one lock
+            TFMeaManager::instance().updateFlameResult(detect_num > 0, largestBbox);
             TFMeaManager::instance().receiveStatistics({
                 max_height, max_area,
             });

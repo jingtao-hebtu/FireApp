@@ -25,6 +25,8 @@ namespace TF {
                           double maxTempC,
                           double centerTempC);
 
+        void onDetectionResult();
+
     private:
         QImage m_image;
         double m_minTempC = 0.0;
@@ -32,6 +34,10 @@ namespace TF {
         double m_centerTempC = 0.0;
 
         FlameIRMapper m_flameMapper;
+
+        // Cached IR bbox, updated via detection signal, drawn in paintEvent
+        cv::Rect m_cachedIrBbox;
+        bool m_hasIrBbox = false;
     };
 };
 
