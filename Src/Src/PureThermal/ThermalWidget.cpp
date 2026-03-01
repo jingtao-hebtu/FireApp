@@ -27,7 +27,7 @@ namespace TF {
                 this, &ThermalWidget::onFrameReady,
                 Qt::QueuedConnection);
 
-        mEnablePlotBBox = GET_BOOL_CONFIG("ThermoalCam", "EnablePlotBBox");
+        mEnablePlotBBox = GET_BOOL_CONFIG("ThermalCam", "EnablePlotBBox");
         mBBoxWOffset = GET_FLOAT_CONFIG("ThermalCam", "BBoxWOffset");
         mBBoxHOffset = GET_FLOAT_CONFIG("ThermalCam", "BBoxHOffset");
 
