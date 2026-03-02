@@ -15,29 +15,32 @@
 #include "DataPubZmqManager.h"
 
 namespace TF {
-
-    struct AiResultMetaInfo {
+    struct AiResultMetaInfo
+    {
         QString filePath;
         QString description;
         QDateTime timestamp;
     };
 
-    class AiResultSaveWorker : public QObject {
-    Q_OBJECT
+    class AiResultSaveWorker : public QObject
+    {
+        Q_OBJECT
+
     public:
-        void enqueue(const QImage &image, const QString &filePath, const QString &description,
-                     const QImage &irImage = {}, const QString &irImgPath = {},
-                     const QByteArray &irRawData = {}, const QString &irDatPath = {},
-                     const QImage &fireMask = {}, const QString &fireMaskPath = {},
+        void enqueue(const QImage& image, const QString& filePath, const QString& description,
+                     const QImage& irImage = {}, const QString& irImgPath = {},
+                     const QByteArray& irRawData = {}, const QString& irDatPath = {},
+                     const QImage& fireMask = {}, const QString& fireMaskPath = {},
                      bool publishZmq = false,
-                     const InnerFlameDetectResult &zmqResult = {});
+                     const InnerFlameDetectResult& zmqResult = {});
 
     public slots:
         void startWork();
         void stopWork();
 
     private:
-        struct Task {
+        struct Task
+        {
             QImage image;
             QString filePath;
             QString description;
@@ -60,9 +63,13 @@ namespace TF {
         std::atomic<bool> mRunning{false};
     };
 
-    class AiResultSaveManager : public QObject, public TBase::TSingleton<AiResultSaveManager> {
-    Q_OBJECT
+    class AiResultSaveManager : public QObject, public TBase::TSingleton<AiResultSaveManager>
+    {
+        Q_OBJECT
+
     public:
+        void init();
+
         void setEnabled(bool enabled);
 
         [[nodiscard]] bool isEnabled() const { return mEnabled.load(); }
@@ -71,10 +78,10 @@ namespace TF {
 
         [[nodiscard]] int saveFrequency() const { return mSaveFrequency.load(); }
 
-        void submitResult(const QImage &detImage,
-                          const QImage &oriImage,
-                          const QImage &fireMaskImage,
-                          const QString &sourceFlag,
+        void submitResult(const QImage& detImage,
+                          const QImage& oriImage,
+                          const QImage& fireMaskImage,
+                          const QString& sourceFlag,
                           int timeCost,
                           int detectionId,
                           std::size_t detectedCount,
@@ -88,18 +95,18 @@ namespace TF {
 
     private:
         friend class TBase::TSingleton<AiResultSaveManager>;
-        explicit AiResultSaveManager(QObject *parent = nullptr);
+        explicit AiResultSaveManager(QObject* parent = nullptr);
 
         void ensureWorker();
 
         bool shouldSaveNow();
 
-        void recordMeta(const QString &path, const QString &description);
+        void recordMeta(const QString& path, const QString& description);
 
         void resetFrequencyWindow();
 
-        QThread *mThread{nullptr};
-        AiResultSaveWorker *mWorker{nullptr};
+        QThread* mThread{nullptr};
+        AiResultSaveWorker* mWorker{nullptr};
 
         std::atomic<bool> mEnabled{false};
         std::atomic<int> mSaveFrequency{1};
@@ -112,4 +119,3 @@ namespace TF {
         std::vector<AiResultMetaInfo> mRecentRecords;
     };
 }
-

@@ -34,6 +34,7 @@ VisionMea:
   DetBackend: ORT
   RectConfidenceThreshold: 0.88
   IouThreshold: 0.55
+  SaveFreq: 10
 
 Distance:
   Mode: Trigger

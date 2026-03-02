@@ -8,6 +8,7 @@
 #include <QTransform>
 
 #include "DetectManager.h"
+#include "TConfig.h"
 #include "TLog.h"
 #include "ExperimentParamManager.h"
 #include "ThermalManager.h"
@@ -166,6 +167,11 @@ namespace TF {
         connect(this, &AiResultSaveManager::stopWorker, mWorker, &AiResultSaveWorker::stopWork, Qt::QueuedConnection);
         connect(mThread, &QThread::finished, mWorker, &QObject::deleteLater);
         connect(mThread, &QThread::finished, mThread, &QObject::deleteLater);
+    }
+
+    void AiResultSaveManager::init() {
+        int save_freq = GET_INT_CONFIG("VisionMea", "SaveFreq");
+        mSaveFrequency.store(save_freq);
     }
 
     void AiResultSaveManager::setEnabled(bool enabled) {
