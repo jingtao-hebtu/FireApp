@@ -114,7 +114,7 @@ namespace TF {
         const QVector<TabInfo> tabs = {
                 {QStringLiteral(":/icons/nav-dashboard.svg"), QObject::tr("概览")},
                 {QStringLiteral(":/icons/nav-control.svg"), QObject::tr("实验数据")},
-                {QStringLiteral(":/icons/nav-logs.svg"), QObject::tr("记录")},
+                {QStringLiteral(":/icons/nav-logs.svg"), QObject::tr("曲线")},
                 {QStringLiteral(":/icons/nav-status.svg"), QObject::tr("状态")},
         };
 

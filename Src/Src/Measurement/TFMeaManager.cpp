@@ -28,17 +28,26 @@ void TF::TFMeaManager::receiveHeightValue(float value) {
     if (mFireHeightCurveViewer) {
         emit mFireHeightCurveViewer->receiveNextValue(value);
     }
+    if (mFlameCurveHeightViewer) {
+        emit mFlameCurveHeightViewer->receiveNextValue(value);
+    }
 }
 
 void TF::TFMeaManager::receiveAreaValue(float value) {
     if (mFireAreaCurveViewer) {
         emit mFireAreaCurveViewer->receiveNextValue(value);
     }
+    if (mFlameCurveAreaViewer) {
+        emit mFlameCurveAreaViewer->receiveNextValue(value);
+    }
 }
 
 void TF::TFMeaManager::receiveHRRValue(float value) {
     if (mMainMeaPage) {
         emit mMainMeaPage->updateHRR(value);
+    }
+    if (mFlameCurveHrrViewer) {
+        emit mFlameCurveHrrViewer->receiveNextValue(value);
     }
 }
 
