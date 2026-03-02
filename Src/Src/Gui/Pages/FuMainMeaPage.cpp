@@ -369,7 +369,8 @@ void TF::FuMainMeaPage::onThermalFrameReady(const QImage& image, double minTempC
     Q_UNUSED(centerTempC);
 
     if (TFDetectManager::instance().isDetecting() && TFMeaManager::instance().isFlameDetected()) {
-        mUi->mFlameTempLabel->setText(QString::number(maxTempC, 'f', 1));
+        //mUi->mFlameTempLabel->setText(QString::number(maxTempC, 'f', 1));
+        mUi->mFlameTempLabel->setText("---");
     } else {
         mUi->mFlameTempLabel->setText("---");
     }
@@ -439,7 +440,8 @@ void TF::FuMainMeaPage::onUpdateDist(float dist) {
 }
 
 void TF::FuMainMeaPage::onUpdateHRR(float hrr) {
-    mUi->mHRRLabel->setText(QString::number(hrr, 'f', 1));
+    //mUi->mHRRLabel->setText(QString::number(hrr, 'f', 1));
+    mUi->mHRRLabel->setText("---");
 }
 
 void TF::FuMainMeaPage::onDistTimeout() {

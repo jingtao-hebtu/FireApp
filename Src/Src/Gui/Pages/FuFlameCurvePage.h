@@ -22,7 +22,7 @@ namespace T_QtBase {
 namespace TF {
 
     class FuFlameCurvePage : public QWidget {
-        Q_OBJECT
+        //Q_OBJECT
 
     public:
         explicit FuFlameCurvePage(QWidget *parent = nullptr);
