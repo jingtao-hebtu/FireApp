@@ -11,6 +11,7 @@ Copyright(C), tao.jing All rights reserved
 #include "FuMainWid_Ui.h"
 #include "FuMainMeaPage.h"
 #include "ExperimentDataViewPage.h"
+#include "FuFlameCurvePage.h"
 #include "FuSideTabBar.h"
 #include "TFMeaManager.h"
 
@@ -46,6 +47,10 @@ void TF::FuMainWid_Ui::setupUi(QWidget *wid) {
     mExperimentViewPage->setObjectName("ExperimentViewPage");
     mExperimentViewPage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+    mFlameCurvePage = new FuFlameCurvePage(mContentWidget);
+    mFlameCurvePage->setObjectName("FlameCurvePage");
+    mFlameCurvePage->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     auto createPage = [](const QString &title, const QString &desc) {
         auto *page = new QWidget();
         auto *layout = new QVBoxLayout(page);
@@ -66,7 +71,7 @@ void TF::FuMainWid_Ui::setupUi(QWidget *wid) {
 
     mPages.append(mMainMeaPage);
     mPages.append(mExperimentViewPage);
-    mPages.append(createPage(QObject::tr("记录"), QObject::tr("历史记录与回放")));
+    mPages.append(mFlameCurvePage);
     mPages.append(createPage(QObject::tr("状态"), QObject::tr("当前运行状态详情")));
 
     for (int i = 0; i < mPages.size(); ++i) {

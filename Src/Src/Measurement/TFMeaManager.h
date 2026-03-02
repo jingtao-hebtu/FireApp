@@ -32,9 +32,14 @@ namespace TF {
         // Widgets
         void setMeaPage(FuMainMeaPage *page) {mMainMeaPage = page;}
 
-        // Statistic curves
+        // Statistic curves (FuMainMeaPage side panel)
         void setHeightCurveViewer(T_QtBase::TSweepCurveViewer *viewer) {mFireHeightCurveViewer = viewer;}
         void setAreaCurveViewer(T_QtBase::TSweepCurveViewer *viewer) {mFireAreaCurveViewer = viewer;}
+
+        // Statistic curves (FuFlameCurvePage)
+        void setFlameCurveHeightViewer(T_QtBase::TSweepCurveViewer *viewer) {mFlameCurveHeightViewer = viewer;}
+        void setFlameCurveAreaViewer(T_QtBase::TSweepCurveViewer *viewer) {mFlameCurveAreaViewer = viewer;}
+        void setFlameCurveHrrViewer(T_QtBase::TSweepCurveViewer *viewer) {mFlameCurveHrrViewer = viewer;}
 
         void receiveNewValue(float value);
         void receiveHeightValue(float value);
@@ -82,6 +87,10 @@ namespace TF {
     private:
         T_QtBase::TSweepCurveViewer *mFireHeightCurveViewer {};
         T_QtBase::TSweepCurveViewer *mFireAreaCurveViewer {};
+
+        T_QtBase::TSweepCurveViewer *mFlameCurveHeightViewer {};
+        T_QtBase::TSweepCurveViewer *mFlameCurveAreaViewer {};
+        T_QtBase::TSweepCurveViewer *mFlameCurveHrrViewer {};
 
         FuMainMeaPage *mMainMeaPage {};
 

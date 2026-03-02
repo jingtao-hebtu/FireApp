@@ -159,6 +159,14 @@ QLabel#PanelTitle {
     padding: 4px 2px 2px 2px;
 }
 
+QLabel#CurveNameLabel {
+    color: #7fb3ff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 2px 4px;
+}
+
 QSlider#SampleSlider {
     min-height: 18px;
 }
