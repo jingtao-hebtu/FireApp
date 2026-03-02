@@ -18,6 +18,7 @@ namespace TF {
     {
         float mFireHeight;
         float mFireArea;
+        float mHRR;
     } TFMeaData;
 
 

@@ -52,6 +52,7 @@ namespace TF {
 
     signals:
         void updateDist(float dist);
+        void updateHRR(float hrr);
 
         void requestWitImuOpen();
         void requestWitImuClose();
@@ -74,6 +75,7 @@ namespace TF {
 
         // Measurements
         void onUpdateDist(float dist);
+        void onUpdateHRR(float hrr);
         void onDistTimeout();
         void onUpdateWitImuData(const WitImuData& data);
 

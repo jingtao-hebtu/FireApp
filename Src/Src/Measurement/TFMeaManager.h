@@ -24,6 +24,9 @@ namespace TF {
         void init();
 
     public:
+        // HRR
+        void calcHRR(float phys_area, float& hrr);
+
         void pixelToPhysical(double dist, double pixel_w, double pixel_h, double& phys_w, double& phys_h);
 
         // Widgets
@@ -36,6 +39,7 @@ namespace TF {
         void receiveNewValue(float value);
         void receiveHeightValue(float value);
         void receiveAreaValue(float value);
+        void receiveHRRValue(float value);
         void receiveStatistics(float height, float area);
         void receiveStatistics(const TFMeaData &data);
 

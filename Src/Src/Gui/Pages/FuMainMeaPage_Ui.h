@@ -76,6 +76,7 @@ namespace TF {
         QLabel* mDistValueLabel {nullptr};
         QLabel* mTiltAngleValueLabel {nullptr};
         QLabel* mFlameTempLabel {nullptr};
+        QLabel* mHRRLabel {nullptr};
 
         QFrame* mExperimentPanel {nullptr};
         QLabel* mExperimentNameLabel {nullptr};

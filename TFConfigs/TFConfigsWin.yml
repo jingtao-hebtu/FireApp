@@ -25,7 +25,7 @@ ThermalCam:
   Height: 120
   FPS: 9
   EnablePlotBBox: true
-  BBoxWOffset: 0
+  BBoxWOffset: +1.0
   BBoxHOffset: 0
 
 VisionMea:

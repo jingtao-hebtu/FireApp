@@ -290,8 +290,14 @@ void TF::FuMainMeaPage_Ui::initCtrlArea() {
     metricDivider2->setFrameShape(QFrame::VLine);
     metricDivider2->setFrameShadow(QFrame::Plain);
     metricsLayout->addWidget(metricDivider2);
-
     metricsLayout->addWidget(createMetricWidget(QCoreApplication::translate("Page", "温度 (°)"), &mFlameTempLabel));
+
+    auto *metricDivider3 = new QFrame(mMetricsPanel);
+    metricDivider3->setObjectName("MetricDivider3");
+    metricDivider3->setFrameShape(QFrame::VLine);
+    metricDivider3->setFrameShadow(QFrame::Plain);
+    metricsLayout->addWidget(metricDivider3);
+    metricsLayout->addWidget(createMetricWidget(QCoreApplication::translate("Page", "HRR (kw)"), &mHRRLabel));
 
     mCtrlHLayout->addWidget(mMetricsPanel);
     mCtrlHLayout->setAlignment(mMetricsPanel, Qt::AlignVCenter);

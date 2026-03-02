@@ -120,10 +120,13 @@ namespace TF {
             auto phys_h_f = static_cast<float>(phys_h);
             auto phys_area = phys_w_f * phys_h_f;
 
+            float hrr = 0.0f;
+            TFMeaManager::instance().calcHRR(phys_area, hrr);
+
             // Update flame state and bbox atomically under one lock
             TFMeaManager::instance().updateFlameResult(detect_num > 0, largestBbox);
             TFMeaManager::instance().receiveStatistics({
-                phys_h_f, phys_area,
+                phys_h_f, phys_area, hrr
             });
 
             // 合成火焰分割掩膜：将所有检测到的火焰mask合并为一张单通道1位图像

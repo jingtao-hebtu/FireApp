@@ -71,6 +71,9 @@ void TF::FuMainMeaPage::initActions() {
     connect(this, &FuMainMeaPage::updateDist,
             this, &FuMainMeaPage::onUpdateDist);
 
+    connect(this, &FuMainMeaPage::updateHRR,
+            this, &FuMainMeaPage::onUpdateHRR);
+
     connect(this, &FuMainMeaPage::updateWitImuData,
             this, &FuMainMeaPage::onUpdateWitImuData);
 
@@ -433,6 +436,10 @@ void TF::FuMainMeaPage::onBatteryDataTimeout() {
 void TF::FuMainMeaPage::onUpdateDist(float dist) {
     mUi->mDistValueLabel->setText(QString::number(dist, 'f', 1));
     mDistTimeoutTimer->start();
+}
+
+void TF::FuMainMeaPage::onUpdateHRR(float hrr) {
+    mUi->mHRRLabel->setText(QString::number(hrr, 'f', 1));
 }
 
 void TF::FuMainMeaPage::onDistTimeout() {
